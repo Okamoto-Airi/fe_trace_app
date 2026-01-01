@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TraceMaster FE - アルゴリズムトレース学習アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+      body {
+        font-family: 'Noto Sans JP', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    <nav class="bg-[#8B454E] text-white shadow-md">
+      <div
+        class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <a
+          href="{{ url_for('home') if current_user.is_authenticated else url_for('index') }}"
+          class="flex items-center space-x-2 font-bold text-xl"
+        >
+          <i data-lucide="book-open"></i>
+          <span>TraceMaster FE</span>
+        </a>
+
+        <div class="flex items-center space-x-4 text-sm">
+          {% if current_user.is_authenticated %}
+          <a
+            href="{{ url_for('account') }}"
+            class="flex items-center space-x-1 hover:underline hover:text-gray-100 font-bold"
+          >
+            <i data-lucide="user" class="w-4 h-4"></i>
+            <span>{{ current_user.username }} さん</span>
+          </a>
+
+          <a
+            href="{{ url_for('logout') }}"
+            class="hover:underline opacity-90 border-l border-white/30 pl-4 ml-2"
+            >ログアウト</a
+          >
+          {% else %}
+          <a href="{{ url_for('login') }}" class="hover:underline">ログイン</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto px-4 py-6">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="mb-4">
+        {% for category, message in messages %}
+        <div
+          class="p-4 rounded shadow-sm {{ 'bg-red-100 text-red-700' if category == 'error' else 'bg-green-100 text-green-700' }}"
+        >
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %} {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 py-6 text-center text-sm">
+      <p>&copy; 2025 TraceMaster FE</p>
+      <p class="mt-1 text-xs text-gray-500">
+        トレース思考プロセス分解練習アプリ
+      </p>
+    </footer>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,368 @@
+{% extends "base.html" %} {% block content %}
+<div
+  class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 select-none"
+  id="app"
+>
+  <div class="lg:col-span-5 space-y-4">
+    <div
+      class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+    >
+      <div
+        class="bg-gray-100 px-4 py-2 border-b border-gray-200 flex justify-between items-center"
+      >
+        <span class="font-bold text-gray-700">擬似言語コード</span>
+        <span class="text-xs text-[#8B454E] font-bold" id="status-text"
+          >実行中...</span
+        >
+      </div>
+      <div
+        class="p-4 font-mono text-sm leading-8 bg-white"
+        id="code-container"
+      ></div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-bold text-gray-700">操作パネル</span>
+        <button
+          onclick="resetTrace()"
+          class="text-xs text-gray-500 underline hover:text-gray-800"
+        >
+          最初から
+        </button>
+      </div>
+
+      <div id="quiz-area" class="space-y-3">
+        <div
+          class="p-3 bg-blue-50 border border-blue-100 rounded text-sm text-blue-900"
+        >
+          <p class="font-bold mb-1">Q. 次のステップの結果は？</p>
+          <p id="question-text" class="mb-2">...</p>
+
+          <div id="options-area" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div
+          id="feedback-area"
+          class="hidden p-3 rounded text-sm font-bold"
+        ></div>
+      </div>
+
+      <div id="completion-area" class="hidden text-center py-4">
+        <p class="text-green-600 font-bold text-lg mb-2">トレース完了！</p>
+        <a
+          href="{{ url_for('problem_list', mode='practice') }}"
+          class="inline-block bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm"
+          >問題一覧へ戻る</a
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:col-span-7">
+    <div
+      class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+    >
+      <div
+        class="bg-[#EADEDF] px-4 py-2 border-b border-gray-300 flex justify-between"
+      >
+        <h3 class="font-bold text-[#8B454E]">トレース表</h3>
+        <span class="text-xs text-gray-600 self-center">自動記録モード</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-center border-collapse">
+          <thead>
+            <tr class="bg-[#EADEDF] text-gray-700">
+              <th class="p-2 border border-gray-400 w-10">#</th>
+              <th class="p-2 border border-gray-400 w-12">行</th>
+              <th class="p-2 border border-gray-400">条件式</th>
+              <th class="p-2 border border-gray-400">出力</th>
+            </tr>
+          </thead>
+          <tbody id="trace-table-body" class="bg-white"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const PROBLEM_DATA = {{ problem.to_dict() | tojson }};
+</script>
+
+<script>
+  // 状態管理変数
+  let currentStepIndex = 0;
+  let traceHistory = [];
+  let currentVars = {};
+  let isFinished = false;
+
+  // DOM要素
+  const codeContainer = document.getElementById('code-container');
+  const tableBody = document.getElementById('trace-table-body');
+  const questionText = document.getElementById('question-text');
+  const optionsArea = document.getElementById('options-area');
+  const feedbackArea = document.getElementById('feedback-area');
+  const quizArea = document.getElementById('quiz-area');
+  const completionArea = document.getElementById('completion-area');
+
+  // 初期化
+  function init() {
+    // 変数初期化
+    PROBLEM_DATA.variables.forEach((v) => (currentVars[v] = '-'));
+
+    // コード表示生成
+    codeContainer.innerHTML = PROBLEM_DATA.code
+      .map(
+        (line, idx) => `
+            <div class="code-line px-2 py-0.5 flex items-center hover:bg-gray-50 transition" id="line-${
+              idx + 1
+            }">
+                <span class="w-6 text-gray-400 text-right mr-3 text-xs select-none">${
+                  idx + 1
+                }:</span>
+                <span class="font-mono text-gray-700">${line}</span>
+            </div>
+        `
+      )
+      .join('');
+
+    // テーブルヘッダー生成（変数列）
+    const headerRow = document.querySelector('thead tr');
+    // 出力の前の列に挿入
+    const outputTh = headerRow.lastElementChild;
+    PROBLEM_DATA.variables.forEach((v) => {
+      const th = document.createElement('th');
+      th.className = 'p-2 border border-gray-400 w-16 font-mono text-[#8B454E]';
+      th.textContent = v;
+      headerRow.insertBefore(th, outputTh);
+    });
+
+    renderStep();
+  }
+
+  // ステップ描画・クイズ出題
+  function renderStep() {
+    if (currentStepIndex >= PROBLEM_DATA.steps.length) {
+      finishGame();
+      return;
+    }
+
+    const step = PROBLEM_DATA.steps[currentStepIndex];
+
+    // 1. コードハイライト
+    document.querySelectorAll('.code-line').forEach((el) => {
+      el.classList.remove(
+        'bg-yellow-100',
+        'border-l-4',
+        'border-yellow-500',
+        '-ml-1'
+      );
+      el.classList.add('px-2'); // reset padding
+    });
+    const activeLine = document.getElementById(`line-${step.line}`);
+    if (activeLine) {
+      activeLine.classList.add(
+        'bg-yellow-100',
+        'border-l-4',
+        'border-yellow-500',
+        '-ml-1'
+      );
+      activeLine.classList.remove('px-2');
+      activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // 2. クイズ生成
+    feedbackArea.classList.add('hidden');
+    optionsArea.innerHTML = '';
+
+    if (step.type === 'condition') {
+      questionText.textContent = `条件式「${step.expr}」の評価結果は？`;
+      createOptionBtn('True (真)', step.result === true);
+      createOptionBtn('False (偽)', step.result === false);
+    } else if (step.type === 'assign') {
+      questionText.textContent = `変数 ${step.var} に代入される値は？`;
+      // ダミー選択肢生成
+      const correct = step.val;
+      let opts = new Set([correct, correct + 1, correct - 1, 0, 1]);
+      Array.from(opts)
+        .sort((a, b) => a - b)
+        .forEach((val) => {
+          createOptionBtn(val, val === correct);
+        });
+    } else if (step.type === 'output') {
+      questionText.textContent = `出力される値は？`;
+      const correct = step.val;
+      let opts = new Set([correct, correct + 1, correct - 1]);
+      Array.from(opts).forEach((val) => createOptionBtn(val, val === correct));
+    }
+
+    // プレースホルダー行の表示（テーブル）
+    // 既存の入力待ち行があれば削除
+    const existingPending = document.getElementById('pending-row');
+    if (existingPending) existingPending.remove();
+
+    const tr = document.createElement('tr');
+    tr.id = 'pending-row';
+    tr.className = 'bg-yellow-50 animate-pulse border-2 border-yellow-200';
+    tr.innerHTML = `
+            <td class="p-2 text-gray-400 text-xs">${getStepLabel(
+              currentStepIndex
+            )}</td>
+            <td class="p-2 font-mono text-gray-500">${step.line}</td>
+            <td class="p-2 text-gray-400 text-xs" colspan="${
+              PROBLEM_DATA.variables.length + 2
+            }">入力待ち...</td>
+        `;
+    tableBody.appendChild(tr);
+    // スクロール
+    tableBody.parentElement.scrollTop = tableBody.parentElement.scrollHeight;
+  }
+
+  function createOptionBtn(label, isCorrect) {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.className =
+      'py-2 px-3 bg-white border border-gray-300 rounded shadow-sm hover:bg-indigo-50 font-mono font-bold text-gray-700 transition';
+    btn.onclick = () => handleAnswer(isCorrect);
+    optionsArea.appendChild(btn);
+  }
+
+  function handleAnswer(isCorrect) {
+    feedbackArea.classList.remove('hidden');
+    if (isCorrect) {
+      feedbackArea.textContent = '正解！';
+      feedbackArea.className =
+        'p-3 rounded text-sm font-bold bg-green-100 text-green-700 mb-2';
+
+      // 少し待ってから次へ
+      setTimeout(() => {
+        commitStep();
+      }, 600);
+    } else {
+      feedbackArea.textContent = '違います。変数の現在の値を確認してください。';
+      feedbackArea.className =
+        'p-3 rounded text-sm font-bold bg-red-100 text-red-700 mb-2';
+    }
+  }
+
+  // 正解時の処理：トレース表に行を確定させる
+  function commitStep() {
+    const step = PROBLEM_DATA.steps[currentStepIndex];
+    const pendingRow = document.getElementById('pending-row');
+    if (pendingRow) pendingRow.remove();
+
+    // 内部状態更新
+    if (step.type === 'assign') {
+      currentVars[step.var] = step.val;
+    }
+
+    // 行追加
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-gray-50 transition border-b border-gray-100';
+
+    // 変数セルの生成
+    let varCells = '';
+    let prevVars =
+      traceHistory.length > 0 ? traceHistory[traceHistory.length - 1].vars : {};
+
+    PROBLEM_DATA.variables.forEach((v) => {
+      // 値が変わった場合のみ表示、それ以外は空欄(または引用符)
+      const val = currentVars[v];
+      // 初期ステップ以外で、前の値と同じなら表示しない（引用符などにする）
+      const isChanged = step.type === 'assign' && step.var === v;
+
+      varCells += `<td class="p-2 border border-gray-300 font-mono relative ${
+        isChanged ? 'text-[#8B454E] font-bold bg-red-50' : 'text-gray-300'
+      }">
+                ${isChanged ? val : '"'}
+            </td>`;
+    });
+
+    const condCell =
+      step.type === 'condition'
+        ? `<div class="flex justify-between px-1"><span class="text-xs">${
+            step.expr
+          }</span><span class="${
+            step.result ? 'text-blue-600' : 'text-red-500'
+          } font-bold">${step.result ? 'T' : 'F'}</span></div>`
+        : '';
+
+    const outputCell =
+      step.type === 'output'
+        ? `<span class="font-bold">${step.val}</span>`
+        : '';
+
+    tr.innerHTML = `
+            <td class="p-2 border border-gray-300 bg-gray-100 text-gray-500 text-xs font-bold">${getStepLabel(
+              currentStepIndex
+            )}</td>
+            <td class="p-2 border border-gray-300 font-mono text-gray-600">${
+              step.line
+            }</td>
+            <td class="p-2 border border-gray-300 font-mono text-xs text-left">${condCell}</td>
+            ${varCells}
+            <td class="p-2 border border-gray-300 font-mono">${outputCell}</td>
+        `;
+
+    tableBody.appendChild(tr);
+
+    // 履歴保存
+    traceHistory.push({
+      vars: { ...currentVars },
+    });
+
+    currentStepIndex++;
+    renderStep();
+  }
+
+  function finishGame() {
+    isFinished = true;
+    quizArea.classList.add('hidden');
+    completionArea.classList.remove('hidden');
+    document.getElementById('status-text').textContent = '完了';
+    document.getElementById('status-text').className =
+      'text-xs text-green-600 font-bold';
+
+    // 完了ハイライトOFF
+    document.querySelectorAll('.code-line').forEach((el) => {
+      el.classList.remove(
+        'bg-yellow-100',
+        'border-l-4',
+        'border-yellow-500',
+        '-ml-1'
+      );
+      el.classList.add('px-2');
+    });
+
+    // サーバーへ結果送信
+    fetch('/api/log_result', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        problem_id: PROBLEM_DATA.id,
+        is_correct: true,
+      }),
+    });
+  }
+
+  function resetTrace() {
+    currentStepIndex = 0;
+    traceHistory = [];
+    isFinished = false;
+    tableBody.innerHTML = '';
+    quizArea.classList.remove('hidden');
+    completionArea.classList.add('hidden');
+    init();
+  }
+
+  function getStepLabel(idx) {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    return (
+      letters[idx % 26] + (Math.floor(idx / 26) > 0 ? Math.floor(idx / 26) : '')
+    );
+  }
+
+  // 開始
+  window.onload = init;
+</script>
+{% endblock %}

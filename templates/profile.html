@@ -1,0 +1,76 @@
+{% extends "base.html" %} {% block content %}
+<div
+  class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm border border-gray-200 mt-6"
+>
+  <div class="flex items-center space-x-2 mb-6 border-b pb-4">
+    <i data-lucide="user-cog" class="w-6 h-6 text-[#8B454E]"></i>
+    <h2 class="text-2xl font-bold text-gray-800">ユーザー情報</h2>
+  </div>
+
+  <div class="space-y-6 mb-10">
+    <div>
+      <label
+        class="block text-xs font-bold text-gray-500 uppercase tracking-wide"
+        >ユーザー名</label
+      >
+      <p class="text-xl font-bold text-gray-800 mt-1 pl-1">
+        {{ current_user.username }}
+      </p>
+    </div>
+
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-lg"
+    >
+      <div>
+        <label
+          class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1"
+          >現在の称号</label
+        >
+        <p class="text-lg font-bold text-[#8B454E]">
+          {% if solved_count >= 30 %} トレースマスター 👑 {% elif solved_count
+          >= 10 %} トレース職人 🛠️ {% else %} トレース見習い 🌱 {% endif %}
+        </p>
+      </div>
+      <div>
+        <label
+          class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1"
+          >クリアした問題数</label
+        >
+        <p class="text-lg font-bold text-gray-800">{{ solved_count }} 問</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="border border-red-200 rounded-lg p-6 bg-red-50">
+    <h3 class="text-lg font-bold text-red-700 mb-2 flex items-center">
+      <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> アカウント削除
+    </h3>
+    <p class="text-sm text-red-600 mb-4 leading-relaxed">
+      アカウントを削除すると、これまでの学習履歴やすべてのデータが完全に削除されます。<br />
+      この操作は取り消すことができません。
+    </p>
+
+    <form
+      action="{{ url_for('delete_account') }}"
+      method="POST"
+      onsubmit="return confirm('本当にアカウントを削除しますか？\n\n・学習履歴はすべて消去されます\n・この操作は元に戻せません\n\nよろしいですか？');"
+    >
+      <button
+        type="submit"
+        class="bg-red-600 text-white font-bold py-2 px-6 rounded hover:bg-red-700 transition shadow-sm w-full md:w-auto"
+      >
+        アカウントを永久に削除する
+      </button>
+    </form>
+  </div>
+
+  <div class="mt-8 text-center">
+    <a
+      href="{{ url_for('home') }}"
+      class="text-gray-500 hover:text-[#8B454E] hover:underline text-sm font-bold"
+    >
+      &larr; ホームに戻る
+    </a>
+  </div>
+</div>
+{% endblock %}

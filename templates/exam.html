@@ -1,0 +1,380 @@
+{% extends "base.html" %} {% block content %}
+<style>
+  /* 穴埋め箇所のハイライト用スタイル */
+  .highlight-a {
+    color: #059669;
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .highlight-b {
+    color: #d97706;
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>
+
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6" id="app">
+  <div class="lg:col-span-5 space-y-4">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center space-x-2 mb-2">
+        <span
+          class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full font-bold"
+          >{{ problem.category }}</span
+        >
+        <span
+          class="px-2 py-0.5 {{ 'bg-blue-100 text-blue-700' if problem.difficulty=='初級' else 'bg-orange-100 text-orange-700' }} text-xs rounded-full"
+          >{{ problem.difficulty }}</span
+        >
+      </div>
+      <h2 class="text-xl font-bold text-[#8B454E] mb-2">{{ problem.title }}</h2>
+
+      {% if problem.description %}
+      <!-- prettier-ignore -->
+      <p class="text-sm text-gray-600 mb-4 whitespace-pre-wrap leading-relaxed">{{ problem.description | trim }}</p>
+      {% endif %}
+      <!-- prettier-ignore -->
+      <div
+        class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 mb-4 shadow-inner border border-gray-700 whitespace-pre-wrap"
+        id="code-display"
+      >{{ problem.code_text | trim }}</div>
+
+      <div>
+        <div class="flex justify-between items-end mb-2">
+          <h3 class="font-bold text-gray-700">選択肢</h3>
+          <span class="text-xs text-gray-500">クリックして検証を開始</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2" id="option-buttons"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:col-span-7">
+    <div
+      id="placeholder-msg"
+      class="bg-blue-50 border border-blue-200 text-blue-800 p-8 rounded-lg text-center h-full flex flex-col justify-center items-center"
+    >
+      <i
+        data-lucide="mouse-pointer-click"
+        class="w-10 h-10 mb-3 opacity-50"
+      ></i>
+      <p class="font-bold text-lg">
+        左の選択肢をクリックして、トレースを開始してください。
+      </p>
+      <p class="text-sm text-blue-600 mt-2">
+        選択肢ごとに異なるトレース表を作成・保存できます。
+      </p>
+    </div>
+
+    <div
+      id="trace-panel"
+      class="hidden bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-[calc(100vh-140px)] lg:h-auto lg:min-h-[600px]"
+    >
+      <div
+        class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center"
+      >
+        <div class="flex items-center space-x-2">
+          <span
+            class="font-bold text-gray-700 text-lg"
+            id="current-option-badge"
+            >選択肢 ?</span
+          >
+          <span class="text-xs text-gray-500 font-bold">の検証中</span>
+        </div>
+        <button
+          onclick="clearCurrentTable()"
+          class="text-xs text-red-500 hover:text-red-700 hover:underline flex items-center font-bold px-2 py-1 rounded hover:bg-red-50 transition"
+        >
+          <i data-lucide="trash-2" class="inline w-3 h-3 mr-1"></i> リセット
+        </button>
+      </div>
+
+      <div class="overflow-auto flex-grow relative bg-white">
+        <table class="w-full text-sm text-center border-collapse">
+          <thead class="bg-gray-100 text-gray-600 sticky top-0 z-10 shadow-sm">
+            <tr
+              id="table-header"
+              class="divide-x divide-gray-300 border-b border-gray-300"
+            ></tr>
+          </thead>
+          <tbody id="table-body" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+
+      <div
+        class="p-4 border-t border-gray-200 bg-gray-50 grid grid-cols-2 gap-3"
+      >
+        <button
+          onclick="addRow()"
+          class="col-span-2 bg-white border-2 border-dashed border-gray-300 py-2 rounded text-gray-500 hover:bg-gray-100 hover:border-gray-400 font-bold transition flex items-center justify-center"
+        >
+          <i data-lucide="plus" class="w-4 h-4 mr-1"></i> 行を追加
+        </button>
+
+        <button
+          onclick="rejectOption()"
+          class="bg-gray-400 text-white py-3 rounded hover:bg-gray-500 font-bold transition shadow-sm flex items-center justify-center"
+        >
+          <i data-lucide="x" class="w-4 h-4 mr-1"></i> 矛盾あり (除外)
+        </button>
+
+        <button
+          onclick="submitOption()"
+          class="bg-[#8B454E] text-white py-3 rounded hover:bg-[#7a3c44] font-bold transition shadow-sm flex items-center justify-center"
+        >
+          <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> ⭕ これが正解
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // サーバーから渡されたProblemオブジェクト(to_dict済み)
+  const PROBLEM_DATA = {{ problem.to_dict() | tojson }};
+
+  let currentOptionId = null;
+  let traceHistory = {};
+  let rejectedOptions = new Set();
+
+  // 1. 初期ロード
+  document.addEventListener('DOMContentLoaded', () => {
+      renderQuestion();
+      lucide.createIcons(); // アイコン再描画
+  });
+
+  // 2. 問題情報の描画（ボタン生成）
+  function renderQuestion() {
+      const btnContainer = document.getElementById('option-buttons');
+      btnContainer.innerHTML = '';
+
+      // 選択肢ボタン生成
+      Object.keys(PROBLEM_DATA.options).forEach(key => {
+          const btn = document.createElement('button');
+          // 基本クラス
+          btn.className = 'py-3 px-3 border rounded font-bold text-gray-700 transition flex items-center justify-center relative shadow-sm';
+          btn.id = `btn-${key}`;
+          btn.textContent = `${key}`; // ボタン文字
+
+          // 状態表示用のバッジ的なものを追加しても良いが、ここではシンプルに
+          const label = document.createElement('span');
+          label.className = 'ml-2 text-sm font-normal';
+          // label.textContent = `選択肢 ${key}`;
+          btn.appendChild(label);
+
+          btn.onclick = () => handleOptionClick(key);
+          btnContainer.appendChild(btn);
+      });
+      updateButtonStyles();
+  }
+
+  // 3. 選択肢クリック時のハンドリング
+  function handleOptionClick(targetOptionId) {
+      if (currentOptionId === targetOptionId) return;
+
+      // 除外済みの選択肢をクリックした場合
+      if (rejectedOptions.has(targetOptionId)) {
+          if (!confirm(`選択肢 ${targetOptionId} は「矛盾あり」として除外されています。\nもう一度検討し直しますか？`)) {
+              return;
+          }
+          rejectedOptions.delete(targetOptionId);
+          updateButtonStyles();
+      }
+
+      // 別の選択肢へ移動する場合、現在の入力を保存する
+      if (currentOptionId) {
+          saveTraceState(currentOptionId);
+      }
+
+      switchToOption(targetOptionId);
+  }
+
+  // 4. 選択肢切り替え処理
+  function switchToOption(optionId) {
+      currentOptionId = optionId;
+      const optData = PROBLEM_DATA.options[optionId];
+
+      // コード表示の更新 (空欄補充)
+      let code = PROBLEM_DATA.code_template;
+      code = code.replace(/\[\s*a\s*\]/g, `<span class="highlight-a">${optData.a}</span>`);
+      code = code.replace(/\[\s*b\s*\]/g, `<span class="highlight-b">${optData.b}</span>`);
+      document.getElementById('code-display').innerHTML = code;
+
+      // UI表示切替
+      document.getElementById('placeholder-msg').style.display = 'none';
+      document.getElementById('trace-panel').classList.remove('hidden');
+      document.getElementById('current-option-badge').textContent = `選択肢 ${optionId}`;
+
+      updateButtonStyles();
+      renderTraceTable(optionId);
+  }
+
+  // ボタンのスタイルを一括更新 (Tailwind Classes)
+  function updateButtonStyles() {
+      Object.keys(PROBLEM_DATA.options).forEach(key => {
+          const btn = document.getElementById(`btn-${key}`);
+
+          // クラスリセット
+          btn.className = 'py-3 px-3 border rounded font-bold transition flex items-center justify-center shadow-sm ';
+
+          if (rejectedOptions.has(key)) {
+              // 除外状態: グレーアウト + 取り消し線
+              btn.className += 'bg-gray-100 text-gray-400 border-gray-200 line-through opacity-70';
+          } else if (key === currentOptionId) {
+              // 選択中: ブランドカラーで強調
+              btn.className += 'bg-red-50 border-[#8B454E] text-[#8B454E] ring-1 ring-[#8B454E]';
+          } else {
+              // 通常: 白背景
+              btn.className += 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400';
+          }
+      });
+  }
+
+  // 5. テーブル描画
+  function renderTraceTable(optionId) {
+      const thead = document.getElementById('table-header');
+      const tbody = document.getElementById('table-body');
+
+      // ヘッダー生成
+      thead.innerHTML = '<th class="p-2 border-r border-gray-300 bg-gray-100 w-12 text-xs font-bold text-gray-500">#</th>';
+      PROBLEM_DATA.variables.forEach(v => {
+          thead.innerHTML += `<th class="p-2 border-r border-gray-300 min-w-[60px] font-mono text-[#8B454E]">${v}</th>`;
+      });
+      thead.innerHTML += '<th class="p-2 min-w-[100px] text-gray-600">備考</th>';
+
+      tbody.innerHTML = '';
+
+      const history = traceHistory[optionId];
+
+      if (history && history.length > 0) {
+          history.forEach((rowData, index) => {
+              addRowToDom(index + 1, rowData);
+          });
+      } else {
+          addRowToDom(1, null); // 初期行
+      }
+  }
+
+  // 6. DOMに行を追加するヘルパー
+  function addRowToDom(rowNum, rowData) {
+      const tbody = document.getElementById('table-body');
+      const tr = document.createElement('tr');
+      tr.className = "hover:bg-yellow-50 transition-colors group";
+
+      let html = `<td class="p-2 border-r border-gray-200 text-xs text-gray-400 bg-gray-50 font-bold select-none">${rowNum}</td>`;
+
+      // 変数列
+      PROBLEM_DATA.variables.forEach((v, idx) => {
+          const val = rowData ? rowData.vars[idx] : "";
+          // Tailwind input style
+          html += `<td class="border-r border-gray-200 p-0 relative">
+                      <input type="text" class="trace-input w-full h-full p-2 text-center font-mono text-gray-800 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-200"
+                      value="${val}" placeholder="-">
+                   </td>`;
+      });
+
+      // 備考列
+      const memoVal = rowData ? rowData.memo : "";
+      html += `<td class="p-0 relative">
+                  <input type="text" class="trace-memo w-full h-full p-2 text-left text-xs text-gray-600 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-300"
+                  value="${memoVal}" placeholder="メモ...">
+               </td>`;
+
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+
+      // 新しい行へスクロール
+      if (!rowData) { // ユーザー追加時のみ
+          tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+  }
+
+  function addRow() {
+      const tbody = document.getElementById('table-body');
+      const nextNum = tbody.children.length + 1;
+      addRowToDom(nextNum, null);
+  }
+
+  // 7. 現在の状態を保存
+  function saveTraceState(optionId) {
+      const tbody = document.getElementById('table-body');
+      const rows = [];
+
+      Array.from(tbody.children).forEach(tr => {
+          const inputs = tr.querySelectorAll('.trace-input');
+          const memo = tr.querySelector('.trace-memo');
+
+          const rowValues = [];
+          inputs.forEach(input => rowValues.push(input.value));
+
+          rows.push({
+              vars: rowValues,
+              memo: memo.value
+          });
+      });
+
+      traceHistory[optionId] = rows;
+  }
+
+  // 8. 「矛盾あり」
+  function rejectOption() {
+      if(!confirm(`この選択肢 ${currentOptionId} を除外候補としますか？\n(後で戻すことも可能です)`)) return;
+
+      saveTraceState(currentOptionId);
+      rejectedOptions.add(currentOptionId);
+
+      // 画面リセット
+      document.getElementById('trace-panel').classList.add('hidden');
+      document.getElementById('placeholder-msg').style.display = 'flex';
+      document.getElementById('code-display').innerHTML = PROBLEM_DATA.code_template;
+      currentOptionId = null;
+
+      updateButtonStyles();
+  }
+
+  // 9. 「表をリセット」
+  function clearCurrentTable() {
+      if(!confirm("このトレース表の内容をすべて消去しますか？")) return;
+      traceHistory[currentOptionId] = [];
+      renderTraceTable(currentOptionId);
+  }
+
+  // 10. 「正解として確定」
+  async function submitOption() {
+      saveTraceState(currentOptionId);
+
+      if(!confirm(`選択肢 ${currentOptionId} を正解として回答しますか？`)) return;
+
+      const isCorrect = (currentOptionId === PROBLEM_DATA.correct_option);
+
+      // サーバーへ結果記録
+      try {
+          await fetch('/api/log_result', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                  problem_id: PROBLEM_DATA.id,
+                  mode: 'exam',
+                  is_correct: isCorrect
+              })
+          });
+
+          if (isCorrect) {
+              alert("🎉 正解です！\n素晴らしい洞察力です。");
+              window.location.href = "{{ url_for('problem_list', mode='exam') }}";
+          } else {
+              alert("😢 残念ながら不正解です...\n\nトレース表を見直して、どこで矛盾が生じているか確認してみましょう。");
+          }
+      } catch (e) {
+          console.error(e);
+          alert("エラーが発生しました。");
+      }
+  }
+
+  // 入力自動保存
+  document.getElementById('table-body').addEventListener('input', () => {
+      if(currentOptionId) saveTraceState(currentOptionId);
+  });
+</script>
+{% endblock %}

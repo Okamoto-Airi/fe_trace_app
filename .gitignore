@@ -1,0 +1,20 @@
+# 仮想環境フォルダ
+.venv/
+venv/
+env/
+
+# コンパイル済みファイル
+__pycache__/
+*.pyc
+
+# 環境変数・機密情報
+.env
+
+# データベース
+*.db
+*.sqlite3
+database.db
+
+# OSごとの設定ファイル
+.DS_Store
+Thumbs.db
