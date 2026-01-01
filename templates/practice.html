@@ -128,8 +128,18 @@
 
     // テーブルヘッダー生成（変数列）
     const headerRow = document.querySelector('thead tr');
-    // 出力の前の列に挿入
-    const outputTh = headerRow.lastElementChild;
+    // 固定列（#, 行, 条件式）と（出力）の間にある「変数列」を一度すべて削除する
+    // childNodes[2] が「条件式」、lastElementChild が「出力」
+    const conditionTh = headerRow.children[2]; // 3番目の列（条件式）
+    const outputTh = headerRow.lastElementChild; // 最後の列（出力）
+    // 「条件式」の隣が「出力」になるまで、間の要素（変数列）を削除し続ける
+    while (
+      conditionTh.nextElementSibling &&
+      conditionTh.nextElementSibling !== outputTh
+    ) {
+      headerRow.removeChild(conditionTh.nextElementSibling);
+    }
+    // 変数列の再生成
     PROBLEM_DATA.variables.forEach((v) => {
       const th = document.createElement('th');
       th.className = 'p-2 border border-gray-400 w-16 font-mono text-[#15803d]';
