@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md mt-10">
-  <h2 class="text-2xl font-bold mb-6 text-center text-[#8B454E]">ログイン</h2>
+  <h2 class="text-2xl font-bold mb-6 text-center text-[#15803d]">ログイン</h2>
   <form method="POST" class="space-y-4">
     <div>
       <label class="block text-sm font-medium text-gray-700">ユーザー名</label>
@@ -8,7 +8,7 @@
         type="text"
         name="username"
         required
-        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B454E] focus:border-[#8B454E]"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#15803d] focus:border-[#15803d]"
       />
     </div>
     <div>
@@ -17,12 +17,12 @@
         type="password"
         name="password"
         required
-        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8B454E] focus:border-[#8B454E]"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#15803d] focus:border-[#15803d]"
       />
     </div>
     <button
       type="submit"
-      class="w-full bg-[#8B454E] text-white py-2 px-4 rounded-md hover:bg-[#7a3c44] transition font-bold"
+      class="w-full bg-[#15803d] text-white py-2 px-4 rounded-md hover:bg-[#14532d] transition font-bold"
     >
       ログイン
     </button>
@@ -31,7 +31,7 @@
     アカウントをお持ちでないですか？
     <a
       href="{{ url_for('register') }}"
-      class="text-[#8B454E] hover:underline font-bold"
+      class="text-[#15803d] hover:underline font-bold"
       >新規登録</a
     >
   </p>

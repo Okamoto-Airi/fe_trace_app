@@ -5,7 +5,7 @@
   >
     <div class="text-center md:text-left mb-4 md:mb-0">
       <h2 class="text-xl font-bold text-gray-700">現在の称号</h2>
-      <p class="text-3xl font-bold text-[#8B454E] mt-2">{{ rank }}</p>
+      <p class="text-3xl font-bold text-[#15803d] mt-2">{{ rank }}</p>
     </div>
     <div class="text-center border-l-0 md:border-l pl-0 md:pl-8">
       <p class="text-sm text-gray-500">連続学習記録</p>
@@ -57,16 +57,16 @@
 
   <div>
     <h2 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
-      <i data-lucide="gamepad-2" class="mr-2 text-[#8B454E]"></i> 学習モード選択
+      <i data-lucide="gamepad-2" class="mr-2 text-[#15803d]"></i> 学習モード選択
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <a
         href="{{ url_for('problem_list', mode='practice') }}"
-        class="group bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-[#8B454E] transition-all transform hover:-translate-y-1 block h-full"
+        class="group bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-[#15803d] transition-all transform hover:-translate-y-1 block h-full"
       >
         <div class="flex justify-between items-start mb-4">
           <div
-            class="bg-blue-100 p-3 rounded-full text-blue-600 group-hover:bg-[#8B454E] group-hover:text-white transition-colors"
+            class="bg-blue-100 p-3 rounded-full text-blue-600 group-hover:bg-[#15803d] group-hover:text-white transition-colors"
           >
             <i data-lucide="pen-tool" class="w-6 h-6"></i>
           </div>
@@ -76,14 +76,14 @@
           >
         </div>
         <h3
-          class="text-lg font-bold text-gray-800 group-hover:text-[#8B454E] mb-2"
+          class="text-lg font-bold text-gray-800 group-hover:text-[#15803d] mb-2"
         >
           トレース練習モード
         </h3>
         <p class="text-sm text-gray-500 mb-4 leading-relaxed">
           1行ずつ変数の値を入力して進めるドリル形式。<br />アルゴリズムの流れを確実に理解したい方向け。
         </p>
-        <div class="text-[#8B454E] font-bold text-sm flex items-center mt-auto">
+        <div class="text-[#15803d] font-bold text-sm flex items-center mt-auto">
           問題を選ぶ
           <i
             data-lucide="arrow-right"
@@ -94,11 +94,11 @@
 
       <a
         href="{{ url_for('problem_list', mode='exam') }}"
-        class="group bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-[#8B454E] transition-all transform hover:-translate-y-1 block h-full"
+        class="group bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-[#15803d] transition-all transform hover:-translate-y-1 block h-full"
       >
         <div class="flex justify-between items-start mb-4">
           <div
-            class="bg-purple-100 p-3 rounded-full text-purple-600 group-hover:bg-[#8B454E] group-hover:text-white transition-colors"
+            class="bg-purple-100 p-3 rounded-full text-purple-600 group-hover:bg-[#15803d] group-hover:text-white transition-colors"
           >
             <i data-lucide="file-check" class="w-6 h-6"></i>
           </div>
@@ -108,14 +108,14 @@
           >
         </div>
         <h3
-          class="text-lg font-bold text-gray-800 group-hover:text-[#8B454E] mb-2"
+          class="text-lg font-bold text-gray-800 group-hover:text-[#15803d] mb-2"
         >
           過去問演習モード
         </h3>
         <p class="text-sm text-gray-500 mb-4 leading-relaxed">
           本番形式の問題演習。選択肢を選び、自由記述式のトレース表を使って検証します。
         </p>
-        <div class="text-[#8B454E] font-bold text-sm flex items-center mt-auto">
+        <div class="text-[#15803d] font-bold text-sm flex items-center mt-auto">
           問題を選ぶ
           <i
             data-lucide="arrow-right"

@@ -26,7 +26,7 @@
 
     <a
       href="{{ url_for('home') }}"
-      class="flex items-center text-gray-500 hover:text-[#8B454E] transition font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200 hover:border-[#8B454E]"
+      class="flex items-center text-gray-500 hover:text-[#15803d] transition font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200 hover:border-[#15803d]"
     >
       <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> モード選択へ戻る
     </a>
@@ -35,7 +35,7 @@
   <div class="grid gap-4">
     {% for problem in problems %}
     <div
-      class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-[#8B454E] transition flex flex-col md:flex-row justify-between items-start md:items-center group"
+      class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-[#15803d] transition flex flex-col md:flex-row justify-between items-start md:items-center group"
     >
       <div class="mb-4 md:mb-0 pr-4">
         <div class="flex items-center space-x-2 mb-2">
@@ -51,7 +51,7 @@
           </span>
         </div>
         <h3
-          class="font-bold text-lg text-gray-800 group-hover:text-[#8B454E] transition"
+          class="font-bold text-lg text-gray-800 group-hover:text-[#15803d] transition"
         >
           {{ problem.title }}
         </h3>
@@ -64,7 +64,7 @@
 
       <a
         href="{{ url_for('practice', problem_id=problem.id) if mode == 'practice' else url_for('exam', problem_id=problem.id) }}"
-        class="bg-[#8B454E] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#7a3c44] flex items-center text-sm shadow-sm whitespace-nowrap transition-transform transform active:scale-95"
+        class="bg-[#15803d] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#14532d] flex items-center text-sm shadow-sm whitespace-nowrap transition-transform transform active:scale-95"
       >
         挑戦する <i data-lucide="arrow-right" class="ml-2 w-4 h-4"></i>
       </a>
@@ -76,7 +76,7 @@
       <p class="text-gray-400 mb-2">表示できる問題がありません</p>
       <a
         href="{{ url_for('home') }}"
-        class="text-[#8B454E] font-bold text-sm hover:underline"
+        class="text-[#15803d] font-bold text-sm hover:underline"
         >ホームに戻る</a
       >
     </div>

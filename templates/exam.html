@@ -28,7 +28,7 @@
           >{{ problem.difficulty }}</span
         >
       </div>
-      <h2 class="text-xl font-bold text-[#8B454E] mb-2">{{ problem.title }}</h2>
+      <h2 class="text-xl font-bold text-[#15803d] mb-2">{{ problem.title }}</h2>
 
       {% if problem.description %}
       <!-- prettier-ignore -->
@@ -121,7 +121,7 @@
 
         <button
           onclick="submitOption()"
-          class="bg-[#8B454E] text-white py-3 rounded hover:bg-[#7a3c44] font-bold transition shadow-sm flex items-center justify-center"
+          class="bg-[#15803d] text-white py-3 rounded hover:bg-[#14532d] font-bold transition shadow-sm flex items-center justify-center"
         >
           <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> ⭕ これが正解
         </button>
@@ -223,7 +223,7 @@
               btn.className += 'bg-gray-100 text-gray-400 border-gray-200 line-through opacity-70';
           } else if (key === currentOptionId) {
               // 選択中: ブランドカラーで強調
-              btn.className += 'bg-red-50 border-[#8B454E] text-[#8B454E] ring-1 ring-[#8B454E]';
+              btn.className += 'bg-green-50 border-[#15803d] text-[#15803d] ring-1 ring-[#15803d]';
           } else {
               // 通常: 白背景
               btn.className += 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400';
@@ -239,7 +239,7 @@
       // ヘッダー生成
       thead.innerHTML = '<th class="p-2 border-r border-gray-300 bg-gray-100 w-12 text-xs font-bold text-gray-500">#</th>';
       PROBLEM_DATA.variables.forEach(v => {
-          thead.innerHTML += `<th class="p-2 border-r border-gray-300 min-w-[60px] font-mono text-[#8B454E]">${v}</th>`;
+          thead.innerHTML += `<th class="p-2 border-r border-gray-300 min-w-[60px] font-mono text-[#15803d]">${v}</th>`;
       });
       thead.innerHTML += '<th class="p-2 min-w-[100px] text-gray-600">備考</th>';
 

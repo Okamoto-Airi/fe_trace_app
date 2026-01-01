@@ -11,7 +11,7 @@
         class="bg-gray-100 px-4 py-2 border-b border-gray-200 flex justify-between items-center"
       >
         <span class="font-bold text-gray-700">擬似言語コード</span>
-        <span class="text-xs text-[#8B454E] font-bold" id="status-text"
+        <span class="text-xs text-[#15803d] font-bold" id="status-text"
           >実行中...</span
         >
       </div>
@@ -63,15 +63,15 @@
       class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
     >
       <div
-        class="bg-[#EADEDF] px-4 py-2 border-b border-gray-300 flex justify-between"
+        class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex justify-between"
       >
-        <h3 class="font-bold text-[#8B454E]">トレース表</h3>
+        <h3 class="font-bold text-[#15803d]">トレース表</h3>
         <span class="text-xs text-gray-600 self-center">自動記録モード</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-center border-collapse">
           <thead>
-            <tr class="bg-[#EADEDF] text-gray-700">
+            <tr class="bg-gray-100 text-gray-700">
               <th class="p-2 border border-gray-400 w-10">#</th>
               <th class="p-2 border border-gray-400 w-12">行</th>
               <th class="p-2 border border-gray-400">条件式</th>
@@ -132,7 +132,7 @@
     const outputTh = headerRow.lastElementChild;
     PROBLEM_DATA.variables.forEach((v) => {
       const th = document.createElement('th');
-      th.className = 'p-2 border border-gray-400 w-16 font-mono text-[#8B454E]';
+      th.className = 'p-2 border border-gray-400 w-16 font-mono text-[#15803d]';
       th.textContent = v;
       headerRow.insertBefore(th, outputTh);
     });
@@ -272,7 +272,7 @@
       const isChanged = step.type === 'assign' && step.var === v;
 
       varCells += `<td class="p-2 border border-gray-300 font-mono relative ${
-        isChanged ? 'text-[#8B454E] font-bold bg-red-50' : 'text-gray-300'
+        isChanged ? 'text-[#15803d] font-bold bg-green-50' : 'text-gray-300'
       }">
                 ${isChanged ? val : '"'}
             </td>`;
