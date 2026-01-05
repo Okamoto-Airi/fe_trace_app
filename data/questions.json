@@ -94,54 +94,135 @@
   {
     "id": "2023_fe_b_q2",
     "mode": "exam",
-    "title": "問2: 入場料の条件分岐",
-    "category": "条件分岐",
+    "title": "問2: 手続き呼び出しの順序",
+    "category": "手続き・制御",
     "difficulty": "初級",
-    "description": "ある施設の入場料は，0歳から3歳までは100円，4歳から9歳までは300円，10歳以上は500円である。関数feeは，年齢を表す0以上の整数を引数として受け取り，入場料を返す。",
-    "code_text": "○整数型: fee(整数型: age)\n  整数型: ret\n  if (age が 3 以下)\n    ret ← 100\n  elseif ( [ a ] )\n    ret ← 300\n  else\n    ret ← 500\n  endif\n  return ret",
-    "variables": ["age", "ret"],
+    "description": "次のプログラムにおいて，手続proc2を呼び出すと，どの順に文字が出力されるか。",
+    "code_text": "○proc1()\n  \"A\" を出力する\n  proc3()\n\n○proc2()\n  proc3()\n  \"B\" を出力する\n  proc1()\n\n○proc3()\n  \"C\" を出力する",
+    "variables": [],
     "data": {
       "options": {
-        "ア": "(age が 4 以上) and (age が 9 より小さい)",
-        "イ": "(age が 4 と等しい) or (age が 9 と等しい)",
-        "ウ": "(age が 4 より大きい) and (age が 9 以下)",
-        "エ": "age が 4 以上",
-        "オ": "age が 4 より大きい",
-        "カ": "age が 9 以下",
-        "キ": "age が 9 より小さい"
+        "ア": "A, B, B, C",
+        "イ": "A, C",
+        "ウ": "A, C, B, C",
+        "エ": "B, A, B, C",
+        "オ": "C, B",
+        "カ": "C, B, A, C"
       },
-      "correct_option": "ア"
+      "correct_option": "カ"
     }
   },
   {
     "id": "2023_fe_b_q3",
     "mode": "exam",
-    "title": "問3: 配列の逆順処理",
-    "category": "配列・ループ",
+    "title": "問3: クイックソートの途中結果",
+    "category": "整列アルゴリズム",
     "difficulty": "標準",
-    "description": "次のプログラムは，整数型の配列arrayの要素の並びを逆順にする。プログラム中の[a]と[b]に入れる正しい答えの組合せを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。",
-    "code_text": "整数型の配列: array ← {1, 2, 3, 4, 5}\n整数型: right, left\n整数型: tmp\n\nfor (left を 1 から (array の要素数 ÷ 2 の商) まで 1 ずつ増やす)\n  right ← [ a ]\n  tmp ← array[right]\n  array[right] ← array[left]\n  [ b ] ← tmp\nendfor",
-    "variables": ["array", "right", "left", "tmp"],
+    "description": "クイックソートの処理途中で出力される配列の内容として正しいものを選ぶ。",
+    "code_text": "○大域: 整数型の配列: data ← {2, 1, 3, 5, 4}\n\n○sort(整数型: first, 整数型: last)\n  整数型: pivot, i, j\n  pivot ← data[(first + last) ÷ 2 の商]\n  i ← first\n  j ← last\n\n  while (true)\n    while (data[i] < pivot)\n      i ← i + 1\n    endwhile\n    while (pivot < data[j])\n      j ← j - 1\n    endwhile\n    if (i ≧ j)\n      繰返し処理を終了する\n    endif\n    data[i] と data[j] の値を入れ替える\n    i ← i + 1\n    j ← j - 1\n  endwhile\n\n  data の全要素の値を要素番号の順に空白区切りで出力する  /*** a ***/\n\n  if (first < i - 1)\n    sort(first, i - 1)\n  endif\n  if (j + 1 < last)\n    sort(j + 1, last)\n  endif",
+    "variables": ["data", "pivot", "i", "j", "first", "last"],
+    "data": {
+      "options": {
+        "ア": "1 2 3 4 5",
+        "イ": "1 2 3 5 4",
+        "ウ": "2 1 3 4 5",
+        "エ": "2 1 3 5 4"
+      },
+      "correct_option": "エ"
+    }
+  },
+
+  {
+    "id": "fe_exam_hash_q4",
+    "mode": "exam",
+    "title": "問4: ハッシュ法（二次探索）",
+    "category": "データ構造",
+    "difficulty": "標準",
+    "description": "関数addは，引数で指定された正の整数valueを大域の整数型配列hashArrayに格納する。格納できた場合はtrueを返し，格納できなかった場合はfalseを返す。ここで，整数valueをhashArrayのどの要素に格納すべきかを，関数calcHash1及びcalcHash2を利用して決定する。手続testの処理が終了した直後のhashArrayの内容を求める。",
+    "code_text": "大域: 整数型の配列: hashArray\n\n○論理型: add(整数型: value)\n  整数型: i ← calcHash1(value)\n  if (hashArray[i] == -1)\n    hashArray[i] ← value\n    return true\n  else\n    i ← calcHash2(value)\n    if (hashArray[i] == -1)\n      hashArray[i] ← value\n      return true\n    endif\n  endif\n  return false\n\n○整数型: calcHash1(整数型: value)\n  return (value mod hashArrayの要素数) + 1\n\n○整数型: calcHash2(整数型: value)\n  return ((value + 3) mod hashArrayの要素数) + 1\n\n○test()\n  hashArray ← {5個の -1}\n  add(3)\n  add(18)\n  add(11)",
+    "variables": ["hashArray", "value", "i"],
+    "data": {
+      "options": {
+        "ア": "{ -1, 3, -1, 18, 11 }",
+        "イ": "{ -1, 11, -1, 3, -1 }",
+        "ウ": "{ -1, 11, -1, 18, -1 }",
+        "エ": "{ -1, 18, -1, 3, 11 }",
+        "オ": "{ -1, 18, 11, 3, -1 }"
+      },
+      "correct_option": "エ"
+    }
+  },
+
+
+  {
+    "id": "2023_fe_b_q5",
+    "mode": "exam",
+    "title": "問5: コサイン類似度の計算",
+    "category": "数値計算・ベクトル",
+    "difficulty": "標準",
+    "description": "二つのベクトルのコサイン類似度を計算するプログラム中の a と b に入る正しい組合せを選ぶ。",
+    "code_text": "○実数型: calcCosineSimilarity(実数型の配列: vector1, 実数型の配列: vector2)\n  実数型: similarity, numerator, denominator, temp ← 0\n  整数型: i\n  numerator ← 0\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n    numerator ← numerator + [ a ]\n  endfor\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n    temp ← temp + vector1[i] の 2乗\n  endfor\n  denominator ← temp の正の平方根\n\n  temp ← 0\n  for (i を 1 から vector2 の要素数 まで 1 ずつ増やす)\n    temp ← temp + vector2[i] の 2乗\n  endfor\n  denominator ← [ b ]\n\n  similarity ← numerator ÷ denominator\n  return similarity",
+    "variables": ["similarity", "numerator", "denominator", "temp", "i"],
     "data": {
       "options": {
         "ア": {
-          "a": "array の要素数 − left",
-          "b": "array[left]"
+          "a": "(vector1[i] × vector2[i]) の正の平方根",
+          "b": "denominator × (temp の正の平方根)"
         },
         "イ": {
-          "a": "array の要素数 − left",
-          "b": "array[right]"
+          "a": "(vector1[i] × vector2[i]) の正の平方根",
+          "b": "denominator + (temp の正の平方根)"
         },
         "ウ": {
-          "a": "array の要素数 − left + 1",
-          "b": "array[left]"
+          "a": "(vector1[i] × vector2[i]) の正の平方根",
+          "b": "temp の正の平方根"
         },
         "エ": {
-          "a": "array の要素数 − left + 1",
-          "b": "array[right]"
+          "a": "vector1[i] × vector2[i]",
+          "b": "denominator × (temp の正の平方根)"
+        },
+        "オ": {
+          "a": "vector1[i] × vector2[i]",
+          "b": "denominator + (temp の正の平方根)"
+        },
+        "カ": {
+          "a": "vector1[i] × vector2[i]",
+          "b": "temp の正の平方根"
+        },
+        "キ": {
+          "a": "vector1[i] の 2乗",
+          "b": "denominator × (temp の正の平方根)"
+        },
+        "ク": {
+          "a": "vector1[i] の 2乗",
+          "b": "denominator + (temp の正の平方根)"
+        },
+        "ケ": {
+          "a": "vector1[i] の 2乗",
+          "b": "temp の正の平方根"
         }
+      },
+      "correct_option": "エ"
+    }
+  },
+  {
+    "id": "2023_fe_b_q6",
+    "mode": "exam",
+    "title": "問6: 複合機初期設定と情報セキュリティリスク",
+    "category": "情報セキュリティ",
+    "difficulty": "標準",
+    "description": "業務委託において使用する複合機の初期設定に関する情報セキュリティリスクとして，最も適切なものを選ぶ。",
+    "code_text": "A社は，B業務を委託するにあたり，複合機のスキャン機能を使用することとした。\n\n複合機では，利用者IDとパスワードを入力してスキャンを行い，PDFファイルを電子メールに添付して送信する。\nPDFファイルが大きい場合は，Bサーバに保存し，保存先URLを電子メール本文に記載して送信する。\n\n調査の結果，電子メールの送信元アドレス，件名，本文，添付ファイル名を初期設定のまま使用しており，初期設定の内容は公開されていた。",
+    "variables": [],
+    "data": {
+      "options": {
+        "ア": "B業務に従事する従業員が，攻撃者からの電子メールを複合機からのものと信じて本文中のURLをクリックし，フィッシングサイトに誘導される。その結果，A社の採用予定者の個人情報が漏えいする。",
+        "イ": "B業務に従事する従業員が，複合機から送信される電子メールをスパムメールと誤認し，電子メールを削除する。その結果，再スキャンが必要となり，B業務が遅延する。",
+        "ウ": "攻撃者が，複合機から送信される電子メールを盗聴し，添付ファイルを暗号化して身代金を要求する。その結果，A社が復号鍵を受け取るために多額の身代金を支払うことになる。",
+        "エ": "攻撃者が，複合機から送信される電子メールを盗聴し，本文に記載されているURLを使ってBサーバにアクセスする。その結果，A社の採用予定者の個人情報が漏えいする。"
       },
       "correct_option": "ア"
     }
   }
+
 ]
