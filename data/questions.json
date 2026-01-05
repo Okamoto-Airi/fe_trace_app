@@ -92,37 +92,54 @@
     }
   },
   {
-    "id": "exam_2023_q2",
+    "id": "2023_fe_b_q2",
     "mode": "exam",
-    "title": "問2: 配列を逆順にする",
-    "category": "配列",
-    "difficulty": "標準",
-    "code_text": "整数型の配列: array ← {1,2,3,4,5}\n整数型: right, left\n整数型: tmp\n\nfor (left を 1 から (arrayの要素数 ÷ 2 の商) まで 1 ずつ増やす)\n  right ← [ a ]\n  tmp ← array[right]\n  array[right] ← array[left]\n  [ b ] ← tmp\nendfor",
-    "variables": ["array", "right", "left", "tmp"],
+    "title": "問2: 入場料の条件分岐",
+    "category": "条件分岐",
+    "difficulty": "初級",
+    "description": "ある施設の入場料は，0歳から3歳までは100円，4歳から9歳までは300円，10歳以上は500円である。関数feeは，年齢を表す0以上の整数を引数として受け取り，入場料を返す。",
+    "code_text": "○整数型: fee(整数型: age)\n  整数型: ret\n  if (age が 3 以下)\n    ret ← 100\n  elseif ( [ a ] )\n    ret ← 300\n  else\n    ret ← 500\n  endif\n  return ret",
+    "variables": ["age", "ret"],
     "data": {
       "options": {
-        "ア": { "a": "arrayの要素数 − left", "b": "array[left]" },
-        "イ": { "a": "arrayの要素数 − left", "b": "array[right]" },
-        "ウ": { "a": "arrayの要素数 − left + 1", "b": "array[left]" },
-        "エ": { "a": "arrayの要素数 − left + 1", "b": "array[right]" }
+        "ア": "(age が 4 以上) and (age が 9 より小さい)",
+        "イ": "(age が 4 と等しい) or (age が 9 と等しい)",
+        "ウ": "(age が 4 より大きい) and (age が 9 以下)",
+        "エ": "age が 4 以上",
+        "オ": "age が 4 より大きい",
+        "カ": "age が 9 以下",
+        "キ": "age が 9 より小さい"
       },
-      "correct_option": "ウ"
+      "correct_option": "ア"
     }
   },
   {
-    "id": "exam_2023_q3",
+    "id": "2023_fe_b_q3",
     "mode": "exam",
-    "title": "問3: 単方向リストへの追加",
-    "category": "データ構造",
+    "title": "問3: 配列の逆順処理",
+    "category": "配列・ループ",
     "difficulty": "標準",
-    "code_text": "手続append(文字型: qVal)\n  ListElement: prev, curr\n  curr ← ListElement(qVal)\n  if (listHead が [ a ])\n    listHead ← curr\n  else\n    prev ← listHead\n    while (prev.next が 未定義でない)\n      prev ← prev.next\n    endwhile\n    prev.next ← [ b ]\n  endif",
-    "variables": ["listHead", "prev", "curr", "qVal"],
+    "description": "次のプログラムは，整数型の配列arrayの要素の並びを逆順にする。プログラム中の[a]と[b]に入れる正しい答えの組合せを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。",
+    "code_text": "整数型の配列: array ← {1, 2, 3, 4, 5}\n整数型: right, left\n整数型: tmp\n\nfor (left を 1 から (array の要素数 ÷ 2 の商) まで 1 ずつ増やす)\n  right ← [ a ]\n  tmp ← array[right]\n  array[right] ← array[left]\n  [ b ] ← tmp\nendfor",
+    "variables": ["array", "right", "left", "tmp"],
     "data": {
       "options": {
-        "ア": { "a": "未定義", "b": "curr" },
-        "イ": { "a": "未定義", "b": "curr.next" },
-        "ウ": { "a": "未定義", "b": "listHead" },
-        "エ": { "a": "未定義でない", "b": "curr" }
+        "ア": {
+          "a": "array の要素数 − left",
+          "b": "array[left]"
+        },
+        "イ": {
+          "a": "array の要素数 − left",
+          "b": "array[right]"
+        },
+        "ウ": {
+          "a": "array の要素数 − left + 1",
+          "b": "array[left]"
+        },
+        "エ": {
+          "a": "array の要素数 − left + 1",
+          "b": "array[right]"
+        }
       },
       "correct_option": "ア"
     }
