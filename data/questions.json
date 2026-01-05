@@ -223,6 +223,88 @@
       },
       "correct_option": "ア"
     }
+  },
+  {
+    "id": "2024_fe_b_q1",
+    "mode": "exam",
+    "title": "問1: 3つの整数の最大値",
+    "category": "条件分岐",
+    "difficulty": "初級",
+    "description": "関数maximumは，異なる三つの整数x，y，zを引数で受け取り，そのうちの最大値を返す。プログラム中の空欄に入れる正しい条件式を選ぶ。",
+    "code_text": "○整数型: maximum(整数型: x, 整数型: y, 整数型: z)\n  if ( [ a ] )\n    return x\n  elseif (y > z)\n    return y\n  else\n    return z\n  endif",
+    "variables": ["x", "y", "z"],
+    "data": {
+      "options": {
+        "ア": "x > y",
+        "イ": "x > y and x > z",
+        "ウ": "x > y and y > z",
+        "エ": "x > z",
+        "オ": "x > z and z > y",
+        "カ": "z > y"
+      },
+      "correct_option": "イ"
+    }
+  },
+  {
+    "id": "2024_fe_b_q2",
+    "mode": "exam",
+    "title": "問2: 2進数文字列の10進変換",
+    "category": "計算・文字列処理",
+    "difficulty": "標準",
+    "description": "関数convDecimalは，引数として与えられた\"0\"と\"1\"だけから成る1文字以上の文字列を，符号なしの2進数と解釈したときの整数値を返す。プログラム中の空欄に入れる正しい処理を選ぶ。",
+    "code_text": "○整数型: convDecimal(文字列型: binary)\n  整数型: i, length, result ← 0\n  length ← binaryの文字数\n  for (i を 1 から length まで 1 ずつ増やす)\n    result ← [ a ]\n  endfor\n  return result",
+    "variables": ["binary", "i", "length", "result"],
+    "data": {
+      "options": {
+        "ア": "result + int(binary の (length − i + 1)文字目の文字)",
+        "イ": "result + int(binary の i 文字目の文字)",
+        "ウ": "result × 2 + int(binary の (length − i + 1)文字目の文字)",
+        "エ": "result × 2 + int(binary の i 文字目の文字)"
+      },
+      "correct_option": "エ"
+    }
+  },
+  {
+    "id": "2024_fe_b_q3",
+    "mode": "exam",
+    "title": "問3: 辺配列から隣接行列への変換",
+    "category": "グラフ",
+    "difficulty": "標準",
+    "description": "次の記述中の[　]に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\n図1に示すグラフの頂点には，1から順に整数で番号が付けられている。グラフは無向グラフであり，各頂点には高々一つの辺がある。一つの辺は両端の頂点の番号を要素にもつ要素数2の整数型の配列で表す。グラフ全体は，グラフに含まれる辺を表す要素数2の配列を全て格納した配列（以下，辺の配列という）で表現できる。",
+    "code_text": "○整数型の二次元配列: edgesToMatrix(整数型配列の配列: edgeList, 整数型: nodeNum)\n  整数型の二次元配列: adjMatrix ← {nodeNum行nodeNum列の0}\n  整数型: i, u, v\n\n  for (iを1から edgeListの要素数 まで 1ずつ増やす)\n    u ← edgeList[i][1]\n    v ← edgeList[i][2]\n    [   ]\n  endfor\n  return adjMatrix",
+    "variables": ["i", "u", "v", "adjMatrix", "edgeList", "nodeNum"],
+    "data": {
+      "options": {
+        "ア": "adjMatrix[u, u] ← 1",
+        "イ": "adjMatrix[u, u] ← 1\nadjMatrix[v, v] ← 1",
+        "ウ": "adjMatrix[u, v] ← 1",
+        "エ": "adjMatrix[u, v] ← 1\nadjMatrix[v, u] ← 1",
+        "オ": "adjMatrix[v, u] ← 1",
+        "カ": "adjMatrix[v, v] ← 1"
+      },
+      "correct_option": "エ"
+    }
+  },
+  {
+    "id": "2024_fe_b_q4",
+    "mode": "exam",
+    "title": "問4: 辺配列から隣接行列への変換",
+    "category": "グラフ",
+    "difficulty": "標準",
+    "description": "次の記述中の空欄に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。",
+    "code_text": "○整数型の二次元配列: edgesToMatrix(整数型配列の配列: edgeList, 整数型: nodeNum)\n  整数型の二次元配列: adjMatrix ← {nodeNum行nodeNum列の0}\n  整数型: i, u, v\n\n  for (i を 1 から edgeListの要素数 まで 1 ずつ増やす)\n    u ← edgeList[i][1]\n    v ← edgeList[i][2]\n    [   ]\n  endfor\n\n  return adjMatrix",
+    "variables": ["i", "u", "v", "adjMatrix", "edgeList", "nodeNum"],
+    "data": {
+      "options": {
+        "ア": "adjMatrix[u, u] ← 1",
+        "イ": "adjMatrix[u, u] ← 1\nadjMatrix[v, v] ← 1",
+        "ウ": "adjMatrix[u, v] ← 1",
+        "エ": "adjMatrix[u, v] ← 1\nadjMatrix[v, u] ← 1",
+        "オ": "adjMatrix[v, u] ← 1",
+        "カ": "adjMatrix[v, v] ← 1"
+      },
+      "correct_option": "エ"
+    }
   }
 
 ]
