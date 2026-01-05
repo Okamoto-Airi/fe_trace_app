@@ -138,21 +138,14 @@ def index():  # インデックス関数
 @app.route("/home")  # /home URLのルーティング
 @login_required  # ログイン必須
 def home():  # ホーム関数
-    # 履歴取得
+    # 連続学習日数計算
+    # 全ログを取得（タイムスタンプの新しい順）
     logs = (  # 学習ログをクエリ
         LearningLog.query.filter_by(
             user_id=current_user.id
         )  # 現在のユーザーのログをフィルタ
         .order_by(LearningLog.timestamp.desc())  # タイムスタンプ降順でソート
         .all()  # すべて取得
-    )
-
-    # 連続学習日数計算
-    # 全ログを取得（タイムスタンプの新しい順）
-    logs = (
-        LearningLog.query.filter_by(user_id=current_user.id)
-        .order_by(LearningLog.timestamp.desc())
-        .all()
     )
 
     # 日付情報の集合（set）を作成して重複を削除し、検索を高速化
