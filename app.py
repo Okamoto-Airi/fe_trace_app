@@ -174,8 +174,44 @@ def home():  # ホーム関数
     if solved_count >= 30:  # 30問以上正解
         rank = "トレースマスター"  # 称号変更
 
+    # グラフ用データの集計 (過去7日間)
+    graph_labels = []  # 日付 (例: "1/5")
+    data_practice = []  # 練習モードの正解数
+    data_exam = []  # 過去問モードの正解数
+
+    # 今日を含めた過去7日分をループ
+    for i in range(6, -1, -1):
+        target_date = today - timedelta(days=i)
+        # モード別に集計
+        count_p = sum(
+            1
+            for log in logs
+            if log.timestamp.date() == target_date
+            and log.is_correct
+            and log.mode == "practice"
+        )
+        count_e = sum(
+            1
+            for log in logs
+            if log.timestamp.date() == target_date
+            and log.is_correct
+            and log.mode == "exam"
+        )
+
+        # ラベル作成 (月/日)
+        graph_labels.append(f"{target_date.month}/{target_date.day}")
+        data_practice.append(count_p)
+        data_exam.append(count_e)
+
     return render_template(
-        "home.html", streak=streak, rank=rank, recent_logs=logs[:5]
+        "home.html",
+        streak=streak,
+        rank=rank,
+        recent_logs=logs[:5],
+        graph_labels=graph_labels,
+        # 2つのデータセットを渡す
+        data_practice=data_practice,
+        data_exam=data_exam
     )  # ホームテンプレートをレンダリング
 
 
