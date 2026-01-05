@@ -174,17 +174,32 @@ def home():  # ホーム関数
         check_date -= timedelta(days=1)
 
     # 称号計算 (Userモデルのプロパティを利用しても良いが、ここではシンプルに)
-    solved_count = sum(1 for log in logs if log.is_correct)  # 正解した問題数をカウント
-    rank = "トレース見習い"  # デフォルト称号
-    if solved_count >= 10:  # 10問以上正解
-        rank = "トレース職人"  # 称号変更
-    if solved_count >= 30:  # 30問以上正解
-        rank = "トレースマスター"  # 称号変更
+    # solved_count = sum(1 for log in logs if log.is_correct)
+    solved_count = 100  # ← テスト用に固定
+
+    if solved_count >= 100:
+        rank = "トレースレジェンド"
+        rank_color = "text-yellow-500"  # 金色
+    elif solved_count >= 50:
+        rank = "トレースマスター"
+        rank_color = "text-purple-500"  # 紫色
+    elif solved_count >= 30:
+        rank = "トレース職人"
+        rank_color = "text-red-500"  # 赤色
+    elif solved_count >= 10:
+        rank = "トレース上級者"
+        rank_color = "text-sky-500"  # 水色
+    else:
+        rank = "トレース見習い"
+        rank_color = "text-lime-600"  # 黄緑色
 
     return render_template(
-        "home.html", streak=streak, rank=rank, recent_logs=logs[:5]
-    )  # ホームテンプレートをレンダリング
-
+        "home.html",
+        streak=streak,
+        rank=rank,
+        rank_color=rank_color,
+        recent_logs=logs[:5]
+    )
 
 @app.route("/problems/<mode>")  # /problems/<mode> URLのルーティング
 @login_required  # ログイン必須
