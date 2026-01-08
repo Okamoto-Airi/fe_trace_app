@@ -305,6 +305,263 @@
       },
       "correct_option": "エ"
     }
+  },
+  {
+    "id": "2024_fe_b_q5",
+    "mode": "exam",
+    "title": "問5: 注文データから関連度最大の商品を求める",
+    "category": "データ分析",
+    "difficulty": "標準",
+    "description": "一度の注文で購入された商品のリストを，注文ごとに記録した注文データがある。注文データから，商品xと商品yとが同一の注文で購入されやすい傾向を示す関連度Lxyを，次の式で計算する。\n\nLxy = (Mxy × 全注文数) ÷ (Kx × Ky)\n\nここで，Mxyは商品xと商品yとが同一の注文で購入された注文数，Kxは商品xが購入された注文数，Kyは商品yが購入された注文数を表す。\n\n手続putRelatedItemは，大域変数ordersに格納された注文データを基に，引数で与えられた商品の関連度が最も大きい商品のうちの一つと，その関連度を出力する。プログラムでは，商品は文字列で表し，注文は購入された商品の配列，注文データは注文の配列で表している。注文データは2種類以上の商品が含まれるものとする。また，注文データにある商品以外の商品が，引数として与えられることはないものとする。",
+    "code_text": "// 注文データ（ここでは表の例を与えている）\n大域：文字列型配列の配列：orders ← {{\"A\", \"B\", \"D\"}, {\"A\", \"D\"}, {\"A\"}, {\"A\", \"B\", \"E\"}, {\"B\"}, {\"C\", \"E\"}}\n\n○putRelatedItem(文字列型：item)\n  文字列型の配列：allItems ← ordersに含まれる文字列を重複なく辞書順に格納した配列\n  // 表の例では {\"A\", \"B\", \"C\", \"D\", \"E\"}\n\n  文字列型の配列：otherItems ← allItemsの複製から値がitemである要素を除いた配列\n\n  整数型：i，itemCount ← 0\n  整数型の配列：arrayK ← {otherItemsの要素数個の0}\n  整数型の配列：arrayM ← {otherItemsの要素数個の0}\n  実数型：valueL，maxL ← -∞\n  文字列型の配列：order\n  文字列型：relatedItem\n\n  for (orderにordersの要素を順に代入する)\n    if (orderのいずれかの要素の値がitemの値と等しい)\n      itemCount の値を1増やす\n    endif\n\n    for (iを1からotherItemsの要素数まで1ずつ増やす)\n      if (orderのいずれかの要素の値がotherItems[i]の値と等しい)\n        if (orderのいずれかの要素の値がitemの値と等しい)\n          [ a ] の値を1増やす\n        endif\n        [ b ] の値を1増やす\n      endif\n    endfor\n  endfor\n\n  for (iを1からotherItemsの要素数まで1ずつ増やす)\n    valueL ← (arrayM[i] × [ c ]) ÷ (itemCount × arrayK[i])  /* 実数として計算する */\n    if (valueLがmaxLより大きい)\n      maxL ← valueL\n      relatedItem ← otherItems[i]\n    endif\n  endfor\n\n  relatedItemの値とmaxLの値をこの順にコンマ区切りで出力する",
+    "variables": [
+      "orders",
+      "item",
+      "allItems",
+      "otherItems",
+      "i",
+      "itemCount",
+      "arrayK",
+      "arrayM",
+      "valueL",
+      "maxL",
+      "order",
+      "relatedItem"
+    ],
+    "data": {
+      "options": {
+        "ア": { "a": "arrayK[i]", "b": "arrayM[i]", "c": "allItemsの要素数" },
+        "イ": { "a": "arrayK[i]", "b": "arrayM[i]", "c": "ordersの要素数" },
+        "ウ": { "a": "arrayK[i]", "b": "arrayM[i]", "c": "otherItemsの要素数" },
+        "エ": { "a": "arrayM[i]", "b": "arrayK[i]", "c": "allItemsの要素数" },
+        "オ": { "a": "arrayM[i]", "b": "arrayK[i]", "c": "ordersの要素数" },
+        "カ": { "a": "arrayM[i]", "b": "arrayK[i]", "c": "otherItemsの要素数" }
+      },
+      "correct_option": "オ"
+    }
+  },
+  {
+    "id": "2024_fe_b_q6",
+    "mode": "exam",
+    "title": "問6: テレワーク環境における情報セキュリティ対策",
+    "category": "情報セキュリティ",
+    "difficulty": "標準",
+    "description": "A社は従業員450名の商社であり、昨年から働き方改革の一環として在宅でのテレワークを推進している。A社のシステム環境を図1に示す。\n\n・従業員には、一人に1台デスクトップPC（以下、社内PCという）を貸与している。\n・従業員が利用するクラウドは、自社で開発しA社に関係している業務システムのほかに、次の二つのSaaS（以下、この二つのSaaSをA社利用クラウドサービスという）がある。\n  1. メール機能、チャット機能及びクラウドストレージ機能をもつグループウェア（以下、A社利用グループウェアという）\n  2. オンライン会議サービス\n・テレワークでは、従業員の個人所有PC（以下、私有PCという）の業務利用（BYOD）を許可している。\n・テレワークでは、社内PC及び私有PCのそれぞれに専用のアプリケーションソフトウェア（以下、専用アプリという）を導入し、社内PCのデスクトップから社内PCに固定的に送信するリモートデスクトップ方式を採用している。\n・専用アプリは、リモートデスクトップからPDFファイルのダウンロード及びアップロード、画像のコピー＆ペーストを禁止する機能（以下、保存禁止機能という）があり、A社では私有PCに対して保存禁止機能を有効にしている。\n・業務システムには、社内PCのデスクトップから利用者ID及びパスワードを入力してログインする。\n・A社利用クラウドサービスへのログインは、A社利用クラウドサービス側の認証によってA社の社内ネットワークからだけ可能なように制限している。ログインには利用者ID及びパスワードを用いる。\n\nテレワークの定着が進むにつれて、社内PCからインターネットへの接続が極端に遅くなり、業務に支障をきたしているので改善できないかと、従業員から問合せがあった。A社の社内ネットワークとインターネットとの間の通信量を調査したところ、テレワーク導入前と比べて、業務時間帯で顕著に増加していることが判明した。そのため、情報システム部では、テレワークでA社利用クラウドサービスに接続する場合には、A社の社内ネットワークを介さずに直接接続することを可能にするネットワークの設定変更を実施することにした。\n\n設定変更に当たり、情報セキュリティ上の問題がないかをA社の情報セキュリティリーダーが検討したところ、幾つかの問題があることが分かった。その一つは、A社利用クラウドサービスへの不正アクセスのリスクが増加することである。そこでB社は、リスクを低減するために、情報システム部に対策を依頼することにした。",
+    "code_text": "設問\n次の対策のうち、情報システム部に依頼することにしたものはどれか。解答群のうち、最も適切なものを選べ。",
+    "variables": [],
+    "data": {
+      "options": {
+        "ア": "A社の社内ネットワークからA社利用クラウドサービスへの通信を監視する。",
+        "イ": "A社の社内ネットワークとA社利用クラウドサービスとの間の通信速度を制限する。",
+        "ウ": "A社利用クラウドサービスにA社外から接続する際の認証に2要素認証を導入する。",
+        "エ": "A社利用クラウドサービスのうち、A社利用グループウェアだけを直接接続の対象とする。",
+        "オ": "専用アプリの保存禁止機能を無効にする。"
+      },
+      "correct_option": "ウ"
+    }
+  },
+  {
+    "id": "2025_fe_b_q1",
+    "mode": "exam",
+    "title": "問1: function1と同じ値を返すfunction2",
+    "category": "ループ・剰余",
+    "difficulty": "標準",
+    "description": "関数function1が受け取る引数と，関数function2が受け取る引数とが同じとき，二つの関数は同じ値を返す。ここで，引数nと引数mは正の整数であり，引数mは引数nよりも10以上大きい数とする。",
+    "code_text": "○整数型: function1(整数型: n, 整数型: m)\n  整数型: count ← 0\n  整数型: i\n  for (iをnからmまで1ずつ増やす)\n    if ((i mod 4)が0と等しい)\n      count ← count + 1\n    endif\n  endfor\n  return count\n\n○整数型: function2(整数型: n, 整数型: m)\n  整数型: count ← 0\n  整数型: tempN ← n\n  整数型: i, j\n\n  for ( [ a ] )\n    if ((tempN mod 4)が0と等しい)\n      繰返し処理を終了する\n    endif\n    tempN ← tempN + 1\n  endfor\n\n  for ( [ b ] )\n    count ← count + 1\n  endfor\n\n  return count",
+    "variables": ["n", "m", "count", "i", "j", "tempN"],
+    "data": {
+      "options": {
+        "ア": {
+          "a": "iを1から2まで1ずつ増やす",
+          "b": "jをnから始めてmを超えない範囲でtempNずつ増やす"
+        },
+        "イ": {
+          "a": "iを1から2まで1ずつ増やす",
+          "b": "jをtempNからmまで1ずつ増やす"
+        },
+        "ウ": {
+          "a": "iを1から2まで1ずつ増やす",
+          "b": "jをtempNから始めてmを超えない範囲で4ずつ増やす"
+        },
+        "エ": {
+          "a": "iを1から3まで1ずつ増やす",
+          "b": "jをnから始めてmを超えない範囲でtempNずつ増やす"
+        },
+        "オ": {
+          "a": "iを1から3まで1ずつ増やす",
+          "b": "jをtempNからmまで1ずつ増やす"
+        },
+        "カ": {
+          "a": "iを1から3まで1ずつ増やす",
+          "b": "jをtempNから始めてmを超えない範囲で4ずつ増やす"
+        }
+      },
+      "correct_option": "カ"
+    }
+  },
+  {
+    "id": "2025_fe_b_q2",
+    "mode": "exam",
+    "title": "問2: 両替の組合せ数",
+    "category": "ループ・計算",
+    "difficulty": "標準",
+    "description": "関数changeは，10より大きい整数を引数nで受け取り，1円玉，5円玉，10円玉を使ってちょうどn円にする組合せの総数を返す。",
+    "code_text": "○整数型: change(整数型: n)\n  整数型: count ← 0\n  整数型: rest ← n\n  while ( [  ] )\n    count ← count + (rest ÷ 5の商) + 1\n    rest ← rest - 10\n  endwhile\n  return count",
+    "variables": ["n", "count", "rest"],
+    "data": {
+      "options": {
+        "ア": "rest ≥ 0",
+        "イ": "rest ≥ 5",
+        "ウ": "rest ≥ 10",
+        "エ": "rest > 0",
+        "オ": "rest > 5",
+        "カ": "rest > 10"
+      },
+      "correct_option": "ウ"
+    }
+  },
+  {
+    "id": "2025_fe_b_q3",
+    "mode": "exam",
+    "title": "問3: スタック操作（push / pop）",
+    "category": "データ構造（スタック）",
+    "difficulty": "標準",
+    "description": "スタックに対するpush及びpop処理の正しい実装を判定する。",
+    "code_text": "【プログラム】\n大域: 整数型: stackPos ← 3\n大域: 整数型の配列: stack ← {4, 3, 未定義の値, 未定義の値}\n\n○論理型: push(整数型: inputData)\n  if (stackPos ≤ stackの要素数)\n    stack[ [ a ] ] ← inputData\n    stackPos ← stackPos + 1\n    return true\n  else\n    return false\n  endif\n\n○整数型: pop()\n  整数型: popData ← 未定義の値\n  if (stackPos > 1)\n    stackPos ← [ b ]\n    popData ← stack[stackPos]\n    stack[stackPos] ← 未定義の値\n  endif\n  return popData",
+    "variables": ["stackPos", "stack", "inputData", "popData"],
+    "data": {
+      "options": {
+        "ア": { "a": "stackPos", "b": "stackPos + 1" },
+        "イ": { "a": "stackPos", "b": "stackPos - 1" },
+        "ウ": { "a": "stackPos - 1", "b": "stackPos + 1" },
+        "エ": { "a": "stackPos - 1", "b": "stackPos - 1" }
+      },
+      "correct_option": "イ"
+    }
+  },
+  {
+    "id": "2025_fe_b_q4",
+    "mode": "exam",
+    "title": "問4: 文字列配列から部分列検索（βが真になる回数）",
+    "category": "探索",
+    "difficulty": "標準",
+    "description": "関数searchは，二つの文字型の配列dataとkeyを受け取り，dataからkeyの要素の並びと同じ並びを全て探し，その先頭の要素番号を全て格納した配列を返す。見つからなければ，要素数0の配列を返す。search((\"a\",\"b\",\"a\",\"b\",\"c\",\"a\",\"b\",\"c\"),(\"a\",\"b\",\"c\"))として呼び出すと，/*** β ***/の行の条件式が真となる回数を求める。",
+    "code_text": "/* keyは，要素数1以上の配列である */\n○整数型の配列: search(文字型の配列: data, 文字型の配列: key)\n  整数型: i, j, lenData, lenKey\n  整数型の配列: result ← {}  // 要素数0の配列\n\n  lenData ← dataの要素数\n  lenKey ← keyの要素数\n\n  /* (lenData − lenKey + 1) が0以下のときは繰返し処理を実行しない */\n  for (i を 1 から (lenData − lenKey + 1) まで 1 ずつ増やす)\n    for (j を 1 から lenKey まで 1 ずつ増やす)  // α\n      if (data[i + j − 1] が key[j] と等しい)  /*** β ***/\n        if (j が lenKey と等しい)\n          resultの末尾に i の値を追加する\n        endif\n      else\n        αの行から始まる繰返し処理を終了する\n      endif\n    endfor\n  endfor\n  return result",
+    "variables": ["i", "j", "lenData", "lenKey", "result"],
+    "data": {
+      "options": {
+        "ア": "1",
+        "イ": "2",
+        "ウ": "3",
+        "エ": "4",
+        "オ": "5",
+        "カ": "6",
+        "キ": "7",
+        "ク": "8",
+        "ケ": "9",
+        "コ": "10"
+      },
+      "correct_option": "ク"
+    }
+  },
+  {
+    "id": "2025_fe_b_q5",
+    "mode": "exam",
+    "title": "問5: 理論度数の計算",
+    "category": "データ分析・配列",
+    "difficulty": "標準",
+    "description": "予防接種の病気Xに対する予防効果を調査するために集めた集計結果を基に、病気Xにかかるかどうかが予防接種の有無に影響されないと仮定した場合の人数（理論度数）を計算する。",
+    "code_text": "○実数型の二次元配列: f(実数型の二次元配列: data)\n  実数型: t ← dataの要素の和\n  整数型: row ← dataの行数\n  整数型: col ← dataの列数\n  実数型の二次元配列: result ← {row行col列の未定義の値}\n  整数型: r, c\n\n  for (r を 1 から row まで 1 ずつ増やす)\n    for (c を 1 から col まで 1 ずつ増やす)\n      result[r, c] ← (dataの行番号rの要素の和) × (dataの列番号cの要素の和) ÷ t\n    endfor\n  endfor\n  return result",
+    "variables": ["data", "t", "row", "col", "result", "r", "c"],
+    "data": {
+      "input_table": {
+        "rows": ["予防接種を受けた", "予防接種を受けていない"],
+        "cols": ["病気Xにかからなかった", "病気Xにかかった"],
+        "values": [
+          [82, 6],
+          [58, 8]
+        ]
+      },
+      "question": {
+        "a": "予防接種を受けた × 病気Xにかからなかった の理論度数",
+        "b": "予防接種を受けていない × 病気Xにかかった の理論度数"
+      },
+      "options": {
+        "ア": { "a": 44, "b": 33 },
+        "イ": { "a": 58, "b": 8 },
+        "ウ": { "a": 70, "b": 7 },
+        "エ": { "a": 75, "b": 2 },
+        "オ": { "a": 80, "b": 6 },
+        "カ": { "a": 80, "b": 8 },
+        "キ": { "a": 82, "b": 6 }
+      },
+      "correct_option": "オ"
+    }
+  },
+  {
+    "id": "2025_fe_b_q6",
+    "mode": "exam",
+    "title": "問6：ファイルサーバ運用とBCP",
+    "category": "情報セキュリティ・BCP",
+    "difficulty": "標準",
+    "description": "A社は従業員200名の電子機器メーカーであり、本社と工場にファイルサーバを設置して運用している。バックアップ運用、ICT継続、RPO/RTOの条件、およびISMS（JIS Q 27001:2023）への対応状況を踏まえ、内部監査室からの質問に対する適切な回答を選択する。",
+    "code_text": "【前提】\n・ファイルサーバは本社と工場に設置されている\n・磁気テープを用いたバックアップを実施している\n・土曜日0時にフルバックアップ、翌週月～木曜の2時から増分バックアップを取得\n・金曜日10時にバックアップ確認と磁気テープ交換を実施\n・磁気テープは耐火金庫で保管\n・RPO：72時間、RTO：120時間\n・ICT継続計画はISMSの要求事項に基づく\n\n【設問】\n表2中の a1～a3 に入る語句の正しい組合せを選べ。",
+    "variables": ["a1", "a2", "a3"],
+    "data": {
+      "options": {
+        "ア": {
+          "a1": "月曜日の正午",
+          "a2": "4.25",
+          "a3": "CISO"
+        },
+        "イ": {
+          "a1": "月曜日の正午",
+          "a2": "4.25",
+          "a3": "情報システム部の担当者"
+        },
+        "ウ": {
+          "a1": "月曜日の正午",
+          "a2": "4.25",
+          "a3": "内部監査室長"
+        },
+        "エ": {
+          "a1": "月曜日の正午",
+          "a2": "4.50",
+          "a3": "CISO"
+        },
+        "オ": {
+          "a1": "月曜日の正午",
+          "a2": "4.50",
+          "a3": "情報システム部の担当者"
+        },
+        "カ": {
+          "a1": "火曜日の正午",
+          "a2": "4.25",
+          "a3": "情報システム部の担当者"
+        },
+        "キ": {
+          "a1": "火曜日の正午",
+          "a2": "4.25",
+          "a3": "内部監査室長"
+        },
+        "ク": {
+          "a1": "火曜日の正午",
+          "a2": "4.50",
+          "a3": "CISO"
+        },
+        "ケ": {
+          "a1": "火曜日の正午",
+          "a2": "4.50",
+          "a3": "情報システム部の担当者"
+        },
+        "コ": {
+          "a1": "火曜日の正午",
+          "a2": "4.50",
+          "a3": "内部監査室長"
+        }
+      },
+      "correct_option": null
+    }
   }
 
 ]
