@@ -198,8 +198,12 @@ def home():  # ホーム関数
         streak=streak,
         rank=rank,
         rank_color=rank_color,
-        recent_logs=logs[:5]
-    )
+        recent_logs=logs[:5],
+        graph_labels=graph_labels,
+        # 2つのデータセットを渡す
+        data_practice=data_practice,
+        data_exam=data_exam
+    )  # ホームテンプレートをレンダリング
 
 @app.route("/problems/<mode>")  # /problems/<mode> URLのルーティング
 @login_required  # ログイン必須
