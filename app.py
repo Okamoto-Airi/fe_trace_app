@@ -174,16 +174,16 @@ def home():  # ホーム関数
         check_date -= timedelta(days=1)
 
     # 称号計算 (Userモデルのプロパティを利用しても良いが、ここではシンプルに)
-    # solved_count = sum(1 for log in logs if log.is_correct)
-    solved_count = 100  # ← テスト用に固定
+    solved_count = sum(1 for log in logs if log.is_correct)
+    # solved_count = 100  # ← テスト用に固定
 
-    if solved_count >= 100:
+    if solved_count >= 30:
         rank = "トレースレジェンド"
         rank_color = "text-yellow-500"  # 金色
-    elif solved_count >= 50:
+    elif solved_count >= 25:
         rank = "トレースマスター"
         rank_color = "text-purple-500"  # 紫色
-    elif solved_count >= 30:
+    elif solved_count >= 20:
         rank = "トレース職人"
         rank_color = "text-red-500"  # 赤色
     elif solved_count >= 10:
