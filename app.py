@@ -135,64 +135,96 @@ def index():  # インデックス関数
     return redirect(url_for("login"))  # ログインへリダイレクト
 
 
-@app.route("/home")  # /home URLのルーティング
-@login_required  # ログイン必須
-def home():  # ホーム関数
-    # 履歴取得
-    logs = (  # 学習ログをクエリ
-        LearningLog.query.filter_by(
-            user_id=current_user.id
-        )  # 現在のユーザーのログをフィルタ
-        .order_by(LearningLog.timestamp.desc())  # タイムスタンプ降順でソート
-        .all()  # すべて取得
-    )
-
-    # 連続学習日数計算
-    # 全ログを取得（タイムスタンプの新しい順）
+@app.route("/home")
+@login_required
+def home():
+    # --- 学習ログ取得 ---
     logs = (
         LearningLog.query.filter_by(user_id=current_user.id)
         .order_by(LearningLog.timestamp.desc())
         .all()
     )
 
-    # 日付情報の集合（set）を作成して重複を削除し、検索を高速化
+    # --- 連続学習日数計算 ---
     studied_dates = {log.timestamp.date() for log in logs}
-
     today = datetime.now().date()
     streak = 0
 
-    # 連続カウントの起点となる日付を決定
-    # もし「今日」学習していれば今日からカウント
-    # 「今日」まだ学習していなくても、「昨日」学習していればストリークは継続中とみなして昨日からカウント
     check_date = today
     if today not in studied_dates:
         check_date = today - timedelta(days=1)
 
-    # 日付を1日ずつ遡って、セットの中に存在するか確認
     while check_date in studied_dates:
         streak += 1
         check_date -= timedelta(days=1)
 
-    # 称号計算 (Userモデルのプロパティを利用しても良いが、ここではシンプルに)
+    # --- 称号計算 ---
     solved_count = sum(1 for log in logs if log.is_correct)
-    # solved_count = 100  # ← テスト用に固定
+    # solved_count = 50  # ←ホームのテスト用。
 
     if solved_count >= 30:
         rank = "トレースレジェンド"
-        rank_color = "text-yellow-500"  # 金色
+        rank_color = "text-yellow-500"
     elif solved_count >= 25:
         rank = "トレースマスター"
-        rank_color = "text-purple-500"  # 紫色
+        rank_color = "text-purple-500"
     elif solved_count >= 20:
         rank = "トレース職人"
-        rank_color = "text-red-500"  # 赤色
+        rank_color = "text-red-500"
     elif solved_count >= 10:
         rank = "トレース上級者"
-        rank_color = "text-sky-500"  # 水色
+        rank_color = "text-sky-500"
     else:
         rank = "トレース見習い"
-        rank_color = "text-lime-600"  # 黄緑色
+        rank_color = "text-lime-600"
 
+    # ---------------------------------------------------------
+    # ★ 過去7日間の積み上げグラフ用データ（ここが欠けていた部分）
+    # ---------------------------------------------------------
+    graph_labels = []
+    data_practice = []
+    data_exam = []
+
+    for i in range(6, -1, -1):  # 6日前〜今日
+        day = today - timedelta(days=i)
+        graph_labels.append(day.strftime("%m/%d"))
+
+        # 練習モードの正解数
+        count_practice = (
+            LearningLog.query.filter_by(
+                user_id=current_user.id,
+                mode="practice",
+                is_correct=True
+            )
+            .filter(
+                LearningLog.timestamp.between(
+                    datetime.combine(day, datetime.min.time()),
+                    datetime.combine(day, datetime.max.time())
+                )
+            )
+            .count()
+        )
+
+        # 過去問モードの正解数
+        count_exam = (
+            LearningLog.query.filter_by(
+                user_id=current_user.id,
+                mode="exam",
+                is_correct=True
+            )
+            .filter(
+                LearningLog.timestamp.between(
+                    datetime.combine(day, datetime.min.time()),
+                    datetime.combine(day, datetime.max.time())
+                )
+            )
+            .count()
+        )
+
+        data_practice.append(count_practice)
+        data_exam.append(count_exam)
+
+    # --- テンプレートへ返す ---
     return render_template(
         "home.html",
         streak=streak,
@@ -200,11 +232,9 @@ def home():  # ホーム関数
         rank_color=rank_color,
         recent_logs=logs[:5],
         graph_labels=graph_labels,
-        # 2つのデータセットを渡す
         data_practice=data_practice,
         data_exam=data_exam
-    )  # ホームテンプレートをレンダリング
-
+    )
 @app.route("/problems/<mode>")  # /problems/<mode> URLのルーティング
 @login_required  # ログイン必須
 def problem_list(mode):  # 問題リスト関数
@@ -266,16 +296,38 @@ def exam(problem_id):  # 試験関数
     )  # 試験テンプレートをレンダリング
 
 
-@app.route("/account")  # /account URLのルーティング
-@login_required  # ログイン必須
-def account():  # アカウント関数
-    solved_count = LearningLog.query.filter_by(  # 正解したログをカウント
+@app.route("/account")
+@login_required
+def account():
+    solved_count = LearningLog.query.filter_by(
         user_id=current_user.id, is_correct=True
     ).count()
-    return render_template(
-        "profile.html", solved_count=solved_count
-    )  # プロフィールテンプレートをレンダリング
 
+    # solved_count = 50   # ←プロフィールのテスト用。
+
+    # --- 称号計算（home と同じロジック） ---
+    if solved_count >= 30:
+        rank = "トレースレジェンド"
+        rank_color = "text-yellow-500"
+    elif solved_count >= 25:
+        rank = "トレースマスター"
+        rank_color = "text-purple-500"
+    elif solved_count >= 20:
+        rank = "トレース職人"
+        rank_color = "text-red-500"
+    elif solved_count >= 10:
+        rank = "トレース上級者"
+        rank_color = "text-sky-500"
+    else:
+        rank = "トレース見習い"
+        rank_color = "text-lime-600"
+
+    return render_template(
+        "profile.html",
+        solved_count=solved_count,
+        rank=rank,
+        rank_color=rank_color
+    )
 
 @app.route(
     "/account/delete", methods=["POST"]
