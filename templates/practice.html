@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <div
   class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 select-none"
   id="app"
@@ -63,22 +64,128 @@
       class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
     >
       <div
-        class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex justify-between"
+        class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between"
       >
-        <h3 class="font-bold text-[#15803d]">トレース表</h3>
+        <h3 class="font-bold text-[#15803d]">トレースエリア</h3>
+        <!-- モード切り替えタブ -->
+        <div class="flex text-xs font-bold rounded-full border border-gray-300 overflow-hidden">
+          <button
+            type="button"
+            id="tab-trace"
+            class="px-3 py-1 bg-white text-gray-700 hover:bg-gray-100 transition"
+            onclick="showTraceTable()"
+          >
+            トレース表
+          </button>
+          <button
+            type="button"
+            id="tab-canvas"
+            class="px-3 py-1 bg-gray-100 text-gray-500 hover:bg-gray-200 transition"
+            onclick="showCanvas()"
+          >
+            手書きスペース
+          </button>
+        </div>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-center border-collapse">
-          <thead>
-            <tr class="bg-gray-100 text-gray-700">
-              <th class="p-2 border border-gray-400 w-10">#</th>
-              <th class="p-2 border border-gray-400 w-12">行</th>
-              <th class="p-2 border border-gray-400">条件式</th>
-              <th class="p-2 border border-gray-400">出力</th>
-            </tr>
-          </thead>
-          <tbody id="trace-table-body" class="bg-white"></tbody>
-        </table>
+
+      <!-- トレース表モード -->
+      <div id="trace-table-wrapper">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-center border-collapse">
+            <thead>
+              <tr class="bg-gray-100 text-gray-700">
+                <th class="p-2 border border-gray-400 w-10">#</th>
+                <th class="p-2 border border-gray-400 w-12">行</th>
+                <th class="p-2 border border-gray-400">条件式</th>
+                <th class="p-2 border border-gray-400">出力</th>
+              </tr>
+            </thead>
+            <tbody id="trace-table-body" class="bg-white"></tbody>
+          </table>
+        </div>
+      </div>
+
+<!-- 手書きキャンバスモード -->
+<div
+  id="canvas-area"
+  class="hidden p-4 bg-white flex flex-col items-stretch"
+>
+  <p class="text-xs text-gray-500 mb-2">
+    スタック / キュー / リスト構造の時の問題など、自由に使ってください。
+  </p>
+
+  <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
+    <canvas
+      id="freeCanvas"
+      width="900"
+      height="400"
+      class="bg-white block"
+    ></canvas>
+  </div>
+
+  <div class="flex justify-between items-center mt-2 text-xs">
+
+    <!-- 左側：色選択 & 消しゴム -->
+    <div class="flex items-center space-x-3">
+      <span class="text-gray-500">ペン色:</span>
+
+      <!-- 色ボタン -->
+      <button data-color="#000000"
+        class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-black"
+        onclick="setPenColor('#000000', this)">
+      </button>
+
+      <button data-color="#3b82f6"
+        class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-blue-500"
+        onclick="setPenColor('#3b82f6', this)">
+      </button>
+
+      <button data-color="#ef4444"
+        class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-red-500"
+        onclick="setPenColor('#ef4444', this)">
+      </button>
+
+      <button data-color="#10b981"
+        class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-emerald-500"
+        onclick="setPenColor('#10b981', this)">
+      </button>
+
+      <!-- 消しゴムボタン -->
+      <button
+        id="eraser-btn"
+        class="px-2 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
+        onclick="enableEraser(this)"
+      >
+        消しゴム
+      </button>
+    </div>
+
+    <!-- 右側：太さ & クリア -->
+    <div class="flex items-center space-x-3">
+      <label class="flex items-center space-x-1 text-gray-500">
+        <span>太さ</span>
+        <input
+          type="range"
+          min="2"
+          max="10"
+          value="3"
+          id="pen-width"
+          class="w-20"
+          onchange="setPenWidth(this.value)"
+        />
+      </label>
+
+      <button
+        type="button"
+        class="text-gray-500 underline hover:text-gray-800"
+        onclick="clearCanvas()"
+      >
+        クリア
+      </button>
+    </div>
+
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -104,9 +211,76 @@
   const quizArea = document.getElementById('quiz-area');
   const completionArea = document.getElementById('completion-area');
 
+  // 手書きキャンバス関連
+let canvas, ctx;
+let drawing = false;
+let penColor = '#000000';
+let penWidth = 3;
+let isEraser = false;
+
+  // 色選択
+function setPenColor(color, btn) {
+  isEraser = false;
+  penColor = color;
+
+  if (ctx) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = penColor;
+    ctx.lineWidth = penWidth;
+  }
+
+  // 色ボタンの枠線リセット
+  document.querySelectorAll('.color-btn').forEach(b => {
+    b.classList.remove('ring-2', 'ring-gray-700');
+  });
+
+  // 選択中の色に枠線
+  btn.classList.add('ring-2', 'ring-gray-700');
+
+  // 消しゴムボタンの強調解除
+  document.getElementById('eraser-btn').classList.remove('bg-gray-200');
+  document.getElementById('eraser-btn').classList.remove(
+  'bg-yellow-200',
+  'border-yellow-500',
+  'text-yellow-800'
+);
+}
+ 
+
+ 
+
+// 太さ変更
+function setPenWidth(width) {
+  penWidth = Number(width);
+  if (ctx) ctx.lineWidth = penWidth;
+}
+
+// 消しゴムモード
+function enableEraser(btn) {
+  isEraser = true;
+
+  if (ctx) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineWidth = 20;
+  }
+
+  // 色ボタンの枠線を外す
+  document.querySelectorAll('.color-btn').forEach(b => {
+    b.classList.remove('ring-2', 'ring-gray-700');
+  });
+
+
+  btn.classList.add(
+    'bg-yellow-200',
+    'border-yellow-500',
+    'text-yellow-800'
+  );
+}
+
   // 初期化
   function init() {
     // 変数初期化
+    currentVars = {};
     PROBLEM_DATA.variables.forEach((v) => (currentVars[v] = '-'));
 
     // コード表示生成
@@ -125,26 +299,34 @@
       )
       .join('');
 
-    // テーブルヘッダー生成（変数列）
-    const headerRow = document.querySelector('thead tr');
-    // 固定列（#, 行, 条件式）と（出力）の間にある「変数列」を一度すべて削除する
-    // childNodes[2] が「条件式」、lastElementChild が「出力」
-    const conditionTh = headerRow.children[2]; // 3番目の列（条件式）
-    const outputTh = headerRow.lastElementChild; // 最後の列（出力）
-    // 「条件式」の隣が「出力」になるまで、間の要素（変数列）を削除し続ける
+    // トレース表ヘッダー生成（変数列）
+    const headerRow = document.querySelector('#trace-table-wrapper thead tr');
+
+    // 条件式と出力の間にある変数列を一度クリア
+    const conditionTh = headerRow.children[2];
+    const outputTh = headerRow.lastElementChild;
     while (
       conditionTh.nextElementSibling &&
       conditionTh.nextElementSibling !== outputTh
     ) {
       headerRow.removeChild(conditionTh.nextElementSibling);
     }
-    // 変数列の再生成
+    // 変数列再生成
     PROBLEM_DATA.variables.forEach((v) => {
       const th = document.createElement('th');
       th.className = 'p-2 border border-gray-400 w-16 font-mono text-[#15803d]';
       th.textContent = v;
       headerRow.insertBefore(th, outputTh);
     });
+
+    // テーブル本体クリア
+    tableBody.innerHTML = '';
+
+    // 手書きキャンバス初期化
+    setupCanvas();
+
+    // モード初期表示はトレース表
+    showTraceTable();
 
     renderStep();
   }
@@ -190,7 +372,6 @@
       createOptionBtn('False (偽)', step.result === false);
     } else if (step.type === 'assign') {
       questionText.textContent = `変数 ${step.var} に代入される値は？`;
-      // ダミー選択肢生成
       const correct = step.val;
       let opts = new Set([correct, correct + 1, correct - 1, 0, 1]);
       Array.from(opts)
@@ -206,7 +387,6 @@
     }
 
     // プレースホルダー行の表示（テーブル）
-    // 既存の入力待ち行があれば削除
     const existingPending = document.getElementById('pending-row');
     if (existingPending) existingPending.remove();
 
@@ -223,7 +403,6 @@
             }">入力待ち...</td>
         `;
     tableBody.appendChild(tr);
-    // スクロール
     tableBody.parentElement.scrollTop = tableBody.parentElement.scrollHeight;
   }
 
@@ -243,7 +422,6 @@
       feedbackArea.className =
         'p-3 rounded text-sm font-bold bg-green-100 text-green-700 mb-2';
 
-      // 少し待ってから次へ
       setTimeout(() => {
         commitStep();
       }, 600);
@@ -265,19 +443,16 @@
       currentVars[step.var] = step.val;
     }
 
-    // 行追加
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-gray-50 transition border-b border-gray-100';
 
-    // 変数セルの生成
+    // 変数セル
     let varCells = '';
     let prevVars =
       traceHistory.length > 0 ? traceHistory[traceHistory.length - 1].vars : {};
 
     PROBLEM_DATA.variables.forEach((v) => {
-      // 値が変わった場合のみ表示、それ以外は空欄(または引用符)
       const val = currentVars[v];
-      // 初期ステップ以外で、前の値と同じなら表示しない（引用符などにする）
       const isChanged = step.type === 'assign' && step.var === v;
 
       varCells += `<td class="p-2 border border-gray-300 font-mono relative ${
@@ -315,7 +490,6 @@
 
     tableBody.appendChild(tr);
 
-    // 履歴保存
     traceHistory.push({
       vars: { ...currentVars },
     });
@@ -332,7 +506,6 @@
     document.getElementById('status-text').className =
       'text-xs text-green-600 font-bold';
 
-    // 完了ハイライトOFF
     document.querySelectorAll('.code-line').forEach((el) => {
       el.classList.remove(
         'bg-yellow-100',
@@ -343,7 +516,6 @@
       el.classList.add('px-2');
     });
 
-    // サーバーへ結果送信
     fetch('/api/log_result', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -371,7 +543,148 @@
     );
   }
 
-  // 開始
-  window.onload = init;
+  // -------------------------
+  // トレース表 / 手書きスペース 切り替え
+  // -------------------------
+  function showTraceTable() {
+    document.getElementById('trace-table-wrapper').classList.remove('hidden');
+    document.getElementById('canvas-area').classList.add('hidden');
+
+    const tabTrace = document.getElementById('tab-trace');
+    const tabCanvas = document.getElementById('tab-canvas');
+    tabTrace.classList.add('bg-white', 'text-gray-700');
+    tabTrace.classList.remove('bg-gray-100', 'text-gray-500');
+    tabCanvas.classList.add('bg-gray-100', 'text-gray-500');
+    tabCanvas.classList.remove('bg-white', 'text-gray-700');
+  }
+
+  function showCanvas() {
+    document.getElementById('trace-table-wrapper').classList.add('hidden');
+    document.getElementById('canvas-area').classList.remove('hidden');
+
+    const tabTrace = document.getElementById('tab-trace');
+    const tabCanvas = document.getElementById('tab-canvas');
+    tabCanvas.classList.add('bg-white', 'text-gray-700');
+    tabCanvas.classList.remove('bg-gray-100', 'text-gray-500');
+    tabTrace.classList.add('bg-gray-100', 'text-gray-500');
+    tabTrace.classList.remove('bg-white', 'text-gray-700');
+  }
+
+  // -------------------------
+// トレース表 / 手書きスペース 切り替え
+// -------------------------
+function showTraceTable() {
+  document.getElementById('trace-table-wrapper').classList.remove('hidden');
+  document.getElementById('canvas-area').classList.add('hidden');
+
+  const tabTrace = document.getElementById('tab-trace');
+  const tabCanvas = document.getElementById('tab-canvas');
+  tabTrace.classList.add('bg-white', 'text-gray-700');
+  tabTrace.classList.remove('bg-gray-100', 'text-gray-500');
+  tabCanvas.classList.add('bg-gray-100', 'text-gray-500');
+  tabCanvas.classList.remove('bg-white', 'text-gray-700');
+}
+
+function showCanvas() {
+  document.getElementById('trace-table-wrapper').classList.add('hidden');
+  document.getElementById('canvas-area').classList.remove('hidden');
+
+  const tabTrace = document.getElementById('tab-trace');
+  const tabCanvas = document.getElementById('tab-canvas');
+  tabCanvas.classList.add('bg-white', 'text-gray-700');
+  tabCanvas.classList.remove('bg-gray-100', 'text-gray-500');
+  tabTrace.classList.add('bg-gray-100', 'text-gray-500');
+  tabTrace.classList.remove('bg-white', 'text-gray-700');
+}
+
+// -------------------------
+// 手書きキャンバス関連
+// -------------------------
+function setupCanvas() {
+  canvas = document.getElementById('freeCanvas');
+  if (!canvas) return;
+
+  ctx = canvas.getContext('2d');
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = penColor;
+  ctx.lineWidth = penWidth;
+
+  // PC用
+  canvas.onmousedown = (e) => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  };
+  canvas.onmouseup = () => {
+    drawing = false;
+  };
+  canvas.onmouseleave = () => {
+    drawing = false;
+  };
+  canvas.onmousemove = (e) => {
+    if (!drawing) return;
+
+    if (isEraser) {
+      ctx.globalCompositeOperation = 'destination-out';
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+  };
+
+  // タッチデバイス用
+  canvas.addEventListener(
+    'touchstart',
+    (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(t.clientX - rect.left, t.clientY - rect.top);
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    'touchend',
+    (e) => {
+      e.preventDefault();
+      drawing = false;
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    'touchmove',
+    (e) => {
+      e.preventDefault();
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const t = e.touches[0];
+
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
+      ctx.stroke();
+    },
+    { passive: false }
+  );
+}
+
+function clearCanvas() {
+  if (!ctx || !canvas) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// 開始
+window.onload = init;
 </script>
 {% endblock %}

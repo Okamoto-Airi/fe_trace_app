@@ -60,18 +60,20 @@ class Problem(db.Model):  # Problemモデルクラスを定義
             return self.variables_str.split(",")  # カンマで分割してリスト化
         return []  # 存在しない場合は空リスト
 
-    def to_dict(self):  # フロントエンド用にデータを辞書化するメソッド
-        """フロントエンド(JS)用にデータを辞書化するメソッド"""
-        # 基本データの辞書を作成
-        data = {  # 基本情報を辞書にまとめる
-            "id": self.id,  # idを追加
-            "title": self.title,  # タイトルを追加
-            "description": self.description,  # 説明を追加
-            "category": self.category,  # カテゴリを追加
-            "difficulty": self.difficulty,  # 難易度を追加
-            "variables": self.variables,  # 変数リストを追加（プロパティ経由）
-            "code_template": self.code_text,  # コードテンプレートを追加（過去問モード用）
-            "code": self.code_text.split("\n"),  # コードを行ごとの配列に分割（練習モード用）
+    def to_dict(self):
+        raw = self.data or {}
+
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "category": self.category,
+            "difficulty": self.difficulty,
+            "variables": self.variables,
+            "code_template": self.code_text,
+            "code": self.code_text.split("\n"),
+            "steps": raw.get("steps", []),   # ← これが必須
+            "options": raw.get("options", [])  # exam 用
         }
 
         # JSONカラムの中身（steps や options）をマージする
