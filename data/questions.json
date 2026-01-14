@@ -19,6 +19,24 @@
     }
   },
   {
+  "id": "p4",
+  "mode": "practice",
+  "title": "基本: 2つの数の最大値",
+  "category": "分岐",
+  "difficulty": "初級",
+  "code_text": "整数型: a, b, max\na ← 3\nb ← 7\nif (a > b)\n  max ← a\nelse\n  max ← b\nendif\nmaxを出力",
+  "variables": ["a","b","max"],
+  "data": {
+    "steps": [
+      { "line":2, "type":"assign", "var":"a", "val":3 },
+      { "line":3, "type":"assign", "var":"b", "val":7 },
+      { "line":4, "type":"condition", "expr":"3 > 7", "result":false },
+      { "line":7, "type":"assign", "var":"max", "val":7 },
+      { "line":9, "type":"output", "val":7 }
+    ]
+  }
+ },
+  {
     "id": "p2",
     "mode": "practice",
     "title": "基本のループ処理 (While)",
@@ -72,7 +90,48 @@
       ]
     }
   },
-  {
+ {
+  "id": "p5",
+  "mode": "practice",
+  "title": "応用: 条件付きカウント",
+  "category": "反復・分岐",
+  "difficulty": "標準",
+  "code_text": "整数型の配列: A ← {3, 5, 8, 2, 7}\n整数型: i, cnt\ni ← 0\ncnt ← 0\n\nwhile (i < 5)\n  if (A[i] が 偶数)\n    cnt ← cnt + 1\n  endif\n  i ← i + 1\nendwhile\n\ncntを出力",
+  "variables": ["A", "i", "cnt"],
+  "data": {
+    "steps": [
+      { "line": 3, "type": "assign", "var": "i", "val": 0 },
+      { "line": 4, "type": "assign", "var": "cnt", "val": 0 },
+
+      { "line": 6, "type": "condition", "expr": "0 < 5", "result": true },
+      { "line": 7, "type": "condition", "expr": "3 は偶数か", "result": false },
+      { "line": 10, "type": "assign", "var": "i", "val": 1 },
+
+      { "line": 6, "type": "condition", "expr": "1 < 5", "result": true },
+      { "line": 7, "type": "condition", "expr": "5 は偶数か", "result": false },
+      { "line": 10, "type": "assign", "var": "i", "val": 2 },
+
+      { "line": 6, "type": "condition", "expr": "2 < 5", "result": true },
+      { "line": 7, "type": "condition", "expr": "8 は偶数か", "result": true },
+      { "line": 8, "type": "assign", "var": "cnt", "val": 1 },
+      { "line": 10, "type": "assign", "var": "i", "val": 3 },
+
+      { "line": 6, "type": "condition", "expr": "3 < 5", "result": true },
+      { "line": 7, "type": "condition", "expr": "2 は偶数か", "result": true },
+      { "line": 8, "type": "assign", "var": "cnt", "val": 2 },
+      { "line": 10, "type": "assign", "var": "i", "val": 4 },
+
+      { "line": 6, "type": "condition", "expr": "4 < 5", "result": true },
+      { "line": 7, "type": "condition", "expr": "7 は偶数か", "result": false },
+      { "line": 10, "type": "assign", "var": "i", "val": 5 },
+
+      { "line": 6, "type": "condition", "expr": "5 < 5", "result": false },
+      { "line": 13, "type": "output", "val": 2 }
+    ]
+  }
+},
+
+ {
     "id": "2023_fe_b_q1",
     "mode": "exam",
     "title": "問1: 素数判定",
