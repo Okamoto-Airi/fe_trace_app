@@ -108,7 +108,7 @@ def seed_db_command():  # データベースシードコマンド関数
             # 2. code_text カラムへのバックフィル (DBのNot Null制約回避 & 検索用)
             # content 内の type="code" のブロックを探す
             code_block = next(
-                (item for item in p_data["content"] if item["type"] == "code"), None
+                (item for item in p_data["content"] if item.get("type") == "code"), None
             )
             if code_block:
                 problem.code_text = code_block["text"]  # 新JSONのキーは "text"
@@ -119,7 +119,7 @@ def seed_db_command():  # データベースシードコマンド関数
             # 3. description カラムへのバックフィル
             # 最初のテキストブロックを説明文として保存しておく
             text_block = next(
-                (item for item in p_data["content"] if item["type"] == "text"), None
+                (item for item in p_data["content"] if item.get("type") == "text"), None
             )
             problem.description = text_block["text"] if text_block else ""
 

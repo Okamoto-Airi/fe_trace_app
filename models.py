@@ -42,7 +42,7 @@ class Problem(db.Model):  # Problemモデルクラスを定義
     variables_str = db.Column(db.String(200))  # 変数リストカラム（カンマ区切り文字列）
 
     # 過去問演習モードの問題を保存するためのJSONカラム
-    content_json = db.Column(db.Text, default="[]")
+    content_json = db.Column(db.Text, default="[]", nullable=True)
 
     # 複雑なデータはJSON文字列として保存
     data_json = db.Column(db.Text, nullable=False)  # 複雑なデータ（steps/options）をJSON文字列として保存（必須）
@@ -53,7 +53,7 @@ class Problem(db.Model):  # Problemモデルクラスを定義
         """data_json を辞書型に戻して返す"""
         try:  # JSONパースを試行
             return json.loads(self.data_json)  # JSON文字列を辞書に変換
-        except:  # パース失敗時
+        except json.JSONDecodeError:  # パース失敗時
             return {}  # 空の辞書を返す
 
     @property  # プロパティデコレータ：variables_strをリストで返す
@@ -66,9 +66,23 @@ class Problem(db.Model):  # Problemモデルクラスを定義
     @property
     def content(self):
         """content_json をリストに戻して返す"""
+        if not self.content_json:
+            return []
         try:
-            return json.loads(self.content_json)
-        except:
+            items = json.loads(self.content_json)
+
+            # テンプレートに渡す前に画像パスを検証する
+            for item in items:
+                # "src"キーを持つ要素をチェック
+                if item.get("src"):
+                    src = item["src"]
+                    # 1. ".." (親ディレクトリへの移動) を禁止
+                    # 2. "images/" で始まること (静的ファイルの所定フォルダに限定)
+                    if ".." in src or not src.startswith("images/"):
+                        # 不正なパス検知時は、安全なダミー画像や空文字に置換して無効化
+                        # (必要に応じて 'images/error.png' などを用意してください)
+                        item["src"] = ""
+        except json.JSONDecodeError:
             return []
 
     def to_dict(self):  # フロントエンド用にデータを辞書化するメソッド

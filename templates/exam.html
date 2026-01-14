@@ -36,6 +36,7 @@
         <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ block.text | trim }}</p>
 
         {% elif block.type == 'image' %}
+        {% if block.src and block.src.startswith('images/') %}
         <div class="flex justify-center my-4">
           <img
             src="{{ url_for('static', filename=block.src) }}"
