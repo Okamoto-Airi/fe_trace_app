@@ -95,14 +95,40 @@ def seed_db_command():  # データベースシードコマンド関数
         problem.difficulty = p_data.get(
             "difficulty", "標準"
         )  # 難易度を設定（デフォルト"標準"）
-        problem.description = p_data.get(
-            "description", ""
-        )  # 説明を設定（デフォルト空文字列）
-        problem.code_text = p_data["code_text"]  # コードテキストを設定
+
         # 変数リストはカンマ区切り文字列にして保存
         problem.variables_str = ",".join(p_data.get("variables", []))
         # 構造データ(steps/options)はJSON文字列にして保存
         problem.data_json = json.dumps(p_data.get("data", {}), ensure_ascii=False)
+
+        if "content" in p_data:
+            # 1. content をそのまま保存
+            problem.content_json = json.dumps(p_data["content"], ensure_ascii=False)
+
+            # 2. code_text カラムへのバックフィル (DBのNot Null制約回避 & 検索用)
+            # content 内の type="code" のブロックを探す
+            code_block = next(
+                (item for item in p_data["content"] if item["type"] == "code"), None
+            )
+            if code_block:
+                problem.code_text = code_block["text"]  # 新JSONのキーは "text"
+            else:
+                # コードがない問題は稀だが、空文字を入れておく
+                problem.code_text = ""
+
+            # 3. description カラムへのバックフィル
+            # 最初のテキストブロックを説明文として保存しておく
+            text_block = next(
+                (item for item in p_data["content"] if item["type"] == "text"), None
+            )
+            problem.description = text_block["text"] if text_block else ""
+
+        else:
+            # 練習モードなど、従来の形式 (contentがない場合)
+            problem.code_text = p_data["code_text"]
+            # 練習モードには description がない場合がある
+            problem.description = p_data.get("description", "")
+            problem.content_json = "[]"  # 空のリスト
 
         db.session.add(problem)  # セッションに追加
         count += 1  # カウントを増やす
@@ -211,7 +237,7 @@ def home():  # ホーム関数
         graph_labels=graph_labels,
         # 2つのデータセットを渡す
         data_practice=data_practice,
-        data_exam=data_exam
+        data_exam=data_exam,
     )  # ホームテンプレートをレンダリング
 
 

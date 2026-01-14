@@ -30,7 +30,30 @@
       </div>
       <h2 class="text-xl font-bold text-[#15803d] mb-2">{{ problem.title }}</h2>
 
-      {% if problem.description %}
+      <div class="space-y-6 mb-6">
+        {% for block in problem.content %} {% if block.type == 'text' %}
+        <!-- prettier-ignore -->
+        <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ block.text | trim }}</p>
+
+        {% elif block.type == 'image' %}
+        <div class="flex justify-center my-4">
+          <img
+            src="{{ url_for('static', filename=block.src) }}"
+            alt="{{ block.id }}"
+            class="max-w-full h-auto rounded border border-gray-200 shadow-sm"
+          />
+        </div>
+
+        {% elif block.type == 'code' %}
+        <!-- prettier-ignore -->
+        <div
+          class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 shadow-inner border border-gray-700 whitespace-pre-wrap"
+          id="code-display"
+        >{{ block.text | trim }}</div>
+        {% endif %} {% endfor %}
+      </div>
+
+      {% if not problem.content %} {% if problem.description %}
       <!-- prettier-ignore -->
       <p class="text-sm text-gray-600 mb-4 whitespace-pre-wrap leading-relaxed">{{ problem.description | trim }}</p>
       {% endif %}
@@ -39,6 +62,7 @@
         class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 mb-4 shadow-inner border border-gray-700 whitespace-pre-wrap"
         id="code-display"
       >{{ problem.code_text | trim }}</div>
+      {% endif %}
 
       <div>
         <div class="flex justify-between items-end mb-2">

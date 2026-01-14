@@ -37,9 +37,12 @@ class Problem(db.Model):  # Problemモデルクラスを定義
     difficulty = db.Column(db.String(20))  # 難易度カラム（文字列、オプション）
 
     # 問題の中身
-    description = db.Column(db.Text)  # 問題文カラム（テキスト、examモード用）
+    description = db.Column(db.Text)  # 問題文カラム（簡易表示用）
     code_text = db.Column(db.Text, nullable=False)  # 表示用コードカラム（テキスト、必須）
     variables_str = db.Column(db.String(200))  # 変数リストカラム（カンマ区切り文字列）
+
+    # 過去問演習モードの問題を保存するためのJSONカラム
+    content_json = db.Column(db.Text, default="[]")
 
     # 複雑なデータはJSON文字列として保存
     data_json = db.Column(db.Text, nullable=False)  # 複雑なデータ（steps/options）をJSON文字列として保存（必須）
@@ -59,6 +62,14 @@ class Problem(db.Model):  # Problemモデルクラスを定義
         if self.variables_str:  # variables_strが存在する場合
             return self.variables_str.split(",")  # カンマで分割してリスト化
         return []  # 存在しない場合は空リスト
+    
+    @property
+    def content(self):
+        """content_json をリストに戻して返す"""
+        try:
+            return json.loads(self.content_json)
+        except:
+            return []
 
     def to_dict(self):  # フロントエンド用にデータを辞書化するメソッド
         """フロントエンド(JS)用にデータを辞書化するメソッド"""
@@ -72,6 +83,7 @@ class Problem(db.Model):  # Problemモデルクラスを定義
             "variables": self.variables,  # 変数リストを追加（プロパティ経由）
             "code_template": self.code_text,  # コードテンプレートを追加（過去問モード用）
             "code": self.code_text.split("\n"),  # コードを行ごとの配列に分割（練習モード用）
+            "content": self.content
         }
 
         # JSONカラムの中身（steps や options）をマージする
