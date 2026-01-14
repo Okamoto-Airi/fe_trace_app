@@ -85,7 +85,7 @@
       },
       {
         "type": "code",
-        "text": "○整数型の配列: findPrimeNumbers(整数型:maxNum)\n  整数型の配列: pnList ← {}\n整数型:i, j\n論理型:divideFlag\n\nfor (iを2から [ a ] まで 1 ずつ増やす)\n  divideFlag ← true\n  for (jを2から iの正の平方根の整数部分まで1ずつ増やす)\n    if ( [ b ] )\n      divideFlag ← false\n      aの行から始まる繰返し処理を終了する\n    endif\n  endfor\n  if (divideFlag が true と等しい)\n    pnListの末尾にiの値を追加する\n  endif\nendfor\nreturn pnList"
+        "text": "○整数型の配列: findPrimeNumbers(整数型:maxNum)\n 整数型の配列: pnList ← {}  // 要素数0の配列\n 整数型:i, j\n 論理型:divideFlag\n for (iを2から [ a ] まで 1 ずつ増やす)\n   divideFlag ← true\n\n   /* iの正の平方根の整数部分が2未満のときは，繰返し処理を実行しない */\n   for (jを2から iの正の平方根の整数部分まで1ずつ増やす)  // α\n     if ( [ b ] )\n       divideFlag ← false\n     αの行から始まる繰返し処理を終了する\n     endif\n   endfor\n   if (divideFlag が true と等しい)\n     pnListの末尾にiの値を追加する\n   endif\n endfor\n return pnList"
       }
     ],
     "variables": ["i", "j", "divideFlag", "pnList"],
@@ -108,11 +108,11 @@
     "content": [
       {
         "type": "text",
-        "text": "次のプログラムにおいて，手続proc2を呼び出すと，どの順に文字が出力されるか。"
+        "text": "次の記述中の【  】に入れる正しい答えを，解答群の中から選べ。\n\n次のプログラムにおいて，手続 proc2 を呼び出すと，【  】の順に出力される。"
       },
       {
         "type": "code",
-        "text": "○proc1()\n  \"A\" を出力する\n  proc3()\n\n○proc2()\n  proc3()\n  \"B\" を出力する\n  proc1()\n\n○proc3()\n  \"C\" を出力する"
+        "text": "○proc1()\n \"A\" を出力する\n proc3()\n\n○proc2()\n proc3()\n \"B\" を出力する\n proc1()\n\n○proc3()\n \"C\" を出力する"
       }
     ],
     "variables": [],
@@ -143,7 +143,7 @@
       },
       {
         "type": "code",
-        "text": "大域: 整数型の配列: data ← {2, 1, 3, 5, 4}\n\n○sort(整数型: first, 整数型: last)\n  整数型: pivot, i, j\n  pivot ← data[(first + last) ÷ 2 の商]\n  i ← first\n  j ← last\n\n  while (true)\n    while (data[i] < pivot)\n      i ← i + 1\n    endwhile\n    while (pivot < data[j])\n      j ← j - 1\n    endwhile\n    if (i ≧ j)\n      繰返し処理を終了する\n    endif\n    data[i] と data[j] の値を入れ替える\n    i ← i + 1\n    j ← j - 1\n  endwhile\n\n  data の全要素の値を要素番号の順に空白区切りで出力する  /*** a ***/\n\n  if (first < i - 1)\n    sort(first, i - 1)\n  endif\n  if (j + 1 < last)\n    sort(j + 1, last)\n  endif"
+        "text": "大域: 整数型の配列: data ← {2, 1, 3, 5, 4}\n\n○sort(整数型: first, 整数型: last)\n 整数型: pivot, i, j\n pivot ← data[(first + last) ÷ 2 の商]\n i ← first\n j ← last\n\n while (true)\n   while (data[i] < pivot)\n     i ← i + 1\n   endwhile\n   while (pivot < data[j])\n     j ← j - 1\n   endwhile\n   if (i ≧ j)\n     繰返し処理を終了する\n   endif\n   data[i] と data[j] の値を入れ替える\n   i ← i + 1\n   j ← j - 1\n endwhile\n data の全要素の値を要素番号の順に空白区切りで出力する  /*** a ***/\n if (first < i - 1)\n   sort(first, i - 1)\n endif\n if (j + 1 < last)\n   sort(j + 1, last)\n endif"
       }
     ],
     "variables": ["data", "pivot", "i", "j", "first", "last"],
@@ -171,7 +171,7 @@
       },
       {
         "type": "code",
-        "text": "大域: 整数型の配列: hashArray\n\n○論理型: add(整数型: value)\n  整数型: i ← calcHash1(value)\n  if (hashArray[i] == -1)\n    hashArray[i] ← value\n    return true\n  else\n    i ← calcHash2(value)\n    if (hashArray[i] == -1)\n      hashArray[i] ← value\n      return true\n    endif\n  endif\n  return false\n\n○整数型: calcHash1(整数型: value)\n  return (value mod hashArrayの要素数) + 1\n\n○整数型: calcHash2(整数型: value)\n  return ((value + 3) mod hashArrayの要素数) + 1\n\n○test()\n  hashArray ← {5個の -1}\n  add(3)\n  add(18)\n  add(11)"
+        "text": "大域: 整数型の配列: hashArray\n\n○論理型: add(整数型: value)\n 整数型: i ← calcHash1(value)\n if (hashArray[i] == -1)\n   hashArray[i] ← value\n   return true\n else\n   i ← calcHash2(value)\n   if (hashArray[i] == -1)\n     hashArray[i] ← value\n     return true\n   endif\n endif\n return false\n\n○整数型: calcHash1(整数型: value)\n return (value mod hashArrayの要素数) + 1\n\n○整数型: calcHash2(整数型: value)\n return ((value + 3) mod hashArrayの要素数) + 1\n\n○test()\n hashArray ← {5個の -1}\n add(3)\n add(18)\n add(11)"
       }
     ],
     "variables": ["hashArray", "value", "i"],
@@ -186,8 +186,6 @@
       "correct_option": "エ"
     }
   },
-
-
   {
     "id": "2023_fe_b_q5",
     "mode": "exam",
@@ -197,7 +195,7 @@
     "content": [
       {
         "type": "text",
-        "text": "二つのベクトルのコサイン類似度を計算するプログラム中の a と b に入る正しい組合せを選ぶ。"
+        "text": "次のプログラム中の[ a ]と[ b ]に入れる正しい答えの組合せを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\nコサイン類似度は，二つのベクトルの向きの類似性を測る尺度である。関数calcCosineSimilarityは，いずれも要素数がn(n≧1) である実数型の配列vector1とvector2を受け取り，二つの配列のコサイン類似度を返す。配列vector1が {a1, a2, …, an}，配列vector2が {b1, b2, …, bn} のとき，コサイン類似度は次の数式で計算される。ここで，配列vector1と配列vector2のいずれも，全ての要素に0が格納されていることはないものとする。"
       },
       {
         "type": "image",
@@ -206,7 +204,7 @@
       },
       {
         "type": "code",
-        "text": "○実数型: calcCosineSimilarity(実数型の配列: vector1, 実数型の配列: vector2)\n  実数型: similarity, numerator, denominator, temp ← 0\n  整数型: i\n  numerator ← 0\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n    numerator ← numerator + [ a ]\n  endfor\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n    temp ← temp + vector1[i] の 2乗\n  endfor\n  denominator ← temp の正の平方根\n\n  temp ← 0\n  for (i を 1 から vector2 の要素数 まで 1 ずつ増やす)\n    temp ← temp + vector2[i] の 2乗\n  endfor\n  denominator ← [ b ]\n\n  similarity ← numerator ÷ denominator\n  return similarity"
+        "text": "○実数型: calcCosineSimilarity(実数型の配列: vector1, 実数型の配列: vector2)\n 実数型: similarity, numerator, denominator, temp ← 0\n 整数型: i\n numerator ← 0\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n   numerator ← numerator + [ a ]\n endfor\n\n for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n   temp ← temp + vector1[i] の 2乗\n endfor\n denominator ← temp の正の平方根\n\n temp ← 0\n for (i を 1 から vector2 の要素数 まで 1 ずつ増やす)\n   temp ← temp + vector2[i] の 2乗\n endfor\n denominator ← [ b ]\n\n similarity ← numerator ÷ denominator\n return similarity"
       }
     ],
     "variables": ["similarity", "numerator", "denominator", "temp", "i"],
