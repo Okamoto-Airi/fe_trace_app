@@ -73,41 +73,154 @@
     }
   },
   {
+    "id": "p4",
+    "mode": "practice",
+    "title": "配列探索: 最小値を求める",
+    "category": "配列・探索",
+    "difficulty": "初級",
+    "code_text": "整數型: i, min\n配列: A={3,7,2,9,5}\nmin ← A[0]\nfor (i←1; i<5; i←i+1)\n  if (A[i] < min)\n    min ← A[i]\n  endif\nendfor\nmin を出力する",
+    "variables": ["i", "min"],
+    "data": {
+      "steps": [
+        { "line": 3, "type": "assign", "var": "min", "val": 3 },
+        { "line": 4, "type": "assign", "var": "i", "val": 1 },
+        { "line": 5, "type": "condition", "expr": "7 < 3", "result": false },
+
+        { "line": 4, "type": "assign", "var": "i", "val": 2 },
+        { "line": 5, "type": "condition", "expr": "2 < 3", "result": true },
+        { "line": 6, "type": "assign", "var": "min", "val": 2 },
+
+        { "line": 4, "type": "assign", "var": "i", "val": 3 },
+        { "line": 5, "type": "condition", "expr": "9 < 2", "result": false },
+
+        { "line": 4, "type": "assign", "var": "i", "val": 4 },
+        { "line": 5, "type": "condition", "expr": "5 < 2", "result": false },
+
+        { "line": 9, "type": "output", "val": 2 }
+      ]
+    }
+  },
+
+  {
+    "id": "p5",
+    "mode": "practice",
+    "title": "基本: forループの合計",
+    "category": "ループ",
+    "difficulty": "初級",
+    "code_text": "整數型: i, sum\nsum ← 0\nfor (i←1; i≤3; i←i+1)\n  sum ← sum + i\nendfor\nsumを出力",
+    "variables": ["i", "sum"],
+    "data": {
+      "steps": [
+        { "line": 2, "type": "assign", "var": "sum", "val": 0 },
+        { "line": 3, "type": "assign", "var": "i", "val": 1 },
+        { "line": 3, "type": "condition", "expr": "1 ≤ 3", "result": true },
+        { "line": 4, "type": "assign", "var": "sum", "val": 1 },
+        { "line": 3, "type": "assign", "var": "i", "val": 2 },
+        { "line": 3, "type": "condition", "expr": "2 ≤ 3", "result": true },
+        { "line": 4, "type": "assign", "var": "sum", "val": 3 },
+        { "line": 3, "type": "assign", "var": "i", "val": 3 },
+        { "line": 3, "type": "condition", "expr": "3 ≤ 3", "result": true },
+        { "line": 4, "type": "assign", "var": "sum", "val": 6 },
+        { "line": 3, "type": "assign", "var": "i", "val": 4 },
+        { "line": 3, "type": "condition", "expr": "4 ≤ 3", "result": false },
+        { "line": 7, "type": "output", "val": 6 }
+      ]
+    }
+  },
+    {
+    "id": "p6",
+    "mode": "practice",
+    "title": "応用: 条件付きカウント",
+    "category": "反復・分岐",
+    "difficulty": "標準",
+    "code_text": "整数型の配列: A ← {3, 5, 8, 2, 7}\n整数型: i, cnt\ni ← 0\ncnt ← 0\n\nwhile (i < 5)\n  if (A[i] が 偶数)\n    cnt ← cnt + 1\n  endif\n  i ← i + 1\nendwhile\n\ncntを出力",
+    "variables": ["A", "i", "cnt"],
+    "data": {
+      "steps": [
+        { "line": 3, "type": "assign", "var": "i", "val": 0 },
+        { "line": 4, "type": "assign", "var": "cnt", "val": 0 },
+
+        { "line": 6, "type": "condition", "expr": "0 < 5", "result": true },
+        { "line": 7, "type": "condition", "expr": "3 は偶数か", "result": false },
+        { "line": 10, "type": "assign", "var": "i", "val": 1 },
+
+        { "line": 6, "type": "condition", "expr": "1 < 5", "result": true },
+        { "line": 7, "type": "condition", "expr": "5 は偶数か", "result": false },
+        { "line": 10, "type": "assign", "var": "i", "val": 2 },
+
+        { "line": 6, "type": "condition", "expr": "2 < 5", "result": true },
+        { "line": 7, "type": "condition", "expr": "8 は偶数か", "result": true },
+        { "line": 8, "type": "assign", "var": "cnt", "val": 1 },
+        { "line": 10, "type": "assign", "var": "i", "val": 3 },
+
+        { "line": 6, "type": "condition", "expr": "3 < 5", "result": true },
+        { "line": 7, "type": "condition", "expr": "2 は偶数か", "result": true },
+        { "line": 8, "type": "assign", "var": "cnt", "val": 2 },
+        { "line": 10, "type": "assign", "var": "i", "val": 4 },
+
+        { "line": 6, "type": "condition", "expr": "4 < 5", "result": true },
+        { "line": 7, "type": "condition", "expr": "7 は偶数か", "result": false },
+        { "line": 10, "type": "assign", "var": "i", "val": 5 },
+
+        { "line": 6, "type": "condition", "expr": "5 < 5", "result": false },
+        { "line": 13, "type": "output", "val": 2 }
+      ]
+    }
+  },
+  {
     "id": "2023_fe_b_q1",
     "mode": "exam",
     "title": "問1: 素数判定",
     "category": "探索",
     "difficulty": "標準",
-    "description": "次のプログラム中の[ a ]と[ b ]に入れる正しい答えの組合せを，解答群の中から選べ。",
-    "code_text": "○整数型の配列: findPrimeNumbers(整数型:maxNum)\n  整数型の配列: pnList ← {}\n整数型:i, j\n論理型:divideFlag\n\nfor (iを2から [ a ] まで 1 ずつ増やす)\n  divideFlag ← true\n  for (jを2から iの正の平方根の整数部分まで1ずつ増やす)\n    if ( [ b ] )\n      divideFlag ← false\n      aの行から始まる繰返し処理を終了する\n    endif\n  endfor\n  if (divideFlag が true と等しい)\n    pnListの末尾にiの値を追加する\n  endif\nendfor\nreturn pnList",
+    "content": [
+      {
+        "type": "text",
+        "text": "次のプログラム中の[ a ]と[ b ]に入れる正しい答えの組合せを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\n関数findPrimeNumbersは，引数で与えられた整数以下の，全ての素数だけを格納した配列を返す関数である。ここで，引数に与える整数は2以上である。"
+      },
+      {
+        "type": "code",
+        "text": "○整数型の配列: findPrimeNumbers(整数型:maxNum)\n 整数型の配列: pnList ← {}  // 要素数0の配列\n 整数型:i, j\n 論理型:divideFlag\n for (iを2から [ a ] まで 1 ずつ増やす)\n   divideFlag ← true\n\n   /* iの正の平方根の整数部分が2未満のときは，繰返し処理を実行しない */\n   for (jを2から iの正の平方根の整数部分まで1ずつ増やす)  // α\n     if ( [ b ] )\n       divideFlag ← false\n     αの行から始まる繰返し処理を終了する\n     endif\n   endfor\n   if (divideFlag が true と等しい)\n     pnListの末尾にiの値を追加する\n   endif\n endfor\n return pnList"
+      }
+    ],
     "variables": ["i", "j", "divideFlag", "pnList"],
     "data": {
       "options": {
-        "ア": { "a": "maxNum", "b": "i ÷ j の余りが 0 と等しい" },
-        "イ": { "a": "maxNum", "b": "i ÷ j の商が 1 と等しくない" },
-        "ウ": { "a": "maxNum + 1", "b": "i ÷ j の余りが 0 と等しい" },
-        "エ": { "a": "maxNum + 1", "b": "i ÷ j の商が 1 と等しくない" }
-      },
+        "ア": {"a": "maxNum", "b": "i ÷ j の余りが 0 と等しい"},
+        "イ": {"a": "maxNum", "b": "i ÷ j の商が 1 と等しくない"},
+        "ウ": {"a": "maxNum + 1", "b": "i ÷ j の余りが 0 と等しい"},
+        "エ": {"a": "maxNum + 1", "b": "i ÷ j の商が 1 と等しくない"}
+        },
       "correct_option": "ア"
     }
   },
-  {
+{
     "id": "2023_fe_b_q2",
     "mode": "exam",
     "title": "問2: 手続き呼び出しの順序",
     "category": "手続き・制御",
     "difficulty": "初級",
-    "description": "次のプログラムにおいて，手続proc2を呼び出すと，どの順に文字が出力されるか。",
-    "code_text": "○proc1()\n  \"A\" を出力する\n  proc3()\n\n○proc2()\n  proc3()\n  \"B\" を出力する\n  proc1()\n\n○proc3()\n  \"C\" を出力する",
+    "content": [
+      {
+        "type": "text",
+        "text": "次の記述中の【  】に入れる正しい答えを，解答群の中から選べ。\n\n次のプログラムにおいて，手続 proc2 を呼び出すと，【  】の順に出力される。"
+      },
+      {
+        "type": "code",
+        "text": "○proc1()\n \"A\" を出力する\n proc3()\n\n○proc2()\n proc3()\n \"B\" を出力する\n proc1()\n\n○proc3()\n \"C\" を出力する"
+      }
+    ],
     "variables": [],
     "data": {
       "options": {
-        "ア": "A, B, B, C",
-        "イ": "A, C",
-        "ウ": "A, C, B, C",
-        "エ": "B, A, B, C",
-        "オ": "C, B",
-        "カ": "C, B, A, C"
+        "ア": "\"A\", \"B\", \"B\", \"C\"",
+        "イ": "\"A\", \"C\"",
+        "ウ": "\"A\", \"C\", \"B\", \"C\"",
+        "エ": "\"B\", \"A\", \"B\", \"C\"",
+        "オ": "\"B\", \"C\", \"B\", \"A\"",
+        "カ": "\"C\", \"B\"",
+        "キ": "\"C\", \"B\", \"A\"",
+        "ク": "\"C\", \"B\", \"A\", \"C\""
       },
       "correct_option": "カ"
     }
@@ -118,8 +231,16 @@
     "title": "問3: クイックソートの途中結果",
     "category": "整列アルゴリズム",
     "difficulty": "標準",
-    "description": "クイックソートの処理途中で出力される配列の内容として正しいものを選ぶ。",
-    "code_text": "○大域: 整数型の配列: data ← {2, 1, 3, 5, 4}\n\n○sort(整数型: first, 整数型: last)\n  整数型: pivot, i, j\n  pivot ← data[(first + last) ÷ 2 の商]\n  i ← first\n  j ← last\n\n  while (true)\n    while (data[i] < pivot)\n      i ← i + 1\n    endwhile\n    while (pivot < data[j])\n      j ← j - 1\n    endwhile\n    if (i ≧ j)\n      繰返し処理を終了する\n    endif\n    data[i] と data[j] の値を入れ替える\n    i ← i + 1\n    j ← j - 1\n  endwhile\n\n  data の全要素の値を要素番号の順に空白区切りで出力する  /*** a ***/\n\n  if (first < i - 1)\n    sort(first, i - 1)\n  endif\n  if (j + 1 < last)\n    sort(j + 1, last)\n  endif",
+    "content": [
+      {
+        "type": "text",
+        "text": "次の記述中の【  】に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\n次の手続sortは，大域の整数型の配列dataの，引数firstで与えられた要素番号から引数lastで与えられた要素番号までの要素を昇順に整列する。ここで，first < lastとする。手続sortをsort(1, 5) として呼び出すと，/*** α ***/ の行を最初に実行したときの出力は“【  】”となる。"
+      },
+      {
+        "type": "code",
+        "text": "大域: 整数型の配列: data ← {2, 1, 3, 5, 4}\n\n○sort(整数型: first, 整数型: last)\n 整数型: pivot, i, j\n pivot ← data[(first + last) ÷ 2 の商]\n i ← first\n j ← last\n\n while (true)\n   while (data[i] < pivot)\n     i ← i + 1\n   endwhile\n   while (pivot < data[j])\n     j ← j - 1\n   endwhile\n   if (i ≧ j)\n     繰返し処理を終了する\n   endif\n   data[i] と data[j] の値を入れ替える\n   i ← i + 1\n   j ← j - 1\n endwhile\n data の全要素の値を要素番号の順に空白区切りで出力する  /*** a ***/\n if (first < i - 1)\n   sort(first, i - 1)\n endif\n if (j + 1 < last)\n   sort(j + 1, last)\n endif"
+      }
+    ],
     "variables": ["data", "pivot", "i", "j", "first", "last"],
     "data": {
       "options": {
@@ -138,8 +259,16 @@
     "title": "問4: ハッシュ法（二次探索）",
     "category": "データ構造",
     "difficulty": "標準",
-    "description": "関数addは，引数で指定された正の整数valueを大域の整数型配列hashArrayに格納する。格納できた場合はtrueを返し，格納できなかった場合はfalseを返す。ここで，整数valueをhashArrayのどの要素に格納すべきかを，関数calcHash1及びcalcHash2を利用して決定する。手続testの処理が終了した直後のhashArrayの内容を求める。",
-    "code_text": "大域: 整数型の配列: hashArray\n\n○論理型: add(整数型: value)\n  整数型: i ← calcHash1(value)\n  if (hashArray[i] == -1)\n    hashArray[i] ← value\n    return true\n  else\n    i ← calcHash2(value)\n    if (hashArray[i] == -1)\n      hashArray[i] ← value\n      return true\n    endif\n  endif\n  return false\n\n○整数型: calcHash1(整数型: value)\n  return (value mod hashArrayの要素数) + 1\n\n○整数型: calcHash2(整数型: value)\n  return ((value + 3) mod hashArrayの要素数) + 1\n\n○test()\n  hashArray ← {5個の -1}\n  add(3)\n  add(18)\n  add(11)",
+    "content": [
+      {
+        "type": "text",
+        "text": "次の記述中の【  】に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\n関数addは，引数で指定された正の整数valueを大域の整数型の配列hashArrayに格納する。格納できた場合はtrue を返し，格納できなかった場合は false を返す。ここで，整数valueをhashArrayのどの要素に格納すべきかを，関数calcHash1及びcalcHash2 を利用して決める。 \n手続testは，関数addを呼び出して，hashArrayに正の整数を格納する。手続test の処理が終了した直後のhashArrayの内容は，【  】である。"
+      },
+      {
+        "type": "code",
+        "text": "大域: 整数型の配列: hashArray\n\n○論理型: add(整数型: value)\n 整数型: i ← calcHash1(value)\n if (hashArray[i] == -1)\n   hashArray[i] ← value\n   return true\n else\n   i ← calcHash2(value)\n   if (hashArray[i] == -1)\n     hashArray[i] ← value\n     return true\n   endif\n endif\n return false\n\n○整数型: calcHash1(整数型: value)\n return (value mod hashArrayの要素数) + 1\n\n○整数型: calcHash2(整数型: value)\n return ((value + 3) mod hashArrayの要素数) + 1\n\n○test()\n hashArray ← {5個の -1}\n add(3)\n add(18)\n add(11)"
+      }
+    ],
     "variables": ["hashArray", "value", "i"],
     "data": {
       "options": {
@@ -152,16 +281,27 @@
       "correct_option": "エ"
     }
   },
-
-
   {
     "id": "2023_fe_b_q5",
     "mode": "exam",
     "title": "問5: コサイン類似度の計算",
     "category": "数値計算・ベクトル",
     "difficulty": "標準",
-    "description": "二つのベクトルのコサイン類似度を計算するプログラム中の a と b に入る正しい組合せを選ぶ。",
-    "code_text": "○実数型: calcCosineSimilarity(実数型の配列: vector1, 実数型の配列: vector2)\n  実数型: similarity, numerator, denominator, temp ← 0\n  整数型: i\n  numerator ← 0\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n    numerator ← numerator + [ a ]\n  endfor\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n    temp ← temp + vector1[i] の 2乗\n  endfor\n  denominator ← temp の正の平方根\n\n  temp ← 0\n  for (i を 1 から vector2 の要素数 まで 1 ずつ増やす)\n    temp ← temp + vector2[i] の 2乗\n  endfor\n  denominator ← [ b ]\n\n  similarity ← numerator ÷ denominator\n  return similarity",
+    "content": [
+      {
+        "type": "text",
+        "text": "次のプログラム中の[ a ]と[ b ]に入れる正しい答えの組合せを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\nコサイン類似度は，二つのベクトルの向きの類似性を測る尺度である。関数calcCosineSimilarityは，いずれも要素数がn(n≧1) である実数型の配列vector1とvector2を受け取り，二つの配列のコサイン類似度を返す。配列vector1が {a1, a2, …, an}，配列vector2が {b1, b2, …, bn} のとき，コサイン類似度は次の数式で計算される。ここで，配列vector1と配列vector2のいずれも，全ての要素に0が格納されていることはないものとする。"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2023_fe_b_q5.png"
+      },
+      {
+        "type": "code",
+        "text": "○実数型: calcCosineSimilarity(実数型の配列: vector1, 実数型の配列: vector2)\n 実数型: similarity, numerator, denominator, temp ← 0\n 整数型: i\n numerator ← 0\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n   numerator ← numerator + [ a ]\n endfor\n\n for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n   temp ← temp + vector1[i] の 2乗\n endfor\n denominator ← temp の正の平方根\n\n temp ← 0\n for (i を 1 から vector2 の要素数 まで 1 ずつ増やす)\n   temp ← temp + vector2[i] の 2乗\n endfor\n denominator ← [ b ]\n\n similarity ← numerator ÷ denominator\n return similarity"
+      }
+    ],
     "variables": ["similarity", "numerator", "denominator", "temp", "i"],
     "data": {
       "options": {
