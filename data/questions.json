@@ -100,42 +100,6 @@
     }
   },
   {
-    "id": "exam_2023_q2",
-    "mode": "exam",
-    "title": "問2: 配列を逆順にする",
-    "category": "配列",
-    "difficulty": "標準",
-    "code_text": "整数型の配列: array ← {1,2,3,4,5}\n整数型: right, left\n整数型: tmp\n\nfor (left を 1 から (arrayの要素数 ÷ 2 の商) まで 1 ずつ増やす)\n  right ← [ a ]\n  tmp ← array[right]\n  array[right] ← array[left]\n  [ b ] ← tmp\nendfor",
-    "variables": ["array", "right", "left", "tmp"],
-    "data": {
-      "options": {
-        "ア": { "a": "arrayの要素数 − left", "b": "array[left]" },
-        "イ": { "a": "arrayの要素数 − left", "b": "array[right]" },
-        "ウ": { "a": "arrayの要素数 − left + 1", "b": "array[left]" },
-        "エ": { "a": "arrayの要素数 − left + 1", "b": "array[right]" }
-      },
-      "correct_option": "ウ"
-    }
-  },
-  {
-    "id": "exam_2023_q3",
-    "mode": "exam",
-    "title": "問3: 単方向リストへの追加",
-    "category": "データ構造",
-    "difficulty": "標準",
-    "code_text": "手続append(文字型: qVal)\n  ListElement: prev, curr\n  curr ← ListElement(qVal)\n  if (listHead が [ a ])\n    listHead ← curr\n  else\n    prev ← listHead\n    while (prev.next が 未定義でない)\n      prev ← prev.next\n    endwhile\n    prev.next ← [ b ]\n  endif",
-    "variables": ["listHead", "prev", "curr", "qVal"],
-    "data": {
-      "options": {
-        "ア": { "a": "未定義", "b": "curr" },
-        "イ": { "a": "未定義", "b": "curr.next" },
-        "ウ": { "a": "未定義", "b": "listHead" },
-        "エ": { "a": "未定義でない", "b": "curr" }
-      },
-      "correct_option": "ア"
-    }
-  },
-{
     "id": "2023_fe_b_q2",
     "mode": "exam",
     "title": "問2: 手続き呼び出しの順序",
