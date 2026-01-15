@@ -204,47 +204,30 @@ def home():
         rank = "トレース見習い"
         rank_color = "text-lime-600"
 
-    # ---------------------------------------------------------
-    # ★ 過去7日間の積み上げグラフ用データ（エラーで欠けていた部分）
-    # ---------------------------------------------------------
-    graph_labels = []
-    data_practice = []
-    data_exam = []
+    # グラフ用データの集計 (過去7日間)
+    graph_labels = []  # 日付（例："1/5"）
+    data_practice = []  # 練習モードの正解数
+    data_exam = []  # 過去問モードの正解数
 
     for i in range(6, -1, -1):  # 6日前〜今日
-        day = today - timedelta(days=i)
-        graph_labels.append(day.strftime("%m/%d"))
+        target_date = today - timedelta(days=i)
+        # ラベル作成（月/日）
+        graph_labels.append(target_date.strftime("%m/%d"))
 
-        # 練習モードの正解数
-        count_practice = (
-            LearningLog.query.filter_by(
-                user_id=current_user.id,
-                mode="practice",
-                is_correct=True
-            )
-            .filter(
-                LearningLog.timestamp.between(
-                    datetime.combine(day, datetime.min.time()),
-                    datetime.combine(day, datetime.max.time())
-                )
-            )
-            .count()
+        # モード別に集計
+        count_practice = sum(
+            1
+            for log in logs
+            if log.timestamp.date() == target_date
+            and log.is_correct
+            and log.mode == "practice"
         )
-
-        # 過去問モードの正解数
-        count_exam = (
-            LearningLog.query.filter_by(
-                user_id=current_user.id,
-                mode="exam",
-                is_correct=True
-            )
-            .filter(
-                LearningLog.timestamp.between(
-                    datetime.combine(day, datetime.min.time()),
-                    datetime.combine(day, datetime.max.time())
-                )
-            )
-            .count()
+        count_exam = sum(
+            1
+            for log in logs
+            if log.timestamp.date() == target_date
+            and log.is_correct
+            and log.mode == "exam"
         )
 
         data_practice.append(count_practice)
