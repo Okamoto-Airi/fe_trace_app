@@ -78,10 +78,9 @@
     </div>
 
     <!-- トレース開始前メッセージ -->
-    <div
-      id="placeholder-msg"
-      class="bg-blue-50 border border-blue-200 text-blue-800 p-8 rounded-lg text-center h-full flex flex-col justify-center items-center"
-    >
+    <div id="placeholder-msg"
+     class="bg-blue-50 border border-blue-200 text-blue-800 p-8 rounded-lg text-center 
+            flex flex-col justify-center items-center min-h-[200px]">
       <i data-lucide="mouse-pointer-click" class="w-10 h-10 mb-3 opacity-50"></i>
       <p class="font-bold text-lg">左の選択肢をクリックして、トレースを開始してください。</p>
       <p class="text-sm text-blue-600 mt-2">選択肢ごとに異なるトレース表を作成・保存できます。</p>
@@ -90,7 +89,7 @@
     <!-- トレース表パネル -->
     <div
       id="trace-panel"
-      class="hidden bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-[calc(100vh-140px)] lg:h-auto lg:min-h-[600px]"
+      class="hidden bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-[calc(100vh-180px)] lg:h-auto lg:min-h-[600px]"
     >
       <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
         <div class="flex items-center space-x-2">
@@ -138,7 +137,7 @@
       </div>
     </div>
 
-    <!-- ★ 手書きキャンバス（追加） -->
+    <!-- ★ 手書きキャンバス -->
     <div id="canvas-area" class="hidden p-4 bg-white flex flex-col items-stretch">
       <p class="text-xs text-gray-500 mb-2">自由に図を書いて整理できます。</p>
 
@@ -173,19 +172,13 @@
           </button>
         </div>
 
-        <!-- 右：太さ + プレビュー + クリア -->
+        <!-- 右：太さ + クリア -->
         <div class="flex items-center space-x-3">
           <label class="flex items-center space-x-1 text-gray-500">
             <span>太さ</span>
             <input type="range" min="2" max="20" value="3" id="pen-width" class="w-20"
               onchange="setPenWidth(this.value)" />
           </label>
-
-          <!-- ★ 太さプレビュー -->
-          <div id="pen-preview"
-               class="rounded-full border border-gray-400"
-               style="width: 3px; height: 3px; background-color: #000000;">
-          </div>
 
           <button type="button" class="text-gray-500 underline hover:text-gray-800"
             onclick="clearCanvas()">
@@ -198,6 +191,7 @@
 
   </div>
 </div>
+
 
 <!-- ★ JS（トレース表 + キャンバス機能すべて統合） -->
 <script>
@@ -390,11 +384,11 @@
       } else {
         alert("😢 不正解です…\n\nトレース表を見直して、どこで矛盾が生じているか確認してみましょう。");
       }
-      } catch (e) {
-          console.error(e);
-          alert("エラーが発生しました。");
-      }
-      }
+    } catch (e) {
+        console.error(e);
+        alert("エラーが発生しました。");
+        }
+  }
 
 // 入力自動保存
 document.getElementById('table-body').addEventListener('input', () => {
@@ -493,7 +487,7 @@ function setupCanvas() {
   canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
     drawing = false;
-  }, { passive: false });
+  }, { passive:false });
 
   canvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
@@ -508,7 +502,7 @@ function setupCanvas() {
 
     ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
     ctx.stroke();
-  }, { passive: false });
+  }, { passive:false });
 }
 
 
@@ -535,23 +529,13 @@ function setPenColor(color, btn) {
     'border-yellow-500',
     'text-yellow-800'
   );
-
-  // プレビュー色更新
-  const preview = document.getElementById('pen-preview');
-  if (preview) preview.style.backgroundColor = color;
 }
 
 
-// 太さ変更 + プレビュー
+// 太さ変更（プレビュー削除済み）
 function setPenWidth(width) {
   penWidth = Number(width);
   if (ctx) ctx.lineWidth = penWidth;
-
-  const preview = document.getElementById('pen-preview');
-  if (preview) {
-    preview.style.width = penWidth + 'px';
-    preview.style.height = penWidth + 'px';
-  }
 }
 
 
@@ -569,14 +553,10 @@ function enableEraser(btn) {
     b.classList.remove('ring-2', 'ring-gray-700');
   });
 
-  // 青強調
+  // 強調
   btn.classList.add('bg-yellow-200',
     'border-yellow-500',
     'text-yellow-800');
-
-  // プレビュー白
-  const preview = document.getElementById('pen-preview');
-  if (preview) preview.style.backgroundColor = '#ffffff';
 }
 
 
