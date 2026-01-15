@@ -82,6 +82,7 @@ class Problem(db.Model):  # Problemモデルクラスを定義
                         # 不正なパス検知時は、安全なダミー画像や空文字に置換して無効化
                         # (必要に応じて 'images/error.png' などを用意してください)
                         item["src"] = ""
+            return items
         except json.JSONDecodeError:
             return []
 
