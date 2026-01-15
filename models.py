@@ -37,9 +37,12 @@ class Problem(db.Model):  # Problemモデルクラスを定義
     difficulty = db.Column(db.String(20))  # 難易度カラム（文字列、オプション）
 
     # 問題の中身
-    description = db.Column(db.Text)  # 問題文カラム（テキスト、examモード用）
+    description = db.Column(db.Text)  # 問題文カラム（簡易表示用）
     code_text = db.Column(db.Text, nullable=False)  # 表示用コードカラム（テキスト、必須）
     variables_str = db.Column(db.String(200))  # 変数リストカラム（カンマ区切り文字列）
+
+    # 過去問演習モードの問題を保存するためのJSONカラム
+    content_json = db.Column(db.Text, default="[]", nullable=True)
 
     # 複雑なデータはJSON文字列として保存
     data_json = db.Column(db.Text, nullable=False)  # 複雑なデータ（steps/options）をJSON文字列として保存（必須）
@@ -50,7 +53,7 @@ class Problem(db.Model):  # Problemモデルクラスを定義
         """data_json を辞書型に戻して返す"""
         try:  # JSONパースを試行
             return json.loads(self.data_json)  # JSON文字列を辞書に変換
-        except:  # パース失敗時
+        except json.JSONDecodeError:  # パース失敗時
             return {}  # 空の辞書を返す
 
     @property  # プロパティデコレータ：variables_strをリストで返す
@@ -59,6 +62,29 @@ class Problem(db.Model):  # Problemモデルクラスを定義
         if self.variables_str:  # variables_strが存在する場合
             return self.variables_str.split(",")  # カンマで分割してリスト化
         return []  # 存在しない場合は空リスト
+    
+    @property
+    def content(self):
+        """content_json をリストに戻して返す"""
+        if not self.content_json:
+            return []
+        try:
+            items = json.loads(self.content_json)
+
+            # テンプレートに渡す前に画像パスを検証する
+            for item in items:
+                # "src"キーを持つ要素をチェック
+                if item.get("src"):
+                    src = item["src"]
+                    # 1. ".." (親ディレクトリへの移動) を禁止
+                    # 2. "images/" で始まること (静的ファイルの所定フォルダに限定)
+                    if ".." in src or not src.startswith("images/"):
+                        # 不正なパス検知時は、安全なダミー画像や空文字に置換して無効化
+                        # (必要に応じて 'images/error.png' などを用意してください)
+                        item["src"] = ""
+            return items
+        except json.JSONDecodeError:
+            return []
 
     def to_dict(self):  # フロントエンド用にデータを辞書化するメソッド
         """フロントエンド(JS)用にデータを辞書化するメソッド"""
@@ -72,6 +98,7 @@ class Problem(db.Model):  # Problemモデルクラスを定義
             "variables": self.variables,  # 変数リストを追加（プロパティ経由）
             "code_template": self.code_text,  # コードテンプレートを追加（過去問モード用）
             "code": self.code_text.split("\n"),  # コードを行ごとの配列に分割（練習モード用）
+            "content": self.content
         }
 
         # JSONカラムの中身（steps や options）をマージする
