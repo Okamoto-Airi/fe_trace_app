@@ -149,6 +149,21 @@ def load_user(user_id):  # ユーザーIDからユーザーをロードする関
     return User.query.get(int(user_id))  # IDでUserをクエリして返す
 
 
+def calculate_rank(solved_count: int):
+    """
+    解いた問題数から称号とCSSクラスを返す
+    """
+    if solved_count >= 30:
+        return "トレースレジェンド", "text-yellow-500"
+    elif solved_count >= 25:
+        return "トレースマスター", "text-purple-500"
+    elif solved_count >= 20:
+        return "トレース職人", "text-red-500"
+    elif solved_count >= 10:
+        return "トレース上級者", "text-sky-500"
+    else:
+        return "トレース見習い", "text-lime-600"
+
 # --- ルーティング ---
 
 
@@ -186,23 +201,8 @@ def home():
 
     # --- 称号計算 ---
     solved_count = sum(1 for log in logs if log.is_correct)
-    # solved_count = 50  # ←ホームのテスト用。
 
-    if solved_count >= 30:
-        rank = "トレースレジェンド"
-        rank_color = "text-yellow-500"
-    elif solved_count >= 25:
-        rank = "トレースマスター"
-        rank_color = "text-purple-500"
-    elif solved_count >= 20:
-        rank = "トレース職人"
-        rank_color = "text-red-500"
-    elif solved_count >= 10:
-        rank = "トレース上級者"
-        rank_color = "text-sky-500"
-    else:
-        rank = "トレース見習い"
-        rank_color = "text-lime-600"
+    rank, rank_color = calculate_rank(solved_count)
 
     # グラフ用データの集計 (過去7日間)
     graph_labels = []  # 日付（例："1/5"）
@@ -314,24 +314,8 @@ def account():
         user_id=current_user.id, is_correct=True
     ).count()
 
-    # solved_count = 50   # ←プロフィールのテスト用。
-
-    # --- 称号計算（home と同じロジック） ---
-    if solved_count >= 30:
-        rank = "トレースレジェンド"
-        rank_color = "text-yellow-500"
-    elif solved_count >= 25:
-        rank = "トレースマスター"
-        rank_color = "text-purple-500"
-    elif solved_count >= 20:
-        rank = "トレース職人"
-        rank_color = "text-red-500"
-    elif solved_count >= 10:
-        rank = "トレース上級者"
-        rank_color = "text-sky-500"
-    else:
-        rank = "トレース見習い"
-        rank_color = "text-lime-600"
+    # 称号計算
+    rank, rank_color = calculate_rank(solved_count)
 
     return render_template(
         "profile.html",
