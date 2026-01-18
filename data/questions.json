@@ -170,7 +170,7 @@
   {
     "id": "2023_fe_b_q1",
     "mode": "exam",
-    "title": "問1: 素数判定",
+    "title": "令和5年 問1: 素数判定",
     "category": "探索",
     "difficulty": "標準",
     "content": [
@@ -197,7 +197,7 @@
 {
     "id": "2023_fe_b_q2",
     "mode": "exam",
-    "title": "問2: 手続き呼び出しの順序",
+    "title": "令和5年 問2: 手続き呼び出しの順序",
     "category": "手続き・制御",
     "difficulty": "初級",
     "content": [
@@ -228,7 +228,7 @@
   {
     "id": "2023_fe_b_q3",
     "mode": "exam",
-    "title": "問3: クイックソートの途中結果",
+    "title": "令和5年 問3: クイックソートの途中結果",
     "category": "整列アルゴリズム",
     "difficulty": "標準",
     "content": [
@@ -256,7 +256,7 @@
   {
     "id": "2023_fe_b_q4",
     "mode": "exam",
-    "title": "問4: ハッシュ法（二次探索）",
+    "title": "令和5年 問4: ハッシュ法（二次探索）",
     "category": "データ構造",
     "difficulty": "標準",
     "content": [
@@ -284,7 +284,7 @@
   {
     "id": "2023_fe_b_q5",
     "mode": "exam",
-    "title": "問5: コサイン類似度の計算",
+    "title": "令和5年 問5: コサイン類似度の計算",
     "category": "数値計算・ベクトル",
     "difficulty": "標準",
     "content": [
@@ -348,11 +348,19 @@
   {
     "id": "2024_fe_b_q1",
     "mode": "exam",
-    "title": "問1: 3つの整数の最大値",
+    "title": "令和6年 問1: 3つの整数の最大値",
     "category": "条件分岐",
     "difficulty": "初級",
-    "description": "関数maximumは，異なる三つの整数x，y，zを引数で受け取り，そのうちの最大値を返す。プログラム中の空欄に入れる正しい条件式を選ぶ。",
-    "code_text": "○整数型: maximum(整数型: x, 整数型: y, 整数型: z)\n  if ( [ a ] )\n    return x\n  elseif (y > z)\n    return y\n  else\n    return z\n  endif",
+    "content": [
+      {
+        "type": "text",
+        "text": "次のプログラム中の ( [  ] ) に入れる正しい答えを，解答群の中から選べ。関数 maximum は，異なる三つの整数を引数で受け取り，そのうちの最大値を返す。"
+      },
+      {
+        "type": "code",
+        "text": "○整数型: maximum(整数型: x, 整数型: y, 整数型: z)\n  if ( [  ] )\n    return x\n  elseif (y > z)\n    return y\n  else\n    return z\n  endif"
+      }
+    ],
     "variables": ["x", "y", "z"],
     "data": {
       "options": {
@@ -366,14 +374,23 @@
       "correct_option": "イ"
     }
   },
+
   {
     "id": "2024_fe_b_q2",
     "mode": "exam",
-    "title": "問2: 2進数文字列の10進変換",
+    "title": "令和6年 問2: 2進数文字列の10進変換",
     "category": "計算・文字列処理",
     "difficulty": "標準",
-    "description": "関数convDecimalは，引数として与えられた\"0\"と\"1\"だけから成る1文字以上の文字列を，符号なしの2進数と解釈したときの整数値を返す。プログラム中の空欄に入れる正しい処理を選ぶ。",
-    "code_text": "○整数型: convDecimal(文字列型: binary)\n  整数型: i, length, result ← 0\n  length ← binaryの文字数\n  for (i を 1 から length まで 1 ずつ増やす)\n    result ← [ a ]\n  endfor\n  return result",
+    "content": [
+      {
+        "type": "text",
+        "text": "次のプログラム中の [  ] に入れる正しい答えを，解答群の中から選べ。関数 convDecimal は，引数として与えられた，“0”と“1”だけから成る，1 文字以上の文字列を，符号なしの 2 進数と解釈したときの整数値を返す。例えば，引数として“10010”を与えると 18 が返る。関数 convDecimal が利用する関数 int は，引数で与えられた文字が“0”なら整数値 0 を返し，“1”なら整数値 1 を返す。"
+      },
+      {
+        "type": "code",
+        "text": "○整数型: convDecimal(文字列型: binary)\n  整数型: i, length, result ← 0\n  length ← binaryの文字数\n  for (i を 1 から length まで 1 ずつ増やす)\n    result ← [  ]\n  endfor\n  return result"
+      }
+    ],
     "variables": ["binary", "i", "length", "result"],
     "data": {
       "options": {
@@ -385,14 +402,28 @@
       "correct_option": "エ"
     }
   },
+
   {
     "id": "2024_fe_b_q3",
     "mode": "exam",
-    "title": "問3: 辺配列から隣接行列への変換",
+    "title": "令和6年 問3: 辺配列から隣接行列への変換",
     "category": "グラフ",
     "difficulty": "標準",
-    "description": "次の記述中の[　]に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\n図1に示すグラフの頂点には，1から順に整数で番号が付けられている。グラフは無向グラフであり，各頂点には高々一つの辺がある。一つの辺は両端の頂点の番号を要素にもつ要素数2の整数型の配列で表す。グラフ全体は，グラフに含まれる辺を表す要素数2の配列を全て格納した配列（以下，辺の配列という）で表現できる。",
-    "code_text": "○整数型の二次元配列: edgesToMatrix(整数型配列の配列: edgeList, 整数型: nodeNum)\n  整数型の二次元配列: adjMatrix ← {nodeNum行nodeNum列の0}\n  整数型: i, u, v\n\n  for (iを1から edgeListの要素数 まで 1ずつ増やす)\n    u ← edgeList[i][1]\n    v ← edgeList[i][2]\n    [   ]\n  endfor\n  return adjMatrix",
+    "content": [
+      {
+        "type": "text",
+        "text": "次の記述中の[　]に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。\n\n図1に示すグラフの頂点には，1から順に整数で番号が付けられている。グラフは無向グラフであり，各頂点には高々一つの辺がある。一つの辺は両端の頂点の番号を要素にもつ要素数2の整数型の配列で表す。グラフ全体は，グラフに含まれる辺を表す要素数2の配列を全て格納した配列（以下，辺の配列という）で表現できる。"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2024_fe_b_q3.png"
+      },
+      {
+        "type": "code",
+        "text": "○整数型の二次元配列: edgesToMatrix(整数型配列の配列: edgeList, 整数型: nodeNum)\n  整数型の二次元配列: adjMatrix ← {nodeNum行nodeNum列の0}\n  整数型: i, u, v\n\n  for (iを1から edgeListの要素数 まで 1ずつ増やす)\n    u ← edgeList[i][1]\n    v ← edgeList[i][2]\n    [   ]\n  endfor\n  return adjMatrix"
+      }
+    ],
     "variables": ["i", "u", "v", "adjMatrix", "edgeList", "nodeNum"],
     "data": {
       "options": {
@@ -406,14 +437,23 @@
       "correct_option": "エ"
     }
   },
+
   {
     "id": "2024_fe_b_q4",
     "mode": "exam",
-    "title": "問4: 辺配列から隣接行列への変換",
+    "title": "令和6年 問4: 辺配列から隣接行列への変換",
     "category": "グラフ",
     "difficulty": "標準",
-    "description": "次の記述中の空欄に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。",
-    "code_text": "○整数型の二次元配列: edgesToMatrix(整数型配列の配列: edgeList, 整数型: nodeNum)\n  整数型の二次元配列: adjMatrix ← {nodeNum行nodeNum列の0}\n  整数型: i, u, v\n\n  for (i を 1 から edgeListの要素数 まで 1 ずつ増やす)\n    u ← edgeList[i][1]\n    v ← edgeList[i][2]\n    [   ]\n  endfor\n\n  return adjMatrix",
+    "content": [
+      {
+        "type": "text",
+        "text": "次の記述中の空欄に入れる正しい答えを，解答群の中から選べ。ここで，配列の要素番号は1から始まる。"
+      },
+      {
+        "type": "code",
+        "text": "○整数型の二次元配列: edgesToMatrix(整数型配列の配列: edgeList, 整数型: nodeNum)\n  整数型の二次元配列: adjMatrix ← {nodeNum行nodeNum列の0}\n  整数型: i, u, v\n\n  for (i を 1 から edgeListの要素数 まで 1 ずつ増やす)\n    u ← edgeList[i][1]\n    v ← edgeList[i][2]\n    [   ]\n  endfor\n\n  return adjMatrix"
+      }
+    ],
     "variables": ["i", "u", "v", "adjMatrix", "edgeList", "nodeNum"],
     "data": {
       "options": {
@@ -427,14 +467,28 @@
       "correct_option": "エ"
     }
   },
+
   {
     "id": "2024_fe_b_q5",
     "mode": "exam",
-    "title": "問5: 注文データから関連度最大の商品を求める",
+    "title": "令和6年 問5: 注文データから関連度最大の商品を求める",
     "category": "データ分析",
     "difficulty": "標準",
-    "description": "一度の注文で購入された商品のリストを，注文ごとに記録した注文データがある。注文データから，商品xと商品yとが同一の注文で購入されやすい傾向を示す関連度Lxyを，次の式で計算する。\n\nLxy = (Mxy × 全注文数) ÷ (Kx × Ky)\n\nここで，Mxyは商品xと商品yとが同一の注文で購入された注文数，Kxは商品xが購入された注文数，Kyは商品yが購入された注文数を表す。\n\n手続putRelatedItemは，大域変数ordersに格納された注文データを基に，引数で与えられた商品の関連度が最も大きい商品のうちの一つと，その関連度を出力する。プログラムでは，商品は文字列で表し，注文は購入された商品の配列，注文データは注文の配列で表している。注文データは2種類以上の商品が含まれるものとする。また，注文データにある商品以外の商品が，引数として与えられることはないものとする。",
-    "code_text": "// 注文データ（ここでは表の例を与えている）\n大域：文字列型配列の配列：orders ← {{\"A\", \"B\", \"D\"}, {\"A\", \"D\"}, {\"A\"}, {\"A\", \"B\", \"E\"}, {\"B\"}, {\"C\", \"E\"}}\n\n○putRelatedItem(文字列型：item)\n  文字列型の配列：allItems ← ordersに含まれる文字列を重複なく辞書順に格納した配列\n  // 表の例では {\"A\", \"B\", \"C\", \"D\", \"E\"}\n\n  文字列型の配列：otherItems ← allItemsの複製から値がitemである要素を除いた配列\n\n  整数型：i，itemCount ← 0\n  整数型の配列：arrayK ← {otherItemsの要素数個の0}\n  整数型の配列：arrayM ← {otherItemsの要素数個の0}\n  実数型：valueL，maxL ← -∞\n  文字列型の配列：order\n  文字列型：relatedItem\n\n  for (orderにordersの要素を順に代入する)\n    if (orderのいずれかの要素の値がitemの値と等しい)\n      itemCount の値を1増やす\n    endif\n\n    for (iを1からotherItemsの要素数まで1ずつ増やす)\n      if (orderのいずれかの要素の値がotherItems[i]の値と等しい)\n        if (orderのいずれかの要素の値がitemの値と等しい)\n          [ a ] の値を1増やす\n        endif\n        [ b ] の値を1増やす\n      endif\n    endfor\n  endfor\n\n  for (iを1からotherItemsの要素数まで1ずつ増やす)\n    valueL ← (arrayM[i] × [ c ]) ÷ (itemCount × arrayK[i])  /* 実数として計算する */\n    if (valueLがmaxLより大きい)\n      maxL ← valueL\n      relatedItem ← otherItems[i]\n    endif\n  endfor\n\n  relatedItemの値とmaxLの値をこの順にコンマ区切りで出力する",
+    "content": [
+      {
+        "type": "text",
+        "text": "一度の注文で購入された商品のリストを，注文ごとに記録した注文データがある。注文データから，商品xと商品yとが同一の注文で購入されやすい傾向を示す関連度Lxyを，次の式で計算する。\n\nLxy = (Mxy × 全注文数) ÷ (Kx × Ky)\n\nここで，Mxyは商品xと商品yとが同一の注文で購入された注文数，Kxは商品xが購入された注文数，Kyは商品yが購入された注文数を表す。\n\n手続putRelatedItemは，大域変数ordersに格納された注文データを基に，引数で与えられた商品の関連度が最も大きい商品のうちの一つと，その関連度を出力する。プログラムでは，商品は文字列で表し，注文は購入された商品の配列，注文データは注文の配列で表している。注文データは2種類以上の商品が含まれるものとする。また，注文データにある商品以外の商品が，引数として与えられることはないものとする。"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2024_fe_b_q5.png"
+      },
+      {
+        "type": "code",
+        "text": "// 注文データ（ここでは表の例を与えている）\n大域：文字列型配列の配列：orders ← {{\"A\", \"B\", \"D\"}, {\"A\", \"D\"}, {\"A\"}, {\"A\", \"B\", \"E\"}, {\"B\"}, {\"C\", \"E\"}}\n\n○putRelatedItem(文字列型：item)\n  文字列型の配列：allItems ← ordersに含まれる文字列を重複なく辞書順に格納した配列\n  // 表の例では {\"A\", \"B\", \"C\", \"D\", \"E\"}\n\n  文字列型の配列：otherItems ← allItemsの複製から値がitemである要素を除いた配列\n\n  整数型：i，itemCount ← 0\n  整数型の配列：arrayK ← {otherItemsの要素数個の0}\n  整数型の配列：arrayM ← {otherItemsの要素数個の0}\n  実数型：valueL，maxL ← -∞\n  文字列型の配列：order\n  文字列型：relatedItem\n\n  for (orderにordersの要素を順に代入する)\n    if (orderのいずれかの要素の値がitemの値と等しい)\n      itemCount の値を1増やす\n    endif\n\n    for (iを1からotherItemsの要素数まで1ずつ増やす)\n      if (orderのいずれかの要素の値がotherItems[i]の値と等しい)\n        if (orderのいずれかの要素の値がitemの値と等しい)\n          [ a ] の値を1増やす\n        endif\n        [ b ] の値を1増やす\n      endif\n    endfor\n  endfor\n\n  for (iを1からotherItemsの要素数まで1ずつ増やす)\n    valueL ← (arrayM[i] × [ c ]) ÷ (itemCount × arrayK[i])  /* 実数として計算する */\n    if (valueLがmaxLより大きい)\n      maxL ← valueL\n      relatedItem ← otherItems[i]\n    endif\n  endfor\n\n  relatedItemの値とmaxLの値をこの順にコンマ区切りで出力する"
+      }
+    ],
     "variables": [
       "orders",
       "item",
@@ -461,14 +515,23 @@
       "correct_option": "オ"
     }
   },
+
   {
     "id": "2025_fe_b_q1",
     "mode": "exam",
-    "title": "問1: function1と同じ値を返すfunction2",
+    "title": "令和7年 問1: function1と同じ値を返すfunction2",
     "category": "ループ・剰余",
     "difficulty": "標準",
-    "description": "関数function1が受け取る引数と，関数function2が受け取る引数とが同じとき，二つの関数は同じ値を返す。ここで，引数nと引数mは正の整数であり，引数mは引数nよりも10以上大きい数とする。",
-    "code_text": "○整数型: function1(整数型: n, 整数型: m)\n  整数型: count ← 0\n  整数型: i\n  for (iをnからmまで1ずつ増やす)\n    if ((i mod 4)が0と等しい)\n      count ← count + 1\n    endif\n  endfor\n  return count\n\n○整数型: function2(整数型: n, 整数型: m)\n  整数型: count ← 0\n  整数型: tempN ← n\n  整数型: i, j\n\n  for ( [ a ] )\n    if ((tempN mod 4)が0と等しい)\n      繰返し処理を終了する\n    endif\n    tempN ← tempN + 1\n  endfor\n\n  for ( [ b ] )\n    count ← count + 1\n  endfor\n\n  return count",
+    "content": [
+      {
+        "type": "text",
+        "text": "関数function1が受け取る引数と，関数function2が受け取る引数とが同じとき，二つの関数は同じ値を返す。ここで，引数nと引数mは正の整数であり，引数mは引数nよりも10以上大きい数とする。"
+      },
+      {
+        "type": "code",
+        "text": "○整数型: function1(整数型: n, 整数型: m)\n  整数型: count ← 0\n  整数型: i\n  for (iをnからmまで1ずつ増やす)\n    if ((i mod 4)が0と等しい)\n      count ← count + 1\n    endif\n  endfor\n  return count\n\n○整数型: function2(整数型: n, 整数型: m)\n  整数型: count ← 0\n  整数型: tempN ← n\n  整数型: i, j\n\n  for ( [ a ] )\n    if ((tempN mod 4)が0と等しい)\n      繰返し処理を終了する\n    endif\n    tempN ← tempN + 1\n  endfor\n\n  for ( [ b ] )\n    count ← count + 1\n  endfor\n\n  return count"
+      }
+    ],
     "variables": ["n", "m", "count", "i", "j", "tempN"],
     "data": {
       "options": {
@@ -500,14 +563,24 @@
       "correct_option": "カ"
     }
   },
+
+
   {
     "id": "2025_fe_b_q2",
     "mode": "exam",
-    "title": "問2: 両替の組合せ数",
+    "title": "令和7年 問2: 両替の組合せ数",
     "category": "ループ・計算",
     "difficulty": "標準",
-    "description": "関数changeは，10より大きい整数を引数nで受け取り，1円玉，5円玉，10円玉を使ってちょうどn円にする組合せの総数を返す。",
-    "code_text": "○整数型: change(整数型: n)\n  整数型: count ← 0\n  整数型: rest ← n\n  while ( [  ] )\n    count ← count + (rest ÷ 5の商) + 1\n    rest ← rest - 10\n  endwhile\n  return count",
+    "content": [
+      {
+        "type": "text",
+        "text": "次のプログラム中の( [  ] )に入れる正しい答えを，解答群の中から選べ。関数 change は，10 より大きい整数を引数 n で受け取り，1 円玉，5 円玉，10 円玉を使ってちょうど n 円にする組合せの総数を返す。 例えば，12 円にする組合せは，次のように数えられる。10 円玉を使わない場合には，1 円玉と 5 円玉だけでちょうど 12 円にすることになる。その組合せは，使える 5円玉の枚数が 0 以上 (12 ÷ 5 の商) 以下なので，(12 ÷ 5 の商) ＋ 1 ＝ 3 通りある。同様に，10 円玉を 1 枚使う場合には，1 円玉と 5 円玉だけでちょうど 2 円にすることになり，その組合せは (2 ÷ 5 の商) ＋ 1 ＝ 1 通りある。10 円玉を 2 枚以上使う組合せはない。よって，1 円玉，5 円玉，10 円玉を使ってちょうど 12 円にする組合せは，3 ＋ 1 ＝ 4 通りである。"
+      },
+      {
+        "type": "code",
+        "text": "○整数型: change(整数型: n)\n  整数型: count ← 0\n  整数型: rest ← n\n  while ( [  ] )\n    count ← count + (rest ÷ 5の商) + 1\n    rest ← rest - 10\n  endwhile\n  return count"
+      }
+    ],
     "variables": ["n", "count", "rest"],
     "data": {
       "options": {
@@ -521,14 +594,29 @@
       "correct_option": "ウ"
     }
   },
+
+
   {
     "id": "2025_fe_b_q3",
     "mode": "exam",
-    "title": "問3: スタック操作（push / pop）",
+    "title": "令和7年 問3: スタック操作（push / pop）",
     "category": "データ構造（スタック）",
     "difficulty": "標準",
-    "description": "スタックに対するpush及びpop処理の正しい実装を判定する。",
-    "code_text": "【プログラム】\n大域: 整数型: stackPos ← 3\n大域: 整数型の配列: stack ← {4, 3, 未定義の値, 未定義の値}\n\n○論理型: push(整数型: inputData)\n  if (stackPos ≤ stackの要素数)\n    stack[ [ a ] ] ← inputData\n    stackPos ← stackPos + 1\n    return true\n  else\n    return false\n  endif\n\n○整数型: pop()\n  整数型: popData ← 未定義の値\n  if (stackPos > 1)\n    stackPos ← [ b ]\n    popData ← stack[stackPos]\n    stack[stackPos] ← 未定義の値\n  endif\n  return popData",
+    "content": [
+      {
+        "type": "text",
+        "text": "次のプログラム中の と に入れる正しい答えの組合せを，解答群の中から選べ。ここで，配列の要素番号は 1 から始まる。関数 push は，引数で与えられた整数をスタックに格納する。格納できた場合はtrue を返し，格納できなかった場合は false を返す。関数 pop は，スタックから値を取り出して返す。スタックが空のときは未定義の値を返す。\nスタックを，要素数が 4 である大域の整数型の配列 stack，及び次に値を格納する\n位置を示す大域の変数 stackPos で表現する。スタックの初期状態を図に示す。\nプログラムでは，配列の領域外を参照してはならないものとする。"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2025_fe_b_q3.png"
+      },
+      {
+        "type": "code",
+        "text": "【プログラム】\n大域: 整数型: stackPos ← 3\n大域: 整数型の配列: stack ← {4, 3, 未定義の値, 未定義の値}\n\n○論理型: push(整数型: inputData)\n  if (stackPos ≤ stackの要素数)\n    stack[ [ a ] ] ← inputData\n    stackPos ← stackPos + 1\n    return true\n  else\n    return false\n  endif\n\n○整数型: pop()\n  整数型: popData ← 未定義の値\n  if (stackPos > 1)\n    stackPos ← [ b ]\n    popData ← stack[stackPos]\n    stack[stackPos] ← 未定義の値\n  endif\n  return popData"
+      }
+    ],
     "variables": ["stackPos", "stack", "inputData", "popData"],
     "data": {
       "options": {
@@ -539,15 +627,25 @@
       },
       "correct_option": "イ"
     }
-  },
+},
+
+
   {
     "id": "2025_fe_b_q4",
     "mode": "exam",
-    "title": "問4: 文字列配列から部分列検索（βが真になる回数）",
+    "title": "令和7年 問4: 文字列配列から部分列検索（βが真になる回数）",
     "category": "探索",
     "difficulty": "標準",
-    "description": "関数searchは，二つの文字型の配列dataとkeyを受け取り，dataからkeyの要素の並びと同じ並びを全て探し，その先頭の要素番号を全て格納した配列を返す。見つからなければ，要素数0の配列を返す。search((\"a\",\"b\",\"a\",\"b\",\"c\",\"a\",\"b\",\"c\"),(\"a\",\"b\",\"c\"))として呼び出すと，/*** β ***/の行の条件式が真となる回数を求める。",
-    "code_text": "/* keyは，要素数1以上の配列である */\n○整数型の配列: search(文字型の配列: data, 文字型の配列: key)\n  整数型: i, j, lenData, lenKey\n  整数型の配列: result ← {}  // 要素数0の配列\n\n  lenData ← dataの要素数\n  lenKey ← keyの要素数\n\n  /* (lenData − lenKey + 1) が0以下のときは繰返し処理を実行しない */\n  for (i を 1 から (lenData − lenKey + 1) まで 1 ずつ増やす)\n    for (j を 1 から lenKey まで 1 ずつ増やす)  // α\n      if (data[i + j − 1] が key[j] と等しい)  /*** β ***/\n        if (j が lenKey と等しい)\n          resultの末尾に i の値を追加する\n        endif\n      else\n        αの行から始まる繰返し処理を終了する\n      endif\n    endfor\n  endfor\n  return result",
+    "content": [
+      {
+        "type": "text",
+        "text": "関数searchは，二つの文字型の配列dataとkeyを受け取り，dataからkeyの要素の並びと同じ並びを全て探し，その先頭の要素番号を全て格納した配列を返す。見つからなければ，要素数0の配列を返す。search((\"a\",\"b\",\"a\",\"b\",\"c\",\"a\",\"b\",\"c\"),(\"a\",\"b\",\"c\"))として呼び出すと，/*** β ***/の行の条件式が真となる回数を求める。"
+      },
+      {
+        "type": "code",
+        "text": "/* keyは，要素数1以上の配列である */\n○整数型の配列: search(文字型の配列: data, 文字型の配列: key)\n  整数型: i, j, lenData, lenKey\n  整数型の配列: result ← {}  // 要素数0の配列\n\n  lenData ← dataの要素数\n  lenKey ← keyの要素数\n\n  /* (lenData − lenKey + 1) が0以下のときは繰返し処理を実行しない */\n  for (i を 1 から (lenData − lenKey + 1) まで 1 ずつ増やす)\n    for (j を 1 から lenKey まで 1 ずつ増やす)  // α\n      if (data[i + j − 1] が key[j] と等しい)  /*** β ***/\n        if (j が lenKey と等しい)\n          resultの末尾に i の値を追加する\n        endif\n      else\n        αの行から始まる繰返し処理を終了する\n      endif\n    endfor\n  endfor\n  return result"
+      }
+    ],
     "variables": ["i", "j", "lenData", "lenKey", "result"],
     "data": {
       "options": {
@@ -565,14 +663,24 @@
       "correct_option": "ク"
     }
   },
+
+
   {
     "id": "2025_fe_b_q5",
     "mode": "exam",
-    "title": "問5: 理論度数の計算",
+    "title": "令和7年 問5: 理論度数の計算",
     "category": "データ分析・配列",
     "difficulty": "標準",
-    "description": "予防接種の病気Xに対する予防効果を調査するために集めた集計結果を基に、病気Xにかかるかどうかが予防接種の有無に影響されないと仮定した場合の人数（理論度数）を計算する。",
-    "code_text": "○実数型の二次元配列: f(実数型の二次元配列: data)\n  実数型: t ← dataの要素の和\n  整数型: row ← dataの行数\n  整数型: col ← dataの列数\n  実数型の二次元配列: result ← {row行col列の未定義の値}\n  整数型: r, c\n\n  for (r を 1 から row まで 1 ずつ増やす)\n    for (c を 1 から col まで 1 ずつ増やす)\n      result[r, c] ← (dataの行番号rの要素の和) × (dataの列番号cの要素の和) ÷ t\n    endfor\n  endfor\n  return result",
+    "content": [
+      {
+        "type": "text",
+        "text": "予防接種の病気Xに対する予防効果を調査するために集めた集計結果を基に、病気Xにかかるかどうかが予防接種の有無に影響されないと仮定した場合の人数（理論度数）を計算する。"
+      },
+      {
+        "type": "code",
+        "text": "○実数型の二次元配列: f(実数型の二次元配列: data)\n  実数型: t ← dataの要素の和\n  整数型: row ← dataの行数\n  整数型: col ← dataの列数\n  実数型の二次元配列: result ← {row行col列の未定義の値}\n  整数型: r, c\n\n  for (r を 1 から row まで 1 ずつ増やす)\n    for (c を 1 から col まで 1 ずつ増やす)\n      result[r, c] ← (dataの行番号rの要素の和) × (dataの列番号cの要素の和) ÷ t\n    endfor\n  endfor\n  return result"
+      }
+    ],
     "variables": ["data", "t", "row", "col", "result", "r", "c"],
     "data": {
       "input_table": {
