@@ -81,6 +81,7 @@ def seed_db_command():  # データベースシードコマンド関数
 
     count = 0  # 処理した問題数をカウント
     for p_data in problems_list:  # 各問題データをループ
+
         # IDで検索し、あれば更新、なければ新規作成
         problem = Problem.query.get(p_data["id"])  # IDで問題を検索
         if not problem:  # 存在しない場合
