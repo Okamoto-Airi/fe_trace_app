@@ -40,7 +40,10 @@
                 >
                   {{ '練習' if log.mode=='practice' else '過去問' }}
                 </span>
-                <span class="text-sm font-bold text-gray-700 line-clamp-1">
+                <span
+                  class="text-sm font-bold text-gray-700 line-clamp-1"
+                  title="{{ log.problem.title if log.problem else '削除された問題' }}"
+                >
                   {{ log.problem.title if log.problem else '削除された問題' }}
                 </span>
               </div>
