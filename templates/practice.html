@@ -238,7 +238,6 @@ function setPenColor(color, btn) {
   btn.classList.add('ring-2', 'ring-gray-700');
 
   // 消しゴムボタンの強調解除
-  document.getElementById('eraser-btn').classList.remove('bg-gray-200');
   document.getElementById('eraser-btn').classList.remove(
   'bg-yellow-200',
   'border-yellow-500',
@@ -571,31 +570,6 @@ function enableEraser(btn) {
   }
 
   // -------------------------
-// トレース表 / 手書きスペース 切り替え
-// -------------------------
-function showTraceTable() {
-  document.getElementById('trace-table-wrapper').classList.remove('hidden');
-  document.getElementById('canvas-area').classList.add('hidden');
-
-  const tabTrace = document.getElementById('tab-trace');
-  const tabCanvas = document.getElementById('tab-canvas');
-  tabTrace.classList.add('bg-white', 'text-gray-700');
-  tabTrace.classList.remove('bg-gray-100', 'text-gray-500');
-  tabCanvas.classList.add('bg-gray-100', 'text-gray-500');
-  tabCanvas.classList.remove('bg-white', 'text-gray-700');
-}
-
-function showCanvas() {
-  document.getElementById('trace-table-wrapper').classList.add('hidden');
-  document.getElementById('canvas-area').classList.remove('hidden');
-
-  const tabTrace = document.getElementById('tab-trace');
-  const tabCanvas = document.getElementById('tab-canvas');
-  tabCanvas.classList.add('bg-white', 'text-gray-700');
-  tabCanvas.classList.remove('bg-gray-100', 'text-gray-500');
-  tabTrace.classList.add('bg-gray-100', 'text-gray-500');
-  tabTrace.classList.remove('bg-white', 'text-gray-700');
-}
 
 // -------------------------
 // 手書きキャンバス関連
