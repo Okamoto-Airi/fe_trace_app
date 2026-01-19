@@ -332,6 +332,13 @@
     document.getElementById('status-text').className =
       'text-xs text-green-600 font-bold';
 
+    // 紙吹雪エフェクト
+    confetti({
+      particleCount: 150, // 紙吹雪の数
+      spread: 70,         // 広がり具合
+      origin: { y: 0.6 }  // 発生位置 (画面の少し下寄り)
+    });
+
     // 完了ハイライトOFF
     document.querySelectorAll('.code-line').forEach((el) => {
       el.classList.remove(

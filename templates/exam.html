@@ -387,8 +387,29 @@
           });
 
           if (isCorrect) {
-              alert("🎉 正解です！\n素晴らしい洞察力です。");
-              window.location.href = "{{ url_for('problem_list', mode='exam') }}";
+            // 正解時の豪華な紙吹雪エフェクト
+            var duration = 15 * 100; // 1.5秒間
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              var particleCount = 50 * (timeLeft / duration);
+              // 左右からランダムに打ち上げる
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2, y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2 + 0.8, y: Math.random() - 0.2 } }));
+            }, 250);
+
+            // 紙吹雪を少し見せてからアラートを出す (100ms遅延)
+            setTimeout(() => {
+                alert("🎉 正解です！\n素晴らしい洞察力です。");
+                window.location.href = "{{ url_for('problem_list', mode='exam') }}";
+            }, 500);
           } else {
               alert("😢 残念ながら不正解です...\n\nトレース表を見直して、どこで矛盾が生じているか確認してみましょう。");
           }
