@@ -31,16 +31,52 @@
 
       <h2 class="text-xl font-bold text-[#15803d] mb-2">{{ problem.title }}</h2>
 
-      {% if problem.description %}
-      <p class="text-sm text-gray-600 mb-4 whitespace-pre-wrap leading-relaxed">
-        {{ problem.description | trim }}
-      </p>
-      {% endif %}
+      <!-- ▼▼ main側：contentブロック対応 ▼▼ -->
+      <div class="space-y-6 mb-6">
+        {% for block in problem.content %}
+          {% if block.type == 'text' %}
+            <!-- prettier-ignore -->
+            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {{ block.text | trim }}
+            </p>
 
+          {% elif block.type == 'image' %}
+            {% if block.src and block.src.startswith('images/') %}
+              <div class="flex justify-center my-4">
+                <img
+                  src="{{ url_for('static', filename=block.src) }}"
+                  alt="{{ block.id }}"
+                  class="max-w-full h-auto rounded border border-gray-200 shadow-sm"
+                />
+              </div>
+            {% endif %}
+
+          {% elif block.type == 'code' %}
+            <!-- prettier-ignore -->
+            <div
+              class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 shadow-inner border border-gray-700 whitespace-pre-wrap"
+              id="code-display"
+            >{{ block.text | trim }}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <!-- ▲▲ contentブロックここまで ▲▲ -->
+
+      <!-- ▼▼ HEAD側：description fallback（contentが空のときのみ表示） ▼▼ -->
+      {% if not problem.content and problem.description %}
+        <!-- prettier-ignore -->
+        <p class="text-sm text-gray-600 mb-4 whitespace-pre-wrap leading-relaxed">
+          {{ problem.description | trim }}
+        </p>
+      {% endif %}
+      <!-- ▲▲ fallbackここまで ▲▲ -->
+
+      <!-- ▼▼ code_text（常に表示） ▼▼ -->
       <div
         class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 mb-4 shadow-inner border border-gray-700 whitespace-pre-wrap"
         id="code-display"
       >{{ problem.code_text | trim }}</div>
+      <!-- ▲▲ code_textここまで ▲▲ -->
 
       <div>
         <div class="flex justify-between items-end mb-2">
@@ -49,12 +85,12 @@
         </div>
         <div class="grid grid-cols-2 gap-2" id="option-buttons"></div>
       </div>
-    </div>
-  </div>
+    </div>  <!-- 左カラムのカード -->
+  </div>    <!-- 左カラム全体 -->
 
   <!-- 右側：タブ + トレース表 + キャンバス -->
   <div class="lg:col-span-7">
-
+    
     <!-- ★ タブ（追加） -->
     <div class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
       <div class="flex text-xs font-bold rounded-full border border-gray-300 overflow-hidden">

@@ -26,9 +26,8 @@
           class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1"
           >現在の称号</label
         >
-        <p class="text-lg font-bold text-[#15803d]">
-          {% if solved_count >= 30 %} トレースマスター 👑 {% elif solved_count
-          >= 10 %} トレース職人 🛠️ {% else %} トレース見習い 🌱 {% endif %}
+        <p class="text-lg font-bold {{ rank_color }}">
+          {{ rank }}
         </p>
       </div>
       <div>

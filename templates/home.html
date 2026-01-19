@@ -7,7 +7,7 @@
   >
     <div class="text-center md:text-left mb-4 md:mb-0">
       <h2 class="text-xl font-bold text-gray-700">現在の称号</h2>
-      <p class="text-3xl font-bold text-[#15803d] mt-2">{{ rank }}</p>
+      <p class="text-3xl font-bold {{ rank_color }} mt-2">{{ rank }}</p>
     </div>
     <div class="text-center border-l-0 md:border-l pl-0 md:pl-8">
       <p class="text-sm text-gray-500">連続学習記録</p>
@@ -33,18 +33,27 @@
           <li
             class="flex justify-between items-center border-b border-gray-100 pb-2 last:border-0 last:pb-0"
           >
-            <div class="flex items-center space-x-3">
-              <span
-                class="text-xs px-2 py-1 rounded font-bold {{ 'bg-blue-100 text-blue-800' if log.mode=='practice' else 'bg-purple-100 text-purple-800' }}"
-              >
-                {{ '練習' if log.mode=='practice' else '過去問' }}
+            <div class="flex flex-col">
+              <div class="flex items-center space-x-2 mb-1">
+                <span
+                  class="text-xs px-2 py-0.5 rounded font-bold {{ 'bg-blue-100 text-blue-800' if log.mode=='practice' else 'bg-purple-100 text-purple-800' }}"
+                >
+                  {{ '練習' if log.mode=='practice' else '過去問' }}
+                </span>
+                <span
+                  class="text-sm font-bold text-gray-700 line-clamp-1"
+                  title="{{ log.problem.title if log.problem else '削除された問題' }}"
+                >
+                  {{ log.problem.title if log.problem else '削除された問題' }}
+                </span>
+              </div>
+              <span class="text-xs text-gray-500">
+                {{ log.timestamp.strftime('%Y/%m/%d %H:%M') }}
               </span>
-              <span class="text-sm text-gray-600"
-                >{{ log.timestamp.strftime('%Y/%m/%d %H:%M') }}</span
-              >
             </div>
+
             <span
-              class="font-bold text-sm {{ 'text-[#15803d]' if log.is_correct else 'text-red-500' }}"
+              class="font-bold text-sm {{ 'text-[#15803d]' if log.is_correct else 'text-red-500' }} ml-4 whitespace-nowrap"
             >
               {{ '正解' if log.is_correct else '不正解' }}
             </span>
