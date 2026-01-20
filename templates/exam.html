@@ -523,7 +523,7 @@ function setupCanvas() {
   canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
     drawing = false;
-  }, { passive:false });
+  }, { passive: false });
 
   canvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
@@ -538,7 +538,7 @@ function setupCanvas() {
 
     ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
     ctx.stroke();
-  }, { passive:false });
+  }, { passive: false });
 }
 
 
@@ -559,7 +559,7 @@ function setPenColor(color, btn) {
   });
   if (btn) btn.classList.add('ring-2', 'ring-gray-700');
 
-  // 消しゴム青強調解除
+  // 消しゴム黄色強調解除
   document.getElementById('eraser-btn').classList.remove(
     'bg-yellow-200',
     'border-yellow-500',
@@ -575,7 +575,7 @@ function setPenWidth(width) {
 }
 
 
-// 消しゴム（青強調）
+// 消しゴム（黄色強調）
 function enableEraser(btn) {
   isEraser = true;
 

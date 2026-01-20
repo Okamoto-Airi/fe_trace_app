@@ -111,7 +111,7 @@
   class="hidden p-4 bg-white flex flex-col items-stretch"
 >
   <p class="text-xs text-gray-500 mb-2">
-    トレースで表で考えにくい問題など、ご自由に使ってください。
+    トレース表で考えにくい問題など、ご自由に使ってください。
   </p>
 
   <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
@@ -130,22 +130,22 @@
       <span class="text-gray-500">ペン色:</span>
 
       <!-- 色ボタン -->
-      <button data-color="#000000"
+      <button
         class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-black"
         onclick="setPenColor('#000000', this)">
       </button>
 
-      <button data-color="#3b82f6"
+      <button
         class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-blue-500"
         onclick="setPenColor('#3b82f6', this)">
       </button>
 
-      <button data-color="#ef4444"
+      <button
         class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-red-500"
         onclick="setPenColor('#ef4444', this)">
       </button>
 
-      <button data-color="#10b981"
+      <button
         class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-emerald-500"
         onclick="setPenColor('#10b981', this)">
       </button>
@@ -212,69 +212,59 @@
   const completionArea = document.getElementById('completion-area');
 
   // 手書きキャンバス関連
-let canvas, ctx;
-let drawing = false;
-let penColor = '#000000';
-let penWidth = 3;
-let isEraser = false;
+  let canvas, ctx;
+  let drawing = false;
+  let penColor = '#000000';
+  let penWidth = 3;
+  let isEraser = false;
 
   // 色選択
-function setPenColor(color, btn) {
-  isEraser = false;
-  penColor = color;
+  function setPenColor(color, btn) {
+    isEraser = false;
+    penColor = color;
 
-  if (ctx) {
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = penColor;
-    ctx.lineWidth = penWidth;
+    if (ctx) {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = penColor;
+      ctx.lineWidth = penWidth;
+    }
+
+    // 色ボタンの枠線リセット
+    document.querySelectorAll('.color-btn').forEach(b => {
+      b.classList.remove('ring-2', 'ring-gray-700');
+    });
+
+    // 選択中の色に枠線
+    btn.classList.add('ring-2', 'ring-gray-700');
+
+    // 消しゴムボタンの強調解除
+    document.getElementById('eraser-btn').classList.remove('bg-yellow-200', 'border-yellow-500', 'text-yellow-800');
   }
 
-  // 色ボタンの枠線リセット
-  document.querySelectorAll('.color-btn').forEach(b => {
-    b.classList.remove('ring-2', 'ring-gray-700');
-  });
-
-  // 選択中の色に枠線
-  btn.classList.add('ring-2', 'ring-gray-700');
-
-  // 消しゴムボタンの強調解除
-  document.getElementById('eraser-btn').classList.remove(
-  'bg-yellow-200',
-  'border-yellow-500',
-  'text-yellow-800'
-);
-}
- 
-
- 
-
-// 太さ変更
-function setPenWidth(width) {
-  penWidth = Number(width);
-  if (ctx) ctx.lineWidth = penWidth;
-}
-
-// 消しゴムモード
-function enableEraser(btn) {
-  isEraser = true;
-
-  if (ctx) {
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.lineWidth = 20;
+  // 太さ変更
+  function setPenWidth(width) {
+    penWidth = Number(width);
+    if (ctx) ctx.lineWidth = penWidth;
   }
 
-  // 色ボタンの枠線を外す
-  document.querySelectorAll('.color-btn').forEach(b => {
-    b.classList.remove('ring-2', 'ring-gray-700');
-  });
+  // 消しゴムモード
+  function enableEraser(btn) {
+    isEraser = true;
+    if (ctx) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = 20;
+    }
+    // 色ボタンの枠線を外す
+    document.querySelectorAll('.color-btn').forEach(b => {
+      b.classList.remove('ring-2', 'ring-gray-700');
+    });
 
-
-  btn.classList.add(
-    'bg-yellow-200',
-    'border-yellow-500',
-    'text-yellow-800'
-  );
-}
+    btn.classList.add(
+      'bg-yellow-200',
+      'border-yellow-500',
+      'text-yellow-800'
+    );
+  }
 
   // 初期化
   function init() {
@@ -570,75 +560,32 @@ function enableEraser(btn) {
   }
 
   // -------------------------
+  // 手書きキャンバス関連
+  // -------------------------
+  function setupCanvas() {
+    canvas = document.getElementById('freeCanvas');
+    if (!canvas) return;
 
-// -------------------------
-// 手書きキャンバス関連
-// -------------------------
-function setupCanvas() {
-  canvas = document.getElementById('freeCanvas');
-  if (!canvas) return;
+    ctx = canvas.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = penColor;
+    ctx.lineWidth = penWidth;
 
-  ctx = canvas.getContext('2d');
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = penColor;
-  ctx.lineWidth = penWidth;
-
-  // PC用
-  canvas.onmousedown = (e) => {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
-  };
-  canvas.onmouseup = () => {
-    drawing = false;
-  };
-  canvas.onmouseleave = () => {
-    drawing = false;
-  };
-  canvas.onmousemove = (e) => {
-    if (!drawing) return;
-
-    if (isEraser) {
-      ctx.globalCompositeOperation = 'destination-out';
-    } else {
-      ctx.globalCompositeOperation = 'source-over';
-    }
-
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-  };
-
-  // タッチデバイス用
-  canvas.addEventListener(
-    'touchstart',
-    (e) => {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const t = e.touches[0];
+    // PC用
+    canvas.onmousedown = (e) => {
       drawing = true;
       ctx.beginPath();
-      ctx.moveTo(t.clientX - rect.left, t.clientY - rect.top);
-    },
-    { passive: false }
-  );
-
-  canvas.addEventListener(
-    'touchend',
-    (e) => {
-      e.preventDefault();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    };
+    canvas.onmouseup = () => {
       drawing = false;
-    },
-    { passive: false }
-  );
-
-  canvas.addEventListener(
-    'touchmove',
-    (e) => {
-      e.preventDefault();
+    };
+    canvas.onmouseleave = () => {
+      drawing = false;
+    };
+    canvas.onmousemove = (e) => {
       if (!drawing) return;
-      const rect = canvas.getBoundingClientRect();
-      const t = e.touches[0];
 
       if (isEraser) {
         ctx.globalCompositeOperation = 'destination-out';
@@ -646,19 +593,60 @@ function setupCanvas() {
         ctx.globalCompositeOperation = 'source-over';
       }
 
-      ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
+      ctx.lineTo(e.offsetX, e.offsetY);
       ctx.stroke();
-    },
-    { passive: false }
-  );
-}
+    };
 
-function clearCanvas() {
-  if (!ctx || !canvas) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
+    // タッチデバイス用
+    canvas.addEventListener(
+      'touchstart',
+      (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(t.clientX - rect.left, t.clientY - rect.top);
+      },
+      { passive: false }
+    );
 
-// 開始
-window.onload = init;
+    canvas.addEventListener(
+      'touchend',
+      (e) => {
+        e.preventDefault();
+        drawing = false;
+      },
+      { passive: false }
+    );
+
+    canvas.addEventListener(
+      'touchmove',
+      (e) => {
+        e.preventDefault();
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+
+        if (isEraser) {
+          ctx.globalCompositeOperation = 'destination-out';
+        } else {
+          ctx.globalCompositeOperation = 'source-over';
+        }
+
+        ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
+        ctx.stroke();
+      },
+      { passive: false }
+    );
+  }
+
+  function clearCanvas() {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 開始
+  window.onload = init;
 </script>
 {% endblock %}
