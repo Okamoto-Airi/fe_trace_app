@@ -18,10 +18,12 @@ class User(UserMixin, db.Model):  # UserMixinを継承したUserモデルクラ�
     created_at = db.Column(db.DateTime, default=datetime.now)  # 作成日時カラム（デフォルトは現在時刻）
 
     # リレーション: 履歴
-    logs = db.relationship(  # LearningLogとのリレーションを設定
-        "LearningLog", backref="user", lazy=True, cascade="all, delete-orphan"  # 逆参照を"user"とし、遅延ロード、削除時は関連データを削除
+    logs = db.relationship(
+        "LearningLog",
+        backref="user",
+        lazy=True,
+        cascade="all, delete-orphan"
     )
-
 
 # ------------------------------
 # 問題管理 (JSON同期用)
@@ -62,7 +64,7 @@ class Problem(db.Model):  # Problemモデルクラスを定義
         if self.variables_str:  # variables_strが存在する場合
             return self.variables_str.split(",")  # カンマで分割してリスト化
         return []  # 存在しない場合は空リスト
-    
+
     @property
     def content(self):
         """content_json をリストに戻して返す"""
@@ -80,7 +82,6 @@ class Problem(db.Model):  # Problemモデルクラスを定義
                     # 2. "images/" で始まること (静的ファイルの所定フォルダに限定)
                     if ".." in src or not src.startswith("images/"):
                         # 不正なパス検知時は、安全なダミー画像や空文字に置換して無効化
-                        # (必要に応じて 'images/error.png' などを用意してください)
                         item["src"] = ""
             return items
         except json.JSONDecodeError:
@@ -109,7 +110,6 @@ class Problem(db.Model):  # Problemモデルクラスを定義
 
     # リレーション
     logs = db.relationship("LearningLog", backref="problem", lazy=True)  # LearningLogとのリレーションを設定
-
 
 # ------------------------------
 # 学習履歴
