@@ -572,6 +572,13 @@
     ctx.strokeStyle = penColor;
     ctx.lineWidth = penWidth;
 
+    // 描画処理の共通化
+    const performDraw = (x, y) => {
+      ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    };
+
     // PC用
     canvas.onmousedown = (e) => {
       drawing = true;
@@ -586,15 +593,7 @@
     };
     canvas.onmousemove = (e) => {
       if (!drawing) return;
-
-      if (isEraser) {
-        ctx.globalCompositeOperation = 'destination-out';
-      } else {
-        ctx.globalCompositeOperation = 'source-over';
-      }
-
-      ctx.lineTo(e.offsetX, e.offsetY);
-      ctx.stroke();
+      performDraw(e.offsetX, e.offsetY);
     };
 
     // タッチデバイス用
@@ -627,15 +626,7 @@
         if (!drawing) return;
         const rect = canvas.getBoundingClientRect();
         const t = e.touches[0];
-
-        if (isEraser) {
-          ctx.globalCompositeOperation = 'destination-out';
-        } else {
-          ctx.globalCompositeOperation = 'source-over';
-        }
-
-        ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
-        ctx.stroke();
+        performDraw(t.clientX - rect.left, t.clientY - rect.top);
       },
       { passive: false }
     );

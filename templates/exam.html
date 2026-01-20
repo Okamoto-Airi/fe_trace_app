@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
+  /* 穴埋め箇所のハイライト用スタイル */
   .highlight-a {
     color: #059669;
     font-weight: bold;
@@ -31,14 +32,11 @@
 
       <h2 class="text-xl font-bold text-[#15803d] mb-2">{{ problem.title }}</h2>
 
-      <!-- ▼▼ main側：contentブロック対応 ▼▼ -->
       <div class="space-y-6 mb-6">
         {% for block in problem.content %}
           {% if block.type == 'text' %}
             <!-- prettier-ignore -->
-            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-              {{ block.text | trim }}
-            </p>
+            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ block.text | trim }}</p>
 
           {% elif block.type == 'image' %}
             {% if block.src and block.src.startswith('images/') %}
@@ -60,23 +58,17 @@
           {% endif %}
         {% endfor %}
       </div>
-      <!-- ▲▲ contentブロックここまで ▲▲ -->
 
-      <!-- ▼▼ HEAD側：description fallback（contentが空のときのみ表示） ▼▼ -->
-      {% if not problem.content and problem.description %}
-        <!-- prettier-ignore -->
-        <p class="text-sm text-gray-600 mb-4 whitespace-pre-wrap leading-relaxed">
-          {{ problem.description | trim }}
-        </p>
+      {% if not problem.content %} {% if problem.description %}
+      <!-- prettier-ignore -->
+      <p class="text-sm text-gray-600 mb-4 whitespace-pre-wrap leading-relaxed">{{ problem.description | trim }}</p>
       {% endif %}
-      <!-- ▲▲ fallbackここまで ▲▲ -->
-
-      <!-- ▼▼ code_text（常に表示） ▼▼ -->
+      <!-- prettier-ignore -->
       <div
         class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 mb-4 shadow-inner border border-gray-700 whitespace-pre-wrap"
         id="code-display"
       >{{ problem.code_text | trim }}</div>
-      <!-- ▲▲ code_textここまで ▲▲ -->
+      {% endif %}
 
       <div>
         <div class="flex justify-between items-end mb-2">
@@ -85,14 +77,14 @@
         </div>
         <div class="grid grid-cols-2 gap-2" id="option-buttons"></div>
       </div>
-    </div>  <!-- 左カラムのカード -->
-  </div>    <!-- 左カラム全体 -->
+    </div>
+  </div>
 
-  <!-- 右側：タブ + トレース表 + キャンバス -->
+  <!-- 右側：タブ + トレース表 + キャンバス + 回答ボタン-->
   <div class="lg:col-span-7">
     
-    <!-- ★ タブ（追加） -->
-    <div class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
+    <!-- タブ -->
+    <div id="tab-container" class="hidden bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
       <div class="flex text-xs font-bold rounded-full border border-gray-300 overflow-hidden">
         <button
           type="button"
@@ -157,19 +149,6 @@
           <i data-lucide="plus" class="w-4 h-4 mr-1"></i> 行を追加
         </button>
 
-        <button
-          onclick="rejectOption()"
-          class="bg-gray-400 text-white py-3 rounded hover:bg-gray-500 font-bold transition shadow-sm flex items-center justify-center"
-        >
-          <i data-lucide="x" class="w-4 h-4 mr-1"></i> 矛盾あり (除外)
-        </button>
-
-        <button
-          onclick="submitOption()"
-          class="bg-[#15803d] text-white py-3 rounded hover:bg-[#14532d] font-bold transition shadow-sm flex items-center justify-center"
-        >
-          <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> ⭕ これが正解
-        </button>
       </div>
     </div>
 
@@ -225,6 +204,23 @@
       </div>
     </div>
 
+    <!-- 共通の回答ボタンエリア -->
+    <div id="common-actions" class="hidden mt-4 grid grid-cols-2 gap-3">
+        <button
+          onclick="rejectOption()"
+          class="bg-gray-400 text-white py-3 rounded hover:bg-gray-500 font-bold transition shadow-sm flex items-center justify-center"
+        >
+          <i data-lucide="x" class="w-4 h-4 mr-1"></i> 矛盾あり (除外)
+        </button>
+
+        <button
+          onclick="submitOption()"
+          class="bg-[#15803d] text-white py-3 rounded hover:bg-[#14532d] font-bold transition shadow-sm flex items-center justify-center"
+        >
+          <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> ⭕ これが正解
+        </button>
+    </div>
+
   </div>
 </div>
 
@@ -234,6 +230,7 @@
   const PROBLEM_DATA = {{ problem.to_dict() | tojson }};
   let currentOptionId = null;
   let traceHistory = {};
+  let canvasHistory = {};
   let rejectedOptions = new Set();
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -266,7 +263,10 @@
       updateButtonStyles();
     }
 
-    if (currentOptionId) saveTraceState(currentOptionId);
+    if (currentOptionId) {
+      saveTraceState(currentOptionId);
+      saveCanvasState(currentOptionId);
+    }
 
     switchToOption(targetOptionId);
   }
@@ -281,11 +281,14 @@
     document.getElementById('code-display').innerHTML = code;
 
     document.getElementById('placeholder-msg').style.display = 'none';
-    document.getElementById('trace-panel').classList.remove('hidden');
+    document.getElementById('tab-container').classList.remove('hidden'); // タブを表示
+    document.getElementById('common-actions').classList.remove('hidden'); // 共通ボタンエリア表示
+    showTraceTable();
     document.getElementById('current-option-badge').textContent = `選択肢 ${optionId}`;
 
     updateButtonStyles();
     renderTraceTable(optionId);
+    restoreCanvasState(optionId);
   }
 
   function updateButtonStyles() {
@@ -380,9 +383,13 @@
     if (!confirm(`選択肢 ${currentOptionId} を除外しますか？`)) return;
 
     saveTraceState(currentOptionId);
+    saveCanvasState(currentOptionId);
     rejectedOptions.add(currentOptionId);
 
     document.getElementById('trace-panel').classList.add('hidden');
+    document.getElementById('canvas-area').classList.add('hidden'); // キャンバスも隠す
+    document.getElementById('tab-container').classList.add('hidden'); // タブも隠す
+    document.getElementById('common-actions').classList.add('hidden'); // 共通ボタンエリアも隠す
     document.getElementById('placeholder-msg').style.display = 'flex';
     document.getElementById('code-display').innerHTML = PROBLEM_DATA.code_template;
     currentOptionId = null;
@@ -398,6 +405,7 @@
 
   async function submitOption() {
     saveTraceState(currentOptionId);
+    saveCanvasState(currentOptionId);
 
     if (!confirm(`選択肢 ${currentOptionId} を正解として回答しますか？`)) return;
 
@@ -490,6 +498,13 @@ function setupCanvas() {
   ctx.strokeStyle = penColor;
   ctx.lineWidth = penWidth;
 
+  // 描画処理の共通化
+  const performDraw = (x, y) => {
+    ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
   // PC
   canvas.onmousedown = (e) => {
     drawing = true;
@@ -501,13 +516,7 @@ function setupCanvas() {
 
   canvas.onmousemove = (e) => {
     if (!drawing) return;
-
-    ctx.globalCompositeOperation = isEraser
-      ? 'destination-out'
-      : 'source-over';
-
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
+    performDraw(e.offsetX, e.offsetY);
   };
 
   // タッチ
@@ -528,19 +537,34 @@ function setupCanvas() {
   canvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
     if (!drawing) return;
-
     const rect = canvas.getBoundingClientRect();
     const t = e.touches[0];
-
-    ctx.globalCompositeOperation = isEraser
-      ? 'destination-out'
-      : 'source-over';
-
-    ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
-    ctx.stroke();
+    performDraw(t.clientX - rect.left, t.clientY - rect.top);
   }, { passive: false });
 }
 
+// キャンバスの状態を保存
+function saveCanvasState(optionId) {
+  if (!canvas) return;
+  canvasHistory[optionId] = canvas.toDataURL();
+}
+
+// キャンバスの状態を復元
+function restoreCanvasState(optionId) {
+  if (!ctx || !canvas) return;
+  
+  // 一旦クリア
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 保存されたデータがあれば描画
+  if (canvasHistory[optionId]) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = canvasHistory[optionId];
+  }
+}
 
 // 色選択（青強調解除）
 function setPenColor(color, btn) {
@@ -606,7 +630,6 @@ function clearCanvas() {
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
   setupCanvas();
-  showTraceTable();
 
   const tableBody = document.getElementById('table-body');
   if (tableBody) {
