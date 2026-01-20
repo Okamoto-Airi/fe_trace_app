@@ -89,21 +89,24 @@ class Problem(db.Model):  # Problemモデルクラスを定義
 
     def to_dict(self):  # フロントエンド用にデータを辞書化するメソッド
         """フロントエンド(JS)用にデータを辞書化するメソッド"""
-        raw = self.data or {}
-
-        return {
+        # 基本データの辞書を作成
+        data = {  # 基本情報を辞書にまとめる
             "id": self.id,  # idを追加
             "title": self.title,  # タイトルを追加
             "description": self.description,  # 説明を追加
             "category": self.category,  # カテゴリを追加
             "difficulty": self.difficulty,  # 難易度を追加
-            "variables": self.variables,  # 変数リストを追加
-            "code_template": self.code_text,  # コードテンプレート
-            "code": self.code_text.split("\n"),  # 行ごとに分割（練習モード用）
-            "steps": raw.get("steps", []),   # ← exam/practice 共通で必須
-            "options": raw.get("options", []),  # ← exam 用
-            "content": self.content  # ← main 側の追加も統合
+            "variables": self.variables,  # 変数リストを追加（プロパティ経由）
+            "code_template": self.code_text,  # コードテンプレートを追加（過去問モード用）
+            "code": self.code_text.split("\n"),  # コードを行ごとの配列に分割（練習モード用）
+            "content": self.content
         }
+
+        # JSONカラムの中身（steps や options）をマージする
+        # self.data は @property で定義した辞書返却メソッド
+        data.update(self.data)  # dataプロパティの内容をマージ
+
+        return data  # 辞書を返す
 
     # リレーション
     logs = db.relationship("LearningLog", backref="problem", lazy=True)  # LearningLogとのリレーションを設定
