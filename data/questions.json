@@ -374,7 +374,6 @@
       "correct_option": "イ"
     }
   },
-
   {
     "id": "2024_fe_b_q2",
     "mode": "exam",
@@ -402,7 +401,6 @@
       "correct_option": "エ"
     }
   },
-
   {
     "id": "2024_fe_b_q3",
     "mode": "exam",
@@ -437,7 +435,6 @@
       "correct_option": "エ"
     }
   },
-
   {
     "id": "2024_fe_b_q4",
     "mode": "exam",
@@ -467,7 +464,6 @@
       "correct_option": "エ"
     }
   },
-
   {
     "id": "2024_fe_b_q5",
     "mode": "exam",
@@ -515,7 +511,6 @@
       "correct_option": "オ"
     }
   },
-
   {
     "id": "2025_fe_b_q1",
     "mode": "exam",
@@ -563,8 +558,6 @@
       "correct_option": "カ"
     }
   },
-
-
   {
     "id": "2025_fe_b_q2",
     "mode": "exam",
@@ -591,11 +584,9 @@
         "オ": "rest > 5",
         "カ": "rest > 10"
       },
-      "correct_option": "ウ"
+      "correct_option": "カ"
     }
   },
-
-
   {
     "id": "2025_fe_b_q3",
     "mode": "exam",
@@ -627,9 +618,7 @@
       },
       "correct_option": "イ"
     }
-},
-
-
+  },
   {
     "id": "2025_fe_b_q4",
     "mode": "exam",
@@ -663,8 +652,6 @@
       "correct_option": "ク"
     }
   },
-
-
   {
     "id": "2025_fe_b_q5",
     "mode": "exam",
