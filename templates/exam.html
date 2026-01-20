@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <style>
   /* 穴埋め箇所のハイライト用スタイル */
   .highlight-a {
@@ -16,43 +17,46 @@
 </style>
 
 <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6" id="app">
+
+  <!-- 左側：問題文 -->
   <div class="lg:col-span-5 space-y-4">
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
       <div class="flex items-center space-x-2 mb-2">
-        <span
-          class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full font-bold"
-          >{{ problem.category }}</span
-        >
-        <span
-          class="px-2 py-0.5 {{ 'bg-blue-100 text-blue-700' if problem.difficulty=='初級' else 'bg-orange-100 text-orange-700' }} text-xs rounded-full"
-          >{{ problem.difficulty }}</span
-        >
+        <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full font-bold">
+          {{ problem.category }}
+        </span>
+        <span class="px-2 py-0.5 {{ 'bg-blue-100 text-blue-700' if problem.difficulty=='初級' else 'bg-orange-100 text-orange-700' }} text-xs rounded-full">
+          {{ problem.difficulty }}
+        </span>
       </div>
+
       <h2 class="text-xl font-bold text-[#15803d] mb-2">{{ problem.title }}</h2>
 
       <div class="space-y-6 mb-6">
-        {% for block in problem.content %} {% if block.type == 'text' %}
-        <!-- prettier-ignore -->
-        <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ block.text | trim }}</p>
+        {% for block in problem.content %}
+          {% if block.type == 'text' %}
+            <!-- prettier-ignore -->
+            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ block.text | trim }}</p>
 
-        {% elif block.type == 'image' %}
-        {% if block.src and block.src.startswith('images/') %}
-        <div class="flex justify-center my-4">
-          <img
-            src="{{ url_for('static', filename=block.src) }}"
-            alt="{{ block.id }}"
-            class="max-w-full h-auto rounded border border-gray-200 shadow-sm"
-          />
-        </div>
-        {% endif %}
+          {% elif block.type == 'image' %}
+            {% if block.src and block.src.startswith('images/') %}
+              <div class="flex justify-center my-4">
+                <img
+                  src="{{ url_for('static', filename=block.src) }}"
+                  alt="{{ block.id }}"
+                  class="max-w-full h-auto rounded border border-gray-200 shadow-sm"
+                />
+              </div>
+            {% endif %}
 
-        {% elif block.type == 'code' %}
-        <!-- prettier-ignore -->
-        <div
-          class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 shadow-inner border border-gray-700 whitespace-pre-wrap"
-          id="code-display"
-        >{{ block.text | trim }}</div>
-        {% endif %} {% endfor %}
+          {% elif block.type == 'code' %}
+            <!-- prettier-ignore -->
+            <div
+              class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 shadow-inner border border-gray-700 whitespace-pre-wrap"
+              id="code-display"
+            >{{ block.text | trim }}</div>
+          {% endif %}
+        {% endfor %}
       </div>
 
       {% if not problem.content %} {% if problem.description %}
@@ -76,36 +80,48 @@
     </div>
   </div>
 
+  <!-- 右側：タブ + トレース表 + キャンバス + 回答ボタン-->
   <div class="lg:col-span-7">
-    <div
-      id="placeholder-msg"
-      class="bg-blue-50 border border-blue-200 text-blue-800 p-8 rounded-lg text-center h-full flex flex-col justify-center items-center"
-    >
-      <i
-        data-lucide="mouse-pointer-click"
-        class="w-10 h-10 mb-3 opacity-50"
-      ></i>
-      <p class="font-bold text-lg">
-        左の選択肢をクリックして、トレースを開始してください。
-      </p>
-      <p class="text-sm text-blue-600 mt-2">
-        選択肢ごとに異なるトレース表を作成・保存できます。
-      </p>
+    
+    <!-- タブ -->
+    <div id="tab-container" class="hidden bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
+      <div class="flex text-xs font-bold rounded-full border border-gray-300 overflow-hidden">
+        <button
+          type="button"
+          id="tab-trace"
+          class="px-3 py-1 bg-white text-gray-700 hover:bg-gray-100 transition"
+          onclick="showTraceTable()"
+        >
+          トレース表
+        </button>
+        <button
+          type="button"
+          id="tab-canvas"
+          class="px-3 py-1 bg-gray-100 text-gray-500 hover:bg-gray-200 transition"
+          onclick="showCanvas()"
+        >
+          手書きスペース
+        </button>
+      </div>
     </div>
 
+    <!-- トレース開始前メッセージ -->
+    <div id="placeholder-msg"
+     class="bg-blue-50 border border-blue-200 text-blue-800 p-8 rounded-lg text-center 
+            flex flex-col justify-center items-center min-h-[200px]">
+      <i data-lucide="mouse-pointer-click" class="w-10 h-10 mb-3 opacity-50"></i>
+      <p class="font-bold text-lg">左の選択肢をクリックして、トレースを開始してください。</p>
+      <p class="text-sm text-blue-600 mt-2">選択肢ごとに異なるトレース表を作成・保存できます。</p>
+    </div>
+
+    <!-- トレース表パネル -->
     <div
       id="trace-panel"
-      class="hidden bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-[calc(100vh-140px)] lg:h-auto lg:min-h-[600px]"
+      class="hidden bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-[calc(100vh-180px)] lg:h-auto lg:min-h-[600px]"
     >
-      <div
-        class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center"
-      >
+      <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
         <div class="flex items-center space-x-2">
-          <span
-            class="font-bold text-gray-700 text-lg"
-            id="current-option-badge"
-            >選択肢 ?</span
-          >
+          <span class="font-bold text-gray-700 text-lg" id="current-option-badge">選択肢 ?</span>
           <span class="text-xs text-gray-500 font-bold">の検証中</span>
         </div>
         <button
@@ -119,18 +135,13 @@
       <div class="overflow-auto flex-grow relative bg-white">
         <table class="w-full text-sm text-center border-collapse">
           <thead class="bg-gray-100 text-gray-600 sticky top-0 z-10 shadow-sm">
-            <tr
-              id="table-header"
-              class="divide-x divide-gray-300 border-b border-gray-300"
-            ></tr>
+            <tr id="table-header" class="divide-x divide-gray-300 border-b border-gray-300"></tr>
           </thead>
           <tbody id="table-body" class="divide-y divide-gray-100"></tbody>
         </table>
       </div>
 
-      <div
-        class="p-4 border-t border-gray-200 bg-gray-50 grid grid-cols-2 gap-3"
-      >
+      <div class="p-4 border-t border-gray-200 bg-gray-50 grid grid-cols-2 gap-3">
         <button
           onclick="addRow()"
           class="col-span-2 bg-white border-2 border-dashed border-gray-300 py-2 rounded text-gray-500 hover:bg-gray-100 hover:border-gray-400 font-bold transition flex items-center justify-center"
@@ -138,6 +149,63 @@
           <i data-lucide="plus" class="w-4 h-4 mr-1"></i> 行を追加
         </button>
 
+      </div>
+    </div>
+
+    <!-- ★ 手書きキャンバス -->
+    <div id="canvas-area" class="hidden p-4 bg-white flex flex-col items-stretch">
+      <p class="text-xs text-gray-500 mb-2">自由に図を書いて整理できます。</p>
+
+      <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
+        <canvas id="freeCanvas" width="900" height="400" class="bg-white block"></canvas>
+      </div>
+
+      <div class="flex justify-between items-center mt-2 text-xs">
+
+        <!-- 左：色選択 + 消しゴム -->
+        <div class="flex items-center space-x-3">
+          <span class="text-gray-500">ペン色:</span>
+
+          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-black"
+            onclick="setPenColor('#000000', this)"></button>
+
+          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-blue-500"
+            onclick="setPenColor('#3b82f6', this)"></button>
+
+          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-red-500"
+            onclick="setPenColor('#ef4444', this)"></button>
+
+          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-emerald-500"
+            onclick="setPenColor('#10b981', this)"></button>
+
+          <button
+            id="eraser-btn"
+            class="px-2 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
+            onclick="enableEraser(this)"
+          >
+            消しゴム
+          </button>
+        </div>
+
+        <!-- 右：太さ + クリア -->
+        <div class="flex items-center space-x-3">
+          <label class="flex items-center space-x-1 text-gray-500">
+            <span>太さ</span>
+            <input type="range" min="2" max="10" value="3" id="pen-width" class="w-20"
+              onchange="setPenWidth(this.value)" />
+          </label>
+
+          <button type="button" class="text-gray-500 underline hover:text-gray-800"
+            onclick="clearCanvas()">
+            クリア
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 共通の回答ボタンエリア -->
+    <div id="common-actions" class="hidden mt-4 grid grid-cols-2 gap-3">
         <button
           onclick="rejectOption()"
           class="bg-gray-400 text-white py-3 rounded hover:bg-gray-500 font-bold transition shadow-sm flex items-center justify-center"
@@ -151,277 +219,441 @@
         >
           <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> ⭕ これが正解
         </button>
-      </div>
     </div>
+
   </div>
 </div>
 
-<script>
-  // サーバーから渡されたProblemオブジェクト(to_dict済み)
-  const PROBLEM_DATA = {{ problem.to_dict() | tojson }};
 
+<!-- ★ JS（トレース表 + キャンバス機能すべて統合） -->
+<script>
+  const PROBLEM_DATA = {{ problem.to_dict() | tojson }};
   let currentOptionId = null;
   let traceHistory = {};
+  let canvasHistory = {};
   let rejectedOptions = new Set();
 
-  // 1. 初期ロード
   document.addEventListener('DOMContentLoaded', () => {
-      renderQuestion();
-      lucide.createIcons(); // アイコン再描画
+    renderQuestion();
+    lucide.createIcons();
   });
 
-  // 2. 問題情報の描画（ボタン生成）
   function renderQuestion() {
-      const btnContainer = document.getElementById('option-buttons');
-      btnContainer.innerHTML = '';
+    const btnContainer = document.getElementById('option-buttons');
+    btnContainer.innerHTML = '';
 
-      // 選択肢ボタン生成
-      Object.keys(PROBLEM_DATA.options).forEach(key => {
-          const btn = document.createElement('button');
-          // 基本クラス
-          btn.className = 'py-3 px-3 border rounded font-bold text-gray-700 transition flex items-center justify-center relative shadow-sm';
-          btn.id = `btn-${key}`;
-          btn.textContent = `${key}`; // ボタン文字
+    Object.keys(PROBLEM_DATA.options).forEach(key => {
+      const btn = document.createElement('button');
+      btn.className = 'py-3 px-3 border rounded font-bold text-gray-700 transition flex items-center justify-center relative shadow-sm';
+      btn.id = `btn-${key}`;
+      btn.textContent = `${key}`;
+      btn.onclick = () => handleOptionClick(key);
+      btnContainer.appendChild(btn);
+    });
 
-          // 状態表示用のバッジ的なものを追加しても良いが、ここではシンプルに
-          const label = document.createElement('span');
-          label.className = 'ml-2 text-sm font-normal';
-          // label.textContent = `選択肢 ${key}`;
-          btn.appendChild(label);
-
-          btn.onclick = () => handleOptionClick(key);
-          btnContainer.appendChild(btn);
-      });
-      updateButtonStyles();
+    updateButtonStyles();
   }
 
-  // 3. 選択肢クリック時のハンドリング
   function handleOptionClick(targetOptionId) {
-      if (currentOptionId === targetOptionId) return;
+    if (currentOptionId === targetOptionId) return;
 
-      // 除外済みの選択肢をクリックした場合
-      if (rejectedOptions.has(targetOptionId)) {
-          if (!confirm(`選択肢 ${targetOptionId} は「矛盾あり」として除外されています。\nもう一度検討し直しますか？`)) {
-              return;
-          }
-          rejectedOptions.delete(targetOptionId);
-          updateButtonStyles();
-      }
-
-      // 別の選択肢へ移動する場合、現在の入力を保存する
-      if (currentOptionId) {
-          saveTraceState(currentOptionId);
-      }
-
-      switchToOption(targetOptionId);
-  }
-
-  // 4. 選択肢切り替え処理
-  function switchToOption(optionId) {
-      currentOptionId = optionId;
-      const optData = PROBLEM_DATA.options[optionId];
-
-      // コード表示の更新 (空欄補充)
-      let code = PROBLEM_DATA.code_template;
-      code = code.replace(/\[\s*a\s*\]/g, `<span class="highlight-a">${optData.a}</span>`);
-      code = code.replace(/\[\s*b\s*\]/g, `<span class="highlight-b">${optData.b}</span>`);
-      document.getElementById('code-display').innerHTML = code;
-
-      // UI表示切替
-      document.getElementById('placeholder-msg').style.display = 'none';
-      document.getElementById('trace-panel').classList.remove('hidden');
-      document.getElementById('current-option-badge').textContent = `選択肢 ${optionId}`;
-
+    if (rejectedOptions.has(targetOptionId)) {
+      if (!confirm(`選択肢 ${targetOptionId} は除外されています。\n再検討しますか？`)) return;
+      rejectedOptions.delete(targetOptionId);
       updateButtonStyles();
-      renderTraceTable(optionId);
+    }
+
+    if (currentOptionId) {
+      saveTraceState(currentOptionId);
+      saveCanvasState(currentOptionId);
+    }
+
+    switchToOption(targetOptionId);
   }
 
-  // ボタンのスタイルを一括更新 (Tailwind Classes)
+  function switchToOption(optionId) {
+    currentOptionId = optionId;
+    const optData = PROBLEM_DATA.options[optionId];
+
+    let code = PROBLEM_DATA.code_template;
+    code = code.replace(/\[\s*a\s*\]/g, `<span class="highlight-a">${optData.a}</span>`);
+    code = code.replace(/\[\s*b\s*\]/g, `<span class="highlight-b">${optData.b}</span>`);
+    document.getElementById('code-display').innerHTML = code;
+
+    document.getElementById('placeholder-msg').style.display = 'none';
+    document.getElementById('tab-container').classList.remove('hidden'); // タブを表示
+    document.getElementById('common-actions').classList.remove('hidden'); // 共通ボタンエリア表示
+    showTraceTable();
+    document.getElementById('current-option-badge').textContent = `選択肢 ${optionId}`;
+
+    updateButtonStyles();
+    renderTraceTable(optionId);
+    restoreCanvasState(optionId);
+  }
+
   function updateButtonStyles() {
-      Object.keys(PROBLEM_DATA.options).forEach(key => {
-          const btn = document.getElementById(`btn-${key}`);
+    Object.keys(PROBLEM_DATA.options).forEach(key => {
+      const btn = document.getElementById(`btn-${key}`);
+      btn.className = 'py-3 px-3 border rounded font-bold transition flex items-center justify-center shadow-sm';
 
-          // クラスリセット
-          btn.className = 'py-3 px-3 border rounded font-bold transition flex items-center justify-center shadow-sm ';
-
-          if (rejectedOptions.has(key)) {
-              // 除外状態: グレーアウト + 取り消し線
-              btn.className += 'bg-gray-100 text-gray-400 border-gray-200 line-through opacity-70';
-          } else if (key === currentOptionId) {
-              // 選択中: ブランドカラーで強調
-              btn.className += 'bg-green-50 border-[#15803d] text-[#15803d] ring-1 ring-[#15803d]';
-          } else {
-              // 通常: 白背景
-              btn.className += 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400';
-          }
-      });
-  }
-
-  // 5. テーブル描画
-  function renderTraceTable(optionId) {
-      const thead = document.getElementById('table-header');
-      const tbody = document.getElementById('table-body');
-
-      // ヘッダー生成
-      thead.innerHTML = '<th class="p-2 border-r border-gray-300 bg-gray-100 w-12 text-xs font-bold text-gray-500">#</th>';
-      PROBLEM_DATA.variables.forEach(v => {
-          thead.innerHTML += `<th class="p-2 border-r border-gray-300 min-w-[60px] font-mono text-[#15803d]">${v}</th>`;
-      });
-      thead.innerHTML += '<th class="p-2 min-w-[100px] text-gray-600">備考</th>';
-
-      tbody.innerHTML = '';
-
-      const history = traceHistory[optionId];
-
-      if (history && history.length > 0) {
-          history.forEach((rowData, index) => {
-              addRowToDom(index + 1, rowData);
-          });
+      if (rejectedOptions.has(key)) {
+        btn.className += ' bg-gray-100 text-gray-400 border-gray-200 line-through opacity-70';
+      } else if (key === currentOptionId) {
+        btn.className += ' bg-green-50 border-[#15803d] text-[#15803d] ring-1 ring-[#15803d]';
       } else {
-          addRowToDom(1, null); // 初期行
+        btn.className += ' bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400';
       }
+    });
   }
 
-  // 6. DOMに行を追加するヘルパー
+  function renderTraceTable(optionId) {
+    const thead = document.getElementById('table-header');
+    const tbody = document.getElementById('table-body');
+
+    thead.innerHTML = '<th class="p-2 border-r border-gray-300 bg-gray-100 w-12 text-xs font-bold text-gray-500">#</th>';
+    PROBLEM_DATA.variables.forEach(v => {
+      thead.innerHTML += `<th class="p-2 border-r border-gray-300 min-w-[60px] font-mono text-[#15803d]">${v}</th>`;
+    });
+    thead.innerHTML += '<th class="p-2 min-w-[100px] text-gray-600">備考</th>';
+
+    tbody.innerHTML = '';
+
+    const history = traceHistory[optionId];
+    if (history && history.length > 0) {
+      history.forEach((rowData, index) => addRowToDom(index + 1, rowData));
+    } else {
+      addRowToDom(1, null);
+    }
+  }
+
   function addRowToDom(rowNum, rowData) {
-      const tbody = document.getElementById('table-body');
-      const tr = document.createElement('tr');
-      tr.className = "hover:bg-yellow-50 transition-colors group";
+    const tbody = document.getElementById('table-body');
+    const tr = document.createElement('tr');
+    tr.className = "hover:bg-yellow-50 transition-colors group";
 
-      let html = `<td class="p-2 border-r border-gray-200 text-xs text-gray-400 bg-gray-50 font-bold select-none">${rowNum}</td>`;
+    let html = `<td class="p-2 border-r border-gray-200 text-xs text-gray-400 bg-gray-50 font-bold select-none">${rowNum}</td>`;
 
-      // 変数列
-      PROBLEM_DATA.variables.forEach((v, idx) => {
-          const val = rowData ? rowData.vars[idx] : "";
-          // Tailwind input style
-          html += `<td class="border-r border-gray-200 p-0 relative">
-                      <input type="text" class="trace-input w-full h-full p-2 text-center font-mono text-gray-800 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-200"
-                      value="${val}" placeholder="-">
-                   </td>`;
-      });
-
-      // 備考列
-      const memoVal = rowData ? rowData.memo : "";
-      html += `<td class="p-0 relative">
-                  <input type="text" class="trace-memo w-full h-full p-2 text-left text-xs text-gray-600 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-300"
-                  value="${memoVal}" placeholder="メモ...">
+    PROBLEM_DATA.variables.forEach((v, idx) => {
+      const val = rowData ? rowData.vars[idx] : "";
+      html += `<td class="border-r border-gray-200 p-0 relative">
+                <input type="text" class="trace-input w-full h-full p-2 text-center font-mono text-gray-800 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-200"
+                value="${val}" placeholder="-">
                </td>`;
+    });
 
-      tr.innerHTML = html;
-      tbody.appendChild(tr);
+    const memoVal = rowData ? rowData.memo : "";
+    html += `<td class="p-0 relative">
+              <input type="text" class="trace-memo w-full h-full p-2 text-left text-xs text-gray-600 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-300"
+              value="${memoVal}" placeholder="メモ...">
+             </td>`;
 
-      // 新しい行へスクロール
-      if (!rowData) { // ユーザー追加時のみ
-          tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+
+    if (!rowData) tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function addRow() {
-      const tbody = document.getElementById('table-body');
-      const nextNum = tbody.children.length + 1;
-      addRowToDom(nextNum, null);
+    const tbody = document.getElementById('table-body');
+    const nextNum = tbody.children.length + 1;
+    addRowToDom(nextNum, null);
   }
 
-  // 7. 現在の状態を保存
   function saveTraceState(optionId) {
-      const tbody = document.getElementById('table-body');
-      const rows = [];
+    const tbody = document.getElementById('table-body');
+    const rows = [];
 
-      Array.from(tbody.children).forEach(tr => {
-          const inputs = tr.querySelectorAll('.trace-input');
-          const memo = tr.querySelector('.trace-memo');
+    Array.from(tbody.children).forEach(tr => {
+      const inputs = tr.querySelectorAll('.trace-input');
+      const memo = tr.querySelector('.trace-memo');
 
-          const rowValues = [];
-          inputs.forEach(input => rowValues.push(input.value));
+      const rowValues = [];
+      inputs.forEach(input => rowValues.push(input.value));
 
-          rows.push({
-              vars: rowValues,
-              memo: memo.value
-          });
+      rows.push({
+        vars: rowValues,
+        memo: memo.value
+      });
+    });
+
+    traceHistory[optionId] = rows;
+  }
+
+  function rejectOption() {
+    if (!confirm(`この選択肢 ${currentOptionId} を除外候補としますか？\n(後で戻すことも可能です)`)) return;
+
+    saveTraceState(currentOptionId);
+    saveCanvasState(currentOptionId);
+    rejectedOptions.add(currentOptionId);
+
+    // 画面リセット
+    document.getElementById('trace-panel').classList.add('hidden');
+    document.getElementById('canvas-area').classList.add('hidden'); // キャンバスも隠す
+    document.getElementById('tab-container').classList.add('hidden'); // タブも隠す
+    document.getElementById('common-actions').classList.add('hidden'); // 共通ボタンエリアも隠す
+    document.getElementById('placeholder-msg').style.display = 'flex';
+    document.getElementById('code-display').innerHTML = PROBLEM_DATA.code_template;
+    currentOptionId = null;
+
+    updateButtonStyles();
+  }
+
+  function clearCurrentTable() {
+    if (!confirm("このトレース表をすべて消去しますか？")) return;
+    traceHistory[currentOptionId] = [];
+    renderTraceTable(currentOptionId);
+  }
+
+  async function submitOption() {
+    saveTraceState(currentOptionId);
+    saveCanvasState(currentOptionId);
+
+    if (!confirm(`選択肢 ${currentOptionId} を正解として回答しますか？`)) return;
+
+    const isCorrect = (currentOptionId === PROBLEM_DATA.correct_option);
+
+    try {
+      await fetch('/api/log_result', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          problem_id: PROBLEM_DATA.id,
+          mode: 'exam',
+          is_correct: isCorrect
+        })
       });
 
-      traceHistory[optionId] = rows;
-  }
+      if (isCorrect) {
+        // 正解時の豪華な紙吹雪エフェクト
+        var duration = 15 * 100; // 1.5秒間
+        var animationEnd = Date.now() + duration;
+        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-  // 8. 「矛盾あり」
-  function rejectOption() {
-      if(!confirm(`この選択肢 ${currentOptionId} を除外候補としますか？\n(後で戻すことも可能です)`)) return;
+        var interval = setInterval(function() {
+          var timeLeft = animationEnd - Date.now();
 
-      saveTraceState(currentOptionId);
-      rejectedOptions.add(currentOptionId);
-
-      // 画面リセット
-      document.getElementById('trace-panel').classList.add('hidden');
-      document.getElementById('placeholder-msg').style.display = 'flex';
-      document.getElementById('code-display').innerHTML = PROBLEM_DATA.code_template;
-      currentOptionId = null;
-
-      updateButtonStyles();
-  }
-
-  // 9. 「表をリセット」
-  function clearCurrentTable() {
-      if(!confirm("このトレース表の内容をすべて消去しますか？")) return;
-      traceHistory[currentOptionId] = [];
-      renderTraceTable(currentOptionId);
-  }
-
-  // 10. 「正解として確定」
-  async function submitOption() {
-      saveTraceState(currentOptionId);
-
-      if(!confirm(`選択肢 ${currentOptionId} を正解として回答しますか？`)) return;
-
-      const isCorrect = (currentOptionId === PROBLEM_DATA.correct_option);
-
-      // サーバーへ結果記録
-      try {
-          await fetch('/api/log_result', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                  problem_id: PROBLEM_DATA.id,
-                  mode: 'exam',
-                  is_correct: isCorrect
-              })
-          });
-
-          if (isCorrect) {
-            // 正解時の豪華な紙吹雪エフェクト
-            var duration = 15 * 100; // 1.5秒間
-            var animationEnd = Date.now() + duration;
-            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-            var interval = setInterval(function() {
-              var timeLeft = animationEnd - Date.now();
-
-              if (timeLeft <= 0) {
-                return clearInterval(interval);
-              }
-
-              var particleCount = 50 * (timeLeft / duration);
-              // 左右からランダムに打ち上げる
-              confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2, y: Math.random() - 0.2 } }));
-              confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2 + 0.8, y: Math.random() - 0.2 } }));
-            }, 250);
-
-            // 紙吹雪を少し見せてからアラートを出す (100ms遅延)
-            setTimeout(() => {
-                alert("🎉 正解です！\n素晴らしい洞察力です。");
-                window.location.href = "{{ url_for('problem_list', mode='exam') }}";
-            }, 500);
-          } else {
-              alert("😢 残念ながら不正解です...\n\nトレース表を見直して、どこで矛盾が生じているか確認してみましょう。");
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
           }
-      } catch (e) {
-          console.error(e);
-          alert("エラーが発生しました。");
+
+          var particleCount = 50 * (timeLeft / duration);
+          // 左右からランダムに打ち上げる
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2, y: Math.random() - 0.2 } }));
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2 + 0.8, y: Math.random() - 0.2 } }));
+        }, 250);
+
+        // 紙吹雪を少し見せてからアラートを出す (500ms遅延)
+        setTimeout(() => {
+            alert("🎉 正解です！\n素晴らしい！");
+            window.location.href = "{{ url_for('problem_list', mode='exam') }}";
+        }, 500);
+      } else {
+          alert("😢 残念ながら不正解です...\n\nトレース表を見直して、どこで矛盾が生じているか確認してみましょう。");
       }
+    } catch (e) {
+      console.error(e);
+      alert("エラーが発生しました。");
+    }
   }
 
-  // 入力自動保存
-  document.getElementById('table-body').addEventListener('input', () => {
-      if(currentOptionId) saveTraceState(currentOptionId);
+// ------------------------------------------------------------
+// ★ ここから下：キャンバス機能（タブ + 色 + 太さ + 消しゴム青強調）
+// ------------------------------------------------------------
+
+// 状態
+let canvas, ctx;
+let drawing = false;
+let penColor = '#000000';
+let penWidth = 3;
+let isEraser = false;
+
+
+// タブ切り替え
+function showTraceTable() {
+  document.getElementById('trace-panel').classList.remove('hidden');
+  document.getElementById('canvas-area').classList.add('hidden');
+
+  // placeholder-msg は「選択肢未選択時のみ」表示
+  document.getElementById('placeholder-msg').style.display =
+    currentOptionId ? 'none' : 'flex';
+
+  const tabTrace = document.getElementById('tab-trace');
+  const tabCanvas = document.getElementById('tab-canvas');
+
+  tabTrace.classList.add('bg-white', 'text-gray-700');
+  tabTrace.classList.remove('bg-gray-100', 'text-gray-500');
+
+  tabCanvas.classList.add('bg-gray-100', 'text-gray-500');
+  tabCanvas.classList.remove('bg-white', 'text-gray-700');
+}
+
+function showCanvas() {
+  document.getElementById('trace-panel').classList.add('hidden');
+  document.getElementById('placeholder-msg').style.display = 'none';
+  document.getElementById('canvas-area').classList.remove('hidden');
+
+  const tabTrace = document.getElementById('tab-trace');
+  const tabCanvas = document.getElementById('tab-canvas');
+
+  tabCanvas.classList.add('bg-white', 'text-gray-700');
+  tabCanvas.classList.remove('bg-gray-100', 'text-gray-500');
+
+  tabTrace.classList.add('bg-gray-100', 'text-gray-500');
+  tabTrace.classList.remove('bg-white', 'text-gray-700');
+}
+
+
+// キャンバス初期化
+function setupCanvas() {
+  canvas = document.getElementById('freeCanvas');
+  if (!canvas) return;
+
+  ctx = canvas.getContext('2d');
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = penColor;
+  ctx.lineWidth = penWidth;
+
+  // 描画処理の共通化
+  const performDraw = (x, y) => {
+    ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  // PC
+  canvas.onmousedown = (e) => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  };
+  canvas.onmouseup = () => drawing = false;
+  canvas.onmouseleave = () => drawing = false;
+
+  canvas.onmousemove = (e) => {
+    if (!drawing) return;
+    performDraw(e.offsetX, e.offsetY);
+  };
+
+  // タッチ
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(t.clientX - rect.left, t.clientY - rect.top);
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    drawing = false;
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    performDraw(t.clientX - rect.left, t.clientY - rect.top);
+  }, { passive: false });
+}
+
+// キャンバスの状態を保存
+function saveCanvasState(optionId) {
+  if (!canvas) return;
+  canvasHistory[optionId] = canvas.toDataURL();
+}
+
+// キャンバスの状態を復元
+function restoreCanvasState(optionId) {
+  if (!ctx || !canvas) return;
+  
+  // 一旦クリア
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 保存されたデータがあれば描画
+  if (canvasHistory[optionId]) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = canvasHistory[optionId];
+  }
+}
+
+// 色選択（青強調解除）
+function setPenColor(color, btn) {
+  isEraser = false;
+  penColor = color;
+
+  if (ctx) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = penColor;
+    ctx.lineWidth = penWidth;
+  }
+
+  // 色ボタン枠線
+  document.querySelectorAll('.color-btn').forEach(b => {
+    b.classList.remove('ring-2', 'ring-gray-700');
   });
+  if (btn) btn.classList.add('ring-2', 'ring-gray-700');
+
+  // 消しゴム黄色強調解除
+  document.getElementById('eraser-btn').classList.remove(
+    'bg-yellow-200',
+    'border-yellow-500',
+    'text-yellow-800'
+  );
+}
+
+
+// 太さ変更（プレビュー削除済み）
+function setPenWidth(width) {
+  penWidth = Number(width);
+  if (ctx) ctx.lineWidth = penWidth;
+}
+
+
+// 消しゴム（黄色強調）
+function enableEraser(btn) {
+  isEraser = true;
+
+  if (ctx) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineWidth = 20;
+  }
+
+  // 色ボタン枠線解除
+  document.querySelectorAll('.color-btn').forEach(b => {
+    b.classList.remove('ring-2', 'ring-gray-700');
+  });
+
+  // 強調
+  btn.classList.add('bg-yellow-200',
+    'border-yellow-500',
+    'text-yellow-800');
+}
+
+
+// クリア
+function clearCanvas() {
+  if (!ctx || !canvas) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+// 初期化
+document.addEventListener('DOMContentLoaded', () => {
+  setupCanvas();
+
+  const tableBody = document.getElementById('table-body');
+  if (tableBody) {
+    tableBody.addEventListener('input', () => {
+      if (currentOptionId) saveTraceState(currentOptionId);
+    });
+  }
+});
 </script>
+
 {% endblock %}
