@@ -181,6 +181,11 @@
       {
         "type": "code",
         "text": "○整数型の配列: findPrimeNumbers(整数型:maxNum)\n 整数型の配列: pnList ← {}  // 要素数0の配列\n 整数型:i, j\n 論理型:divideFlag\n for (iを2から【 a 】まで 1 ずつ増やす)\n   divideFlag ← true\n\n   /* iの正の平方根の整数部分が2未満のときは，繰返し処理を実行しない */\n   for (jを2から iの正の平方根の整数部分まで1ずつ増やす)  // α\n     if (【 b 】)\n       divideFlag ← false\n     αの行から始まる繰返し処理を終了する\n     endif\n   endfor\n   if (divideFlag が true と等しい)\n     pnListの末尾にiの値を追加する\n   endif\n endfor\n return pnList"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2023_fe_b_q1_ans.png"
       }
     ],
     "variables": ["i", "j", "divideFlag", "pnList"],
@@ -208,6 +213,11 @@
       {
         "type": "code",
         "text": "○proc1()\n \"A\" を出力する\n proc3()\n\n○proc2()\n proc3()\n \"B\" を出力する\n proc1()\n\n○proc3()\n \"C\" を出力する"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2023_fe_b_q2_ans.png"
       }
     ],
     "variables": [],
@@ -239,6 +249,11 @@
       {
         "type": "code",
         "text": "大域: 整数型の配列: data ← {2, 1, 3, 5, 4}\n\n○sort(整数型: first, 整数型: last)\n 整数型: pivot, i, j\n pivot ← data[(first + last) ÷ 2 の商]\n i ← first\n j ← last\n\n while (true)\n   while (data[i] < pivot)\n     i ← i + 1\n   endwhile\n   while (pivot < data[j])\n     j ← j - 1\n   endwhile\n   if (i ≧ j)\n     繰返し処理を終了する\n   endif\n   data[i] と data[j] の値を入れ替える\n   i ← i + 1\n   j ← j - 1\n endwhile\n data の全要素の値を要素番号の順に空白区切りで出力する  /*** a ***/\n if (first < i - 1)\n   sort(first, i - 1)\n endif\n if (j + 1 < last)\n   sort(j + 1, last)\n endif"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2023_fe_b_q3_ans.png"
       }
     ],
     "variables": ["data", "pivot", "i", "j", "first", "last"],
@@ -267,6 +282,11 @@
       {
         "type": "code",
         "text": "大域: 整数型の配列: hashArray\n\n○論理型: add(整数型: value)\n 整数型: i ← calcHash1(value)\n if (hashArray[i] == -1)\n   hashArray[i] ← value\n   return true\n else\n   i ← calcHash2(value)\n   if (hashArray[i] == -1)\n     hashArray[i] ← value\n     return true\n   endif\n endif\n return false\n\n○整数型: calcHash1(整数型: value)\n return (value mod hashArrayの要素数) + 1\n\n○整数型: calcHash2(整数型: value)\n return ((value + 3) mod hashArrayの要素数) + 1\n\n○test()\n hashArray ← {5個の -1}\n add(3)\n add(18)\n add(11)"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2023_fe_b_q4_ans.png"
       }
     ],
     "variables": ["hashArray", "value", "i"],
@@ -300,6 +320,11 @@
       {
         "type": "code",
         "text": "○実数型: calcCosineSimilarity(実数型の配列: vector1, 実数型の配列: vector2)\n 実数型: similarity, numerator, denominator, temp ← 0\n 整数型: i\n numerator ← 0\n\n  for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n   numerator ← numerator + 【 a 】\n endfor\n\n for (i を 1 から vector1 の要素数 まで 1 ずつ増やす)\n   temp ← temp + vector1[i] の 2乗\n endfor\n denominator ← temp の正の平方根\n\n temp ← 0\n for (i を 1 から vector2 の要素数 まで 1 ずつ増やす)\n   temp ← temp + vector2[i] の 2乗\n endfor\n denominator ← 【 b 】\n\n similarity ← numerator ÷ denominator\n return similarity"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2023_fe_b_q5_ans.png"
       }
     ],
     "variables": ["similarity", "numerator", "denominator", "temp", "i"],
@@ -359,6 +384,11 @@
       {
         "type": "code",
         "text": "○整数型: maximum(整数型: x, 整数型: y, 整数型: z)\n if (【  】)\n   return x\n elseif (y > z)\n   return y\n else\n   return z\n endif"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2024_fe_b_q1_ans.png"
       }
     ],
     "variables": ["x", "y", "z"],
@@ -388,6 +418,11 @@
       {
         "type": "code",
         "text": "○整数型: convDecimal(文字列型: binary)\n 整数型: i, length, result ← 0\n length ← binaryの文字数\n for (i を 1 から length まで 1 ずつ増やす)\n   result ← 【  】\n endfor\n return result"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2024_fe_b_q2_ans.png"
       }
     ],
     "variables": ["binary", "i", "length", "result"],
@@ -433,6 +468,11 @@
       {
         "type": "code",
         "text": "○整数型の二次元配列: edgesToMatrix(整数型配列の配列: edgeList, 整数型: nodeNum)\n 整数型の二次元配列: adjMatrix ← {nodeNum行nodeNum列の0}\n 整数型: i, u, v\n\n for (iを1から edgeListの要素数 まで 1ずつ増やす)\n   u ← edgeList[i][1]\n   v ← edgeList[i][2]\n   【   】\n endfor\n return adjMatrix"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2024_fe_b_q3_ans.png"
       }
     ],
     "variables": ["i", "u", "v", "adjMatrix", "edgeList", "nodeNum"],
@@ -462,6 +502,11 @@
       {
         "type": "code",
         "text": "○整数型の配列: merge(整数型の配列: data1, 整数型の配列: data2)\n 整数型: n1 ← data1の要素数\n 整数型: n2 ← data2の要素数\n 整数型の配列: work ← {(n1 ＋ n2)個の 未定義の値}\n 整数型: i ← 1\n 整数型: j ← 1\n 整数型: k ← 1\n\n while ((i ≦ n1) and (j ≦ n2))\n   if (data1[i] ≦ data2[j])\n     work[k] ← data1[i]\n     i ← i ＋ 1\n   else\n     work[k] ← data2[j]\n     j ← j ＋ 1\n   endif\n   k ← k ＋ 1\n endwhile\n\n while (i ≦ n1)\n   work[k] ← data1[i]\n   i ← i ＋ 1\n   k ← k ＋ 1\n endwhile\n\n while (j ≦ n2)\n   work[k] ← data2[j]  /*** α ***/\n   j ← j ＋ 1\n   k ← k ＋ 1\n endwhile\n\n return work"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2024_fe_b_q4_ans.png"
       }
     ],
     "variables": ["i", "u", "v", "adjMatrix", "edgeList", "nodeNum"],
@@ -507,6 +552,11 @@
       {
         "type": "code",
         "text": "// 注文データ（ここでは表の例を与えている）\n大域：文字列型配列の配列：orders ← {{\"A\", \"B\", \"D\"}, {\"A\", \"D\"}, {\"A\"}, {\"A\", \"B\", \"E\"}, {\"B\"}, {\"C\", \"E\"}}\n\n○putRelatedItem(文字列型：item)\n 文字列型の配列：allItems ← ordersに含まれる文字列を重複なく辞書順に格納した配列  // 表の例では {\"A\", \"B\", \"C\", \"D\", \"E\"}\n\n 文字列型の配列：otherItems ← allItemsの複製から値がitemである要素を除いた配列\n\n 整数型：i，itemCount ← 0\n 整数型の配列：arrayK ← {otherItemsの要素数個の0}\n 整数型の配列：arrayM ← {otherItemsの要素数個の0}\n 実数型：valueL，maxL ← -∞\n 文字列型の配列：order\n 文字列型：relatedItem\n\n for (orderにordersの要素を順に代入する)\n   if (orderのいずれかの要素の値がitemの値と等しい)\n     itemCount の値を1増やす\n   endif\n   for (iを1からotherItemsの要素数まで1ずつ増やす)\n     if (orderのいずれかの要素の値がotherItems[i]の値と等しい)\n       if (orderのいずれかの要素の値がitemの値と等しい)\n         【 a 】の値を1増やす\n       endif\n       【 b 】の値を1増やす\n     endif\n   endfor\n endfor\n for (iを1からotherItemsの要素数まで1ずつ増やす)\n   valueL ← (arrayM[i] × 【 c 】) ÷ (itemCount × arrayK[i])  /* 実数として計算する */\n   if (valueLがmaxLより大きい)\n     maxL ← valueL\n     relatedItem ← otherItems[i]\n   endif\n endfor\n relatedItemの値とmaxLの値をこの順にコンマ区切りで出力する"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2024_fe_b_q5_ans.png"
       }
     ],
     "variables": [
@@ -549,6 +599,11 @@
       {
         "type": "code",
         "text": "○整数型: function1(整数型: n, 整数型: m)\n 整数型: count ← 0\n 整数型: i\n for (iをnからmまで1ずつ増やす)\n   if ((i mod 4)が0と等しい)\n     count ← count + 1\n   endif\n endfor\n return count\n\n○整数型: function2(整数型: n, 整数型: m)\n 整数型: count ← 0\n 整数型: tempN ← n\n 整数型: i, j\n for (【 a 】)\n   if ((tempN mod 4)が0と等しい)\n     繰返し処理を終了する\n   endif\n   tempN ← tempN + 1\n endfor\n\n for (【 b 】)\n   count ← count + 1\n endfor\n return count"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2025_fe_b_q1_ans.png"
       }
     ],
     "variables": ["n", "m", "count", "i", "j", "tempN"],
@@ -596,6 +651,11 @@
       {
         "type": "code",
         "text": "○整数型: change(整数型: n)\n 整数型: count ← 0\n 整数型: rest ← n\n while (【  】)\n   count ← count + (rest ÷ 5の商) + 1\n   rest ← rest - 10\n endwhile\n return count"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2025_fe_b_q2_ans.png"
       }
     ],
     "variables": ["n", "count", "rest"],
@@ -630,6 +690,11 @@
       {
         "type": "code",
         "text": "大域: 整数型: stackPos ← 3\n大域: 整数型の配列: stack ← {4, 3, 未定義の値, 未定義の値}\n\n○論理型: push(整数型: inputData)\n if (stackPos ≤ stackの要素数)\n   stack[【 a 】] ← inputData\n   stackPos ← stackPos + 1\n   return true\n else\n   return false\n endif\n\n○整数型: pop()\n 整数型: popData ← 未定義の値\n if (stackPos > 1)\n   stackPos ← 【 b 】\n   popData ← stack[stackPos]\n   stack[stackPos] ← 未定義の値\n endif\n return popData"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2025_fe_b_q3_ans.png"
       }
     ],
     "variables": ["stackPos", "stack", "inputData", "popData"],
@@ -657,6 +722,11 @@
       {
         "type": "code",
         "text": "/* keyは，要素数1以上の配列である */\n○整数型の配列: search(文字型の配列: data, 文字型の配列: key)\n 整数型: i, j, lenData, lenKey\n 整数型の配列: result ← {}  // 要素数0の配列\n\n lenData ← dataの要素数\n lenKey ← keyの要素数\n\n /* (lenData − lenKey + 1) が0以下のときは繰返し処理を実行しない */\n for (i を 1 から (lenData − lenKey + 1) まで 1 ずつ増やす)\n   for (j を 1 から lenKey まで 1 ずつ増やす)  // α\n     if (data[i + j − 1] が key[j] と等しい)  /*** β ***/\n       if (j が lenKey と等しい)\n         resultの末尾に i の値を追加する\n       endif\n     else\n       αの行から始まる繰返し処理を終了する\n     endif\n   endfor\n endfor\n return result"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2025_fe_b_q4_ans.png"
       }
     ],
     "variables": ["i", "j", "lenData", "lenKey", "result"],
@@ -695,6 +765,11 @@
       {
         "type": "code",
         "text": "○実数型の二次元配列: f(実数型の二次元配列: data)\n 実数型: t ← dataの要素の和\n 整数型: row ← dataの行数\n 整数型: col ← dataの列数\n 実数型の二次元配列: result ← {row行col列の未定義の値}\n 整数型: r, c\n for (r を 1 から row まで 1 ずつ増やす)\n   for (c を 1 から col まで 1 ずつ増やす)\n     result[r, c] ← (dataの行番号rの要素の和) × (dataの列番号cの要素の和) ÷ t\n   endfor\n  endfor\n return result"
+      },
+      {
+        "type": "image",
+        "id": "fig1",
+        "src": "images/2025_fe_b_q5_ans.png"
       }
     ],
     "variables": ["data", "t", "row", "col", "result", "r", "c"],
