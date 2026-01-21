@@ -14,6 +14,12 @@
     text-decoration: underline;
     text-underline-offset: 4px;
   }
+  .highlight-c {
+    color: #0a6ed9;
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 </style>
 
 <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6" id="app">
@@ -52,7 +58,7 @@
           {% elif block.type == 'code' %}
             <!-- prettier-ignore -->
             <div
-              class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 shadow-inner border border-gray-700 whitespace-pre-wrap"
+              class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 shadow-inner border border-gray-700 whitespace-pre-wrap tex2jax_ignore"
               id="code-display"
             >{{ block.text | trim }}</div>
           {% endif %}
@@ -65,7 +71,7 @@
       {% endif %}
       <!-- prettier-ignore -->
       <div
-        class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 mb-4 shadow-inner border border-gray-700 whitespace-pre-wrap"
+        class="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto leading-7 mb-4 shadow-inner border border-gray-700 whitespace-pre-wrap tex2jax_ignore"
         id="code-display"
       >{{ problem.code_text | trim }}</div>
       {% endif %}
@@ -238,6 +244,21 @@
     lucide.createIcons();
   });
 
+  // MathJax 設定
+  window.MathJax = {
+    options: {
+      ignoreHtmlClass: 'tex2jax_ignore', // このクラスがついた要素内の数式は無視
+      processHtmlClass: 'tex2jax_process'
+    },
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // $...$ をインライン数式として認識
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    },
+    svg: {
+      fontCache: 'global'
+    }
+  };
+
   function renderQuestion() {
     const btnContainer = document.getElementById('option-buttons');
     btnContainer.innerHTML = '';
@@ -276,8 +297,15 @@
     const optData = PROBLEM_DATA.options[optionId];
 
     let code = PROBLEM_DATA.code_template;
-    code = code.replace(/\[\s*a\s*\]/g, `<span class="highlight-a">${optData.a}</span>`);
-    code = code.replace(/\[\s*b\s*\]/g, `<span class="highlight-b">${optData.b}</span>`);
+    if (optData.a) {
+      code = code.replace(/【\s*a\s*】/g, `<span class="highlight-a">${optData.a}</span>`);
+    }
+    if (optData.b) {
+      code = code.replace(/【\s*b\s*】/g, `<span class="highlight-b">${optData.b}</span>`);
+    }
+    if (optData.c) {
+      code = code.replace(/【\s*c\s*】/g, `<span class="highlight-c">${optData.c}</span>`);
+    }
     document.getElementById('code-display').innerHTML = code;
 
     document.getElementById('placeholder-msg').style.display = 'none';
@@ -656,5 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 {% endblock %}
