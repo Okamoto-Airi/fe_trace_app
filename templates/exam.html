@@ -116,7 +116,7 @@
      class="bg-blue-50 border border-blue-200 text-blue-800 p-8 rounded-lg text-center 
             flex flex-col justify-center items-center min-h-[200px]">
       <i data-lucide="mouse-pointer-click" class="w-10 h-10 mb-3 opacity-50"></i>
-      <p class="font-bold text-lg">左の選択肢をクリックして、トレースを開始してください。</p>
+      <p class="font-bold text-lg">選択肢をクリックして、トレースを開始してください。</p>
       <p class="text-sm text-blue-600 mt-2">選択肢ごとに異なるトレース表を作成・保存できます。</p>
     </div>
 
@@ -160,51 +160,51 @@
 
     <!-- ★ 手書きキャンバス -->
     <div id="canvas-area" class="hidden p-4 bg-white flex flex-col items-stretch">
-      <p class="text-xs text-gray-500 mb-2">自由に図を書いて整理できます。</p>
+      <div class="flex justify-between items-center mb-2">
+        <p class="text-xs text-gray-500">自由に図を書いて整理できます。</p>
+        <button
+          onclick="clearCanvas()"
+          class="text-xs text-red-500 hover:text-red-700 hover:underline flex items-center font-bold px-2 py-1 rounded hover:bg-red-50 transition whitespace-nowrap"
+        >
+          <i data-lucide="trash-2" class="inline w-3 h-3 mr-1"></i> リセット
+        </button>
+      </div>
 
       <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
         <canvas id="freeCanvas" width="900" height="400" class="bg-white block"></canvas>
       </div>
 
-      <div class="flex justify-between items-center mt-2 text-xs">
+      <div class="flex flex-wrap justify-between items-center mt-2 gap-y-2">
 
         <!-- 左：色選択 + 消しゴム -->
         <div class="flex items-center space-x-3">
-          <span class="text-gray-500">ペン色:</span>
-
-          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-black"
+          <button  class="color-btn w-6 h-6 rounded-full border border-gray-300 bg-black"
             onclick="setPenColor('#000000', this)"></button>
 
-          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-blue-500"
+          <button  class="color-btn w-6 h-6 rounded-full border border-gray-300 bg-blue-500"
             onclick="setPenColor('#3b82f6', this)"></button>
 
-          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-red-500"
+          <button  class="color-btn w-6 h-6 rounded-full border border-gray-300 bg-red-500"
             onclick="setPenColor('#ef4444', this)"></button>
 
-          <button class="color-btn w-5 h-5 rounded-full border border-gray-300 bg-emerald-500"
+          <button class="color-btn w-6 h-6 rounded-full border border-gray-300 bg-emerald-500"
             onclick="setPenColor('#10b981', this)"></button>
+
+          <div class="w-px h-6 bg-gray-300 mx-1"></div>
 
           <button
             id="eraser-btn"
-            class="px-2 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
+            class="px-2 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-100 flex items-center whitespace-nowrap"
             onclick="enableEraser(this)"
           >
-            消しゴム
+            <i data-lucide="eraser" class="w-3 h-3 mr-1"></i>消しゴム
           </button>
         </div>
 
-        <!-- 右：太さ + クリア -->
-        <div class="flex items-center space-x-3">
-          <label class="flex items-center space-x-1 text-gray-500">
-            <span>太さ</span>
-            <input type="range" min="2" max="10" value="3" id="pen-width" class="w-20"
-              onchange="setPenWidth(this.value)" />
-          </label>
-
-          <button type="button" class="text-gray-500 underline hover:text-gray-800"
-            onclick="clearCanvas()">
-            クリア
-          </button>
+        <div class="flex items-center space-x-2">
+          <i data-lucide="pen-tool" class="w-3 h-3 text-gray-400"></i>
+          <input  type="range" min="2" max="10" value="3" id="pen-width" class="w-24 accent-gray-600"
+            onchange="setPenWidth(this.value)" />
         </div>
 
       </div>

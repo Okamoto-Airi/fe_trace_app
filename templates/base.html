@@ -16,29 +16,29 @@
   <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
     <nav class="bg-[#15803d] text-white shadow-md">
       <div
-        class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center"
+        class="max-w-7xl mx-auto px-3 py-2 md:px-4 md:py-3 flex justify-between items-center"
       >
         <a
           href="{{ url_for('home') if current_user.is_authenticated else url_for('index') }}"
-          class="flex items-center space-x-2 font-bold text-xl"
+          class="flex items-center space-x-1 md:space-x-2 font-bold text-lg md:text-xl whitespace-nowrap"
         >
-          <i data-lucide="book-open"></i>
+          <i data-lucide="book-open" class="w-5 h-5 md:w-6 md:h-6"></i>
           <span>TraceMaster FE</span>
         </a>
 
-        <div class="flex items-center space-x-4 text-sm">
+        <div class="flex items-center space-x-2 md:space-x-4 text-xs md:text-sm whitespace-nowrap">
           {% if current_user.is_authenticated %}
           <a
             href="{{ url_for('account') }}"
             class="flex items-center space-x-1 hover:underline hover:text-gray-100 font-bold"
           >
-            <i data-lucide="user" class="w-4 h-4"></i>
-            <span>{{ current_user.username }} さん</span>
+            <i data-lucide="user" class="w-3 h-3 md:w-4 md:h-4"></i>
+            <span class="max-w-[80px] md:max-w-none truncate block">{{ current_user.username }} さん</span>
           </a>
 
           <a
             href="{{ url_for('logout') }}"
-            class="hover:underline opacity-90 border-l border-white/30 pl-4 ml-2"
+            class="hover:underline opacity-90 border-l border-white/30 pl-2 ml-1 md:pl-4 md:ml-2"
             >ログアウト</a
           >
           {% else %}
