@@ -49,3 +49,30 @@
     ```
 
     <http://127.0.0.1:5000> にアクセス
+
+
+## CSS（Tailwind）の更新
+
+画面のスタイルは Tailwind CSS で作り、ビルド済みの `static/css/tailwind.css` をリポジトリに含めています
+（本番サーバーに Node.js は不要です）。
+
+テンプレート（`templates/*.html`）や `app.py` に**新しい Tailwind のクラスを追加・変更したとき**だけ、再ビルドしてコミットしてください。
+
+```bash
+npm install        # 初回のみ
+npm run build:css  # static/css/tailwind.css を再生成
+```
+
+> **注意:** プロジェクトのパスに日本語などの全角文字が含まれていると、Node.js がクラッシュしてビルドできない場合があります。
+> その場合は、英数字だけのパスにプロジェクトをコピーしてビルドし、生成された `static/css/tailwind.css` を戻してください。
+
+## テスト
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+## 本番デプロイ時の注意
+
+- `SECRET_KEY` は環境変数で必ず設定してください（未設定だと再起動のたびに全員がログアウトされます）。
+- CSS を更新したときは `static/css/tailwind.css` も一緒にデプロイされていることを確認してください。

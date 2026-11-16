@@ -1,0 +1,12 @@
+{
+  "name": "fe-trace-app-assets",
+  "private": true,
+  "description": "Tailwind CSS のビルド用（アプリ本体は Python。本番には生成済みの static/css/tailwind.css を配置する）",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i static/src/input.css -o static/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -c tailwind.config.js -i static/src/input.css -o static/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}
