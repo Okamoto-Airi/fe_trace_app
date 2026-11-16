@@ -18,3 +18,5 @@ database.db
 # OSごとの設定ファイル
 .DS_Store
 Thumbs.db
+# Node（Tailwindビルド用）
+node_modules/

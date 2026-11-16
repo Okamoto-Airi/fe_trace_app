@@ -29,12 +29,14 @@ from flask_login import (  # Flask-Loginの機能をインポート
     logout_user,  # ユーザーログアウト関数
     current_user,  # 現在のユーザーオブジェクト
 )
+from sqlalchemy import distinct, func  # 重複を除いた集計用
 from sqlalchemy.exc import IntegrityError  # 登録時の重複競合を扱う
 from werkzeug.security import (
     generate_password_hash,
     check_password_hash,
 )  # パスワードハッシュ化と検証関数をインポート
 from datetime import datetime, timedelta  # 日時操作のためのモジュールをインポート
+from urllib.parse import urlparse  # next パラメータの検証用
 from dotenv import load_dotenv  # 環境変数をロードするためのモジュールをインポート
 
 # models.py からインポート
@@ -307,6 +309,34 @@ def load_user(user_id):  # ユーザーIDからユーザーをロードする関
     return User.query.get(int(user_id))  # IDでUserをクエリして返す
 
 
+def _safe_next_url(target):
+    """ログイン後のリダイレクト先として安全な「サイト内の相対パス」だけを返す。
+
+    外部サイトへ飛ばされるオープンリダイレクトを防ぐため、
+    "//evil.com" や "https://evil.com"、"/\\evil.com"、制御文字を含む値は None にする。
+    """
+    if not isinstance(target, str) or not target.startswith("/"):
+        return None
+    if target.startswith("//") or "\\" in target:
+        return None
+    if any(ord(ch) < 0x20 or ord(ch) == 0x7F for ch in target):
+        return None
+    parsed = urlparse(target)
+    if parsed.scheme or parsed.netloc:
+        return None
+    return target
+
+
+def count_solved_problems(user_id: int) -> int:
+    """正解した「問題の種類数」を返す（同じ問題を何度正解しても1と数える）"""
+    return (
+        db.session.query(func.count(distinct(LearningLog.problem_id)))
+        .filter(LearningLog.user_id == user_id, LearningLog.is_correct.is_(True))
+        .scalar()
+        or 0
+    )
+
+
 def calculate_rank(solved_count: int):
     """
     解いた問題数から称号とCSSクラスを返す
@@ -358,7 +388,8 @@ def home():
         check_date -= timedelta(days=1)
 
     # --- 称号計算 ---
-    solved_count = sum(1 for log in logs if log.is_correct)
+    # 同じ問題を何度正解しても1問として数える（称号の水増し防止）
+    solved_count = len({log.problem_id for log in logs if log.is_correct})
 
     rank, rank_color = calculate_rank(solved_count)
 
@@ -413,10 +444,8 @@ def problem_list(mode):  # 問題リスト関数
 
     problems = Problem.query.filter_by(mode=mode).all()  # 指定モードの問題をクエリ
 
-    # 称号計算用 (ヘッダー表示用)
-    solved_count = LearningLog.query.filter_by(  # 正解したログをカウント
-        user_id=current_user.id, is_correct=True
-    ).count()
+    # 称号計算用 (ヘッダー表示用): 正解した問題の種類数
+    solved_count = count_solved_problems(current_user.id)
 
     # 最近の履歴
     recent_logs = (  # 最近のログをクエリ
@@ -468,9 +497,7 @@ def exam(problem_id):  # 試験関数
 @app.route("/account")
 @login_required
 def account():
-    solved_count = LearningLog.query.filter_by(
-        user_id=current_user.id, is_correct=True
-    ).count()
+    solved_count = count_solved_problems(current_user.id)
 
     # 称号計算
     rank, rank_color = calculate_rank(solved_count)
@@ -548,6 +575,7 @@ def log_result():  # 結果ログ関数
     "/register", methods=["GET", "POST"]
 )  # /register URLのルーティング（GET/POSTメソッド）
 def register():  # 登録関数
+    next_url = _safe_next_url(request.args.get("next"))  # 登録後の戻り先
     if request.method == "POST":  # POSTリクエストの場合
         username = request.form.get("username", "").strip()  # ユーザー名を取得
         password = request.form.get("password", "")  # パスワードを取得
@@ -572,25 +600,28 @@ def register():  # 登録関数
             except IntegrityError:  # 同時登録による重複
                 db.session.rollback()
                 flash("そのユーザー名は既に使用されています", "error")
-                return render_template("register.html")
+                return render_template("register.html", next_url=next_url)
             session.clear()  # ログイン前にセッションを破棄（セッション固定化対策）
             session.permanent = True  # PERMANENT_SESSION_LIFETIME(7日)を有効にする
             login_user(new_user)  # ログイン
-            return redirect(url_for("home"))  # ホームへリダイレクト
-    return render_template("register.html")  # 登録テンプレートをレンダリング
+            return redirect(next_url or url_for("home"))  # 元のページ or ホームへ
+    return render_template(
+        "register.html", next_url=next_url
+    )  # 登録テンプレートをレンダリング
 
 
 @app.route(
     "/login", methods=["GET", "POST"]
 )  # /login URLのルーティング（GET/POSTメソッド）
 def login():  # ログイン関数
+    next_url = _safe_next_url(request.args.get("next"))  # ログイン後の戻り先
     if request.method == "POST":  # POSTリクエストの場合
         username = request.form.get("username", "")[:150]  # ユーザー名を取得
         password = request.form.get("password", "")[:128]  # パスワードを取得（長さ上限）
         key = _login_key(username)
         if _is_locked(key):
             flash("ログイン試行回数が多すぎます。しばらくしてからお試しください", "error")
-            return render_template("login.html"), 429
+            return render_template("login.html", next_url=next_url), 429
 
         user = User.query.filter_by(username=username).first()  # ユーザーをクエリ
         # ユーザーの有無で処理時間が変わらないよう、常にハッシュ検証を行う
@@ -601,14 +632,16 @@ def login():  # ログイン関数
             session.clear()  # セッション固定化対策
             session.permanent = True  # PERMANENT_SESSION_LIFETIME(7日)を有効にする
             login_user(user)  # ログイン
-            return redirect(url_for("home"))  # ホームへリダイレクト
+            return redirect(next_url or url_for("home"))  # 元のページ or ホームへ
         else:  # 一致しない場合
             _login_failures[key].append(time.time())
             flash("ユーザー名またはパスワードが違います", "error")  # エラーフラッシュ
-    return render_template("login.html")  # ログインテンプレートをレンダリング
+    return render_template(
+        "login.html", next_url=next_url
+    )  # ログインテンプレートをレンダリング
 
 
-@app.route("/logout")  # /logout URLのルーティング
+@app.route("/logout", methods=["POST"])  # POST限定（GETだと外部リンク等で勝手にログアウトされる）
 @login_required  # ログイン必須
 def logout():  # ログアウト関数
     logout_user()  # ログアウト

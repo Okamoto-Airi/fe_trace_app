@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TraceMaster FE - アルゴリズムトレース学習アプリ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}" />
     <script src="https://unpkg.com/lucide@1.73.0/dist/umd/lucide.min.js" integrity="sha384-DdDSdhkTpRzHOpRXj0iG8b2rBu5xPWN5SFqnCEZ0YKb/Yh1Ymmc9PVsYEZZOq40r" crossorigin="anonymous"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -36,11 +36,16 @@
             <span class="max-w-[80px] md:max-w-none truncate block">{{ current_user.username }} さん</span>
           </a>
 
-          <a
-            href="{{ url_for('logout') }}"
-            class="hover:underline opacity-90 border-l border-white/30 pl-2 ml-1 md:pl-4 md:ml-2"
-            >ログアウト</a
+          <form
+            action="{{ url_for('logout') }}"
+            method="POST"
+            class="border-l border-white/30 pl-2 ml-1 md:pl-4 md:ml-2"
           >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="hover:underline opacity-90">
+              ログアウト
+            </button>
+          </form>
           {% else %}
           <a href="{{ url_for('login') }}" class="hover:underline">ログイン</a>
           {% endif %}
@@ -71,6 +76,42 @@
     </footer>
     <script>
       lucide.createIcons();
+
+      // 二重送信防止: data-submit-once を付けたフォームは、送信後にボタンを無効化する
+      (function () {
+        function lock(form, btn) {
+          form.dataset.submitting = '1';
+          if (btn) {
+            btn.dataset.label = btn.textContent;
+            btn.textContent = '送信中…';
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+          }
+        }
+        function unlock(form) {
+          delete form.dataset.submitting;
+          var btn = form.querySelector('button[type="submit"]');
+          if (btn && btn.dataset.label) {
+            btn.textContent = btn.dataset.label;
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
+        }
+        var forms = document.querySelectorAll('form[data-submit-once]');
+        forms.forEach(function (form) {
+          form.addEventListener('submit', function (e) {
+            if (form.dataset.submitting === '1') {
+              e.preventDefault();
+              return;
+            }
+            lock(form, form.querySelector('button[type="submit"]'));
+          });
+        });
+        // 「戻る」でキャッシュから復元されたときにボタンが無効のままにならないようにする
+        window.addEventListener('pageshow', function () {
+          forms.forEach(unlock);
+        });
+      })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" integrity="sha384-HAH79XdRvHr6axVGh4xQWVCp14kcd32bNk4Xu0sHDHtFQ42n6BAM8ykvB47dGz6D" crossorigin="anonymous"></script>
   </body>
