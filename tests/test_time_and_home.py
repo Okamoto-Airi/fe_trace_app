@@ -5,10 +5,15 @@ JST = UTC + 9時間 なので、UTC 15:00 以降は JST では翌日になる。
 
 実行: python -m unittest discover -s tests -v
 """
+import os
+import sys
 import unittest
 from datetime import date, datetime, timedelta
 
-from test_auth_and_progress import AppTestCase  # 環境変数の設定もここで行われる
+# 単独実行（python -m unittest tests.test_time_and_home）でも同じ階層を読めるように
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from test_auth_and_progress import AppTestCase  # noqa: E402 環境変数の設定もここで行われる
 import app as app_module
 from models import LearningLog, User, db
 from timeutil import jst_day_start_as_utc, to_jst, utcnow
