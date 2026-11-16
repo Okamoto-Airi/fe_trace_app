@@ -54,6 +54,7 @@
       method="POST"
       onsubmit="return confirm('本当にアカウントを削除しますか？\n\n・学習履歴はすべて消去されます\n・この操作は元に戻せません\n\nよろしいですか？');"
     >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <button
         type="submit"
         class="bg-red-600 text-white font-bold py-2 px-6 rounded hover:bg-red-700 transition shadow-sm w-full md:w-auto"

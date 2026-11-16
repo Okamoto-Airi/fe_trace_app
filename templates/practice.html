@@ -509,7 +509,7 @@
 
     fetch('/api/log_result', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}' },
       body: JSON.stringify({
         problem_id: PROBLEM_DATA.id,
         is_correct: true,
