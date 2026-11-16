@@ -88,7 +88,10 @@ login_manager.init_app(app)  # LoginManagerをFlaskアプリに初期化
 login_manager.login_view = (
     "login"  # ログインが必要なページでリダイレクトするビューを設定
 )
-login_manager.session_protection = "strong"  # セッション盗用対策を強化
+# "strong" だとモバイル回線で IP が変わるたびにログアウトされてしまうため "basic" にする。
+# （"basic" は IP/UA の変化時にセッションを「非fresh」扱いにするのみ。盗用対策は
+#   HTTPOnly/Secure/SameSite Cookie と HTTPS で担保）
+login_manager.session_protection = "basic"
 
 
 # 本番環境では HTTPS を強制し、HSTS ヘッダを付与する
@@ -164,9 +167,12 @@ _login_failures = defaultdict(deque)
 
 
 def _client_ip():
-    # PythonAnywhere のプロキシが付与する X-Forwarded-For の先頭を使用
+    # X-Forwarded-For の「先頭」はクライアントが自由に偽装できる。
+    # 信頼できるのは、手前のプロキシ(PythonAnywhere)が末尾に追記した値なので、
+    # 最後の要素を使う。ヘッダーが無ければ接続元アドレスを使う。
     fwd = request.headers.get("X-Forwarded-For", "")
-    ip = fwd.split(",")[0].strip() if fwd else request.remote_addr
+    parts = [p.strip() for p in fwd.split(",") if p.strip()]
+    ip = parts[-1] if parts else request.remote_addr
     return ip or "unknown"
 
 
@@ -568,6 +574,7 @@ def register():  # 登録関数
                 flash("そのユーザー名は既に使用されています", "error")
                 return render_template("register.html")
             session.clear()  # ログイン前にセッションを破棄（セッション固定化対策）
+            session.permanent = True  # PERMANENT_SESSION_LIFETIME(7日)を有効にする
             login_user(new_user)  # ログイン
             return redirect(url_for("home"))  # ホームへリダイレクト
     return render_template("register.html")  # 登録テンプレートをレンダリング
@@ -592,6 +599,7 @@ def login():  # ログイン関数
         if user and password_ok:  # ユーザーが存在し、パスワードが一致する場合
             _login_failures.pop(key, None)
             session.clear()  # セッション固定化対策
+            session.permanent = True  # PERMANENT_SESSION_LIFETIME(7日)を有効にする
             login_user(user)  # ログイン
             return redirect(url_for("home"))  # ホームへリダイレクト
         else:  # 一致しない場合
