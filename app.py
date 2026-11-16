@@ -17,6 +17,7 @@ from flask import (
     redirect,
     session,
     abort,
+    send_from_directory,
     url_for,
     flash,
     jsonify,
@@ -35,12 +36,13 @@ from werkzeug.security import (
     generate_password_hash,
     check_password_hash,
 )  # パスワードハッシュ化と検証関数をインポート
-from datetime import datetime, timedelta  # 日時操作のためのモジュールをインポート
+from datetime import timedelta  # 日時操作のためのモジュールをインポート
 from urllib.parse import urlparse  # next パラメータの検証用
 from dotenv import load_dotenv  # 環境変数をロードするためのモジュールをインポート
 
 # models.py からインポート
 from models import db, User, Problem, LearningLog  # データベースモデルをインポート
+from timeutil import jst_day_start_as_utc, jst_today, to_jst  # 日時（JST変換）
 
 
 # .envファイルをロード (最初に行う)
@@ -337,6 +339,85 @@ def count_solved_problems(user_id: int) -> int:
     )
 
 
+def _studied_dates_desc(user_id: int, page_size: int = 200):
+    """学習した日付(JST)を新しい順に、重複なしで返す。
+
+    全ログを一度に読まず、ページ単位で取得する。呼び出し側が途中で
+    打ち切れば、それ以降は読まない（連続日数の計算は途切れた時点で終わる）。
+    """
+    query = (
+        db.session.query(LearningLog.timestamp)
+        .filter(LearningLog.user_id == user_id)
+        .order_by(LearningLog.timestamp.desc())
+    )
+    previous = None
+    offset = 0
+    while True:
+        page = query.offset(offset).limit(page_size).all()
+        if not page:
+            return
+        for (ts,) in page:
+            day = to_jst(ts).date()
+            if day != previous:
+                previous = day
+                yield day
+        offset += page_size
+
+
+def calculate_streak(user_id: int, today) -> int:
+    """連続学習日数。今日まだ学習していなくても、昨日までの連続は途切れない。"""
+    streak = 0
+    expected = None
+    for day in _studied_dates_desc(user_id):
+        if day > today:  # 未来の日付は無視
+            continue
+        if streak == 0:
+            if day < today - timedelta(days=1):  # 昨日より前 → 連続なし
+                break
+            expected = day  # 今日 または 昨日 から数え始める
+        if day != expected:
+            break
+        streak += 1
+        expected = day - timedelta(days=1)
+    return streak
+
+
+def weekly_correct_counts(user_id: int, today):
+    """過去7日間(今日を含む)の、モード別の正解数を返す。
+
+    戻り値: (日付ラベル["11/16", ...], 練習の正解数リスト, 過去問の正解数リスト)
+    直近7日分の正解ログだけをDBから取得する。
+    """
+    days = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    rows = (
+        db.session.query(LearningLog.timestamp, LearningLog.mode)
+        .filter(
+            LearningLog.user_id == user_id,
+            LearningLog.is_correct.is_(True),
+            LearningLog.timestamp >= jst_day_start_as_utc(days[0]),
+        )
+        .all()
+    )
+    counts = {day: {"practice": 0, "exam": 0} for day in days}
+    for ts, mode in rows:
+        day = to_jst(ts).date()
+        if day in counts and mode in counts[day]:
+            counts[day][mode] += 1
+
+    labels = [day.strftime("%m/%d") for day in days]
+    return (
+        labels,
+        [counts[day]["practice"] for day in days],
+        [counts[day]["exam"] for day in days],
+    )
+
+
+@app.template_filter("jst")
+def format_jst(ts, fmt="%Y/%m/%d %H:%M"):
+    """テンプレート用: DBのUTC時刻を日本時間の文字列にする"""
+    return to_jst(ts).strftime(fmt)
+
+
 def calculate_rank(solved_count: int):
     """
     解いた問題数から称号とCSSクラスを返す
@@ -355,6 +436,17 @@ def calculate_rank(solved_count: int):
 # --- ルーティング ---
 
 
+@app.route("/favicon.ico")
+def favicon():
+    # ブラウザは /favicon.ico を直接取りに来ることがある（404ログの原因）
+    return send_from_directory(
+        app.static_folder,
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
+        max_age=7 * 24 * 3600,
+    )
+
+
 @app.route("/")  # ルートURLのルーティング
 def index():  # インデックス関数
     # ログイン済みならホームへ
@@ -367,71 +459,36 @@ def index():  # インデックス関数
 @app.route("/home")
 @login_required
 def home():
-    # --- 学習ログ取得 ---
-    logs = (
+    today = jst_today()  # 日付の判定はすべて日本時間
+
+    streak = calculate_streak(current_user.id, today)
+
+    # 称号: 正解した問題の種類数（同じ問題を何度正解しても1問）
+    solved_count = count_solved_problems(current_user.id)
+    rank, rank_color = calculate_rank(solved_count)
+
+    # グラフ用データ (過去7日間)
+    graph_labels, data_practice, data_exam = weekly_correct_counts(
+        current_user.id, today
+    )
+
+    # 最近の履歴（5件だけ取得する）
+    recent_logs = (
         LearningLog.query.filter_by(user_id=current_user.id)
         .order_by(LearningLog.timestamp.desc())
+        .limit(5)
         .all()
     )
 
-    # --- 連続学習日数計算 ---
-    studied_dates = {log.timestamp.date() for log in logs}
-    today = datetime.now().date()
-    streak = 0
-
-    check_date = today
-    if today not in studied_dates:
-        check_date = today - timedelta(days=1)
-
-    while check_date in studied_dates:
-        streak += 1
-        check_date -= timedelta(days=1)
-
-    # --- 称号計算 ---
-    # 同じ問題を何度正解しても1問として数える（称号の水増し防止）
-    solved_count = len({log.problem_id for log in logs if log.is_correct})
-
-    rank, rank_color = calculate_rank(solved_count)
-
-    # グラフ用データの集計 (過去7日間)
-    graph_labels = []  # 日付（例："1/5"）
-    data_practice = []  # 練習モードの正解数
-    data_exam = []  # 過去問モードの正解数
-
-    for i in range(6, -1, -1):  # 6日前〜今日
-        target_date = today - timedelta(days=i)
-        # ラベル作成（月/日）
-        graph_labels.append(target_date.strftime("%m/%d"))
-
-        # モード別に集計
-        count_practice = sum(
-            1
-            for log in logs
-            if log.timestamp.date() == target_date
-            and log.is_correct
-            and log.mode == "practice"
-        )
-        count_exam = sum(
-            1
-            for log in logs
-            if log.timestamp.date() == target_date
-            and log.is_correct
-            and log.mode == "exam"
-        )
-
-        data_practice.append(count_practice)
-        data_exam.append(count_exam)
-
-    # --- テンプレートへ返す ---
     return render_template(
         "home.html",
         streak=streak,
         rank=rank,
         rank_color=rank_color,
-        recent_logs=logs[:5],
+        recent_logs=recent_logs,
         graph_labels=graph_labels,
         data_practice=data_practice,
-        data_exam=data_exam
+        data_exam=data_exam,
     )  # ホームテンプレートをレンダリング
 
 
