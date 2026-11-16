@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy  # データベース操作を可能にする
 from flask_login import UserMixin  # ユーザー認証機能を追加
-from datetime import datetime  # 日時操作
+from timeutil import utcnow  # 日時はUTCで保存する（表示・集計時にJSTへ変換）
 import json  # JSONデータの操作
 
 db = SQLAlchemy()  # SQLAlchemyのインスタンスを作成してデータベース接続を管理
@@ -15,7 +15,7 @@ class User(UserMixin, db.Model):  # UserMixinを継承したUserモデルクラ�
     id = db.Column(db.Integer, primary_key=True)  # 主キーとなるidカラム（整数型）
     username = db.Column(db.String(150), unique=True, nullable=False)  # ユーザー名カラム（文字列、ユニーク、必須）
     password = db.Column(db.String(150), nullable=False)  # パスワードカラム（文字列、必須）
-    created_at = db.Column(db.DateTime, default=datetime.now)  # 作成日時カラム（デフォルトは現在時刻）
+    created_at = db.Column(db.DateTime, default=utcnow)  # 作成日時カラム（UTC）
 
     # リレーション: 履歴
     logs = db.relationship(
@@ -122,4 +122,4 @@ class LearningLog(db.Model):  # LearningLogモデルクラスを定義
     problem_id = db.Column(db.String(50), db.ForeignKey("problems.id"), nullable=False)  # 外部キー：problemsテーブルのid（必須）
     mode = db.Column(db.String(20), nullable=False)  # モードカラム（必須）
     is_correct = db.Column(db.Boolean, default=False)  # 正解フラグカラム（デフォルトFalse）
-    timestamp = db.Column(db.DateTime, default=datetime.now)  # タイムスタンプカラム（デフォルト現在時刻）
+    timestamp = db.Column(db.DateTime, default=utcnow)  # タイムスタンプカラム（UTC）
