@@ -354,6 +354,16 @@
     }
   }
 
+  // 入力値を innerHTML / 属性値に埋め込む際のエスケープ
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function addRowToDom(rowNum, rowData) {
     const tbody = document.getElementById('table-body');
     const tr = document.createElement('tr');
@@ -362,14 +372,14 @@
     let html = `<td class="p-2 border-r border-gray-200 text-xs text-gray-400 bg-gray-50 font-bold select-none">${rowNum}</td>`;
 
     PROBLEM_DATA.variables.forEach((v, idx) => {
-      const val = rowData ? rowData.vars[idx] : "";
+      const val = rowData ? escapeHtml(rowData.vars[idx]) : "";
       html += `<td class="border-r border-gray-200 p-0 relative">
                 <input type="text" class="trace-input w-full h-full p-2 text-center font-mono text-gray-800 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-200"
                 value="${val}" placeholder="-">
                </td>`;
     });
 
-    const memoVal = rowData ? rowData.memo : "";
+    const memoVal = rowData ? escapeHtml(rowData.memo) : "";
     html += `<td class="p-0 relative">
               <input type="text" class="trace-memo w-full h-full p-2 text-left text-xs text-gray-600 bg-transparent outline-none focus:bg-white focus:ring-2 focus:ring-inset focus:ring-blue-200 placeholder-gray-300"
               value="${memoVal}" placeholder="メモ...">
@@ -443,7 +453,7 @@
     try {
       await fetch('/api/log_result', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}'},
         body: JSON.stringify({
           problem_id: PROBLEM_DATA.id,
           mode: 'exam',
@@ -685,6 +695,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous"></script>
 
 {% endblock %}

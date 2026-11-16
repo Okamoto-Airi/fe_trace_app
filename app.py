@@ -1,5 +1,13 @@
+# pyright: reportCallIssue=false, reportAttributeAccessIssue=false
+# （Flask-SQLAlchemy のモデル引数や LoginManager.login_view に対する型チェッカーの誤検知を抑止）
 import os  # OS関連の操作を行うためのモジュールをインポート
+import re  # 正規表現（ユーザー名の検証用）
 import json  # JSONデータの操作を行うためのモジュールをインポート
+import time  # ログイン試行回数制限用
+import hmac  # CSRFトークンの定数時間比較用
+import secrets  # CSRFトークン生成用
+import logging  # 警告ログ出力用
+from collections import defaultdict, deque  # ログイン試行履歴の保持用
 import click  # Flask CLIコマンドを作成するためのモジュールをインポート
 
 from flask import (
@@ -7,6 +15,8 @@ from flask import (
     render_template,
     request,
     redirect,
+    session,
+    abort,
     url_for,
     flash,
     jsonify,
@@ -19,6 +29,7 @@ from flask_login import (  # Flask-Loginの機能をインポート
     logout_user,  # ユーザーログアウト関数
     current_user,  # 現在のユーザーオブジェクト
 )
+from sqlalchemy.exc import IntegrityError  # 登録時の重複競合を扱う
 from werkzeug.security import (
     generate_password_hash,
     check_password_hash,
@@ -34,10 +45,22 @@ from models import db, User, Problem, LearningLog  # データベースモデル
 load_dotenv()
 
 app = Flask(__name__)  # Flaskアプリケーションインスタンスを作成
-# 設定 (環境変数がなければデフォルト値を使用)
-app.config["SECRET_KEY"] = os.getenv(
-    "SECRET_KEY", "dev-key-default"
-)  # 秘密鍵を設定（環境変数から取得、なければデフォルト）
+# SECRET_KEY は環境変数から取得（なければランタイムで安全な一時キーを生成）
+secret = os.getenv("SECRET_KEY")
+if not secret:
+    # 開発時はランダムキーを生成（再起動で切り替わるため本番ではENVに設定必須）
+    secret = os.urandom(32).hex()
+    logging.getLogger(__name__).warning(
+        "SECRET_KEY が未設定です。一時キーを使用するため、再起動やワーカー間でセッションが無効になります。"
+        "本番では十分長いランダム値を環境変数 SECRET_KEY に設定してください。"
+    )
+elif len(secret) < 32:
+    logging.getLogger(__name__).warning(
+        "SECRET_KEY が短すぎます（32文字以上のランダム値を推奨）。"
+    )
+app.config["SECRET_KEY"] = secret
+
+# 基本設定
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     os.getenv(  # データベースURIを設定（環境変数から取得、なければSQLiteデフォルト）
         "DATABASE_URL", "sqlite:///database.db"
@@ -45,12 +68,126 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # SQLAlchemyの変更追跡を無効化
 
+# セキュリティ関連のCookie/URL設定
+# 本番ではHTTPSを必須とし、セッションCookieを安全にする
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["REMEMBER_COOKIE_SECURE"] = True
+app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
+app.config["PREFERRED_URL_SCHEME"] = "https"
+# リクエストボディの上限（巨大入力による負荷対策）
+app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024  # 1MB
+# セッションの有効期間
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
+
 db.init_app(app)  # SQLAlchemyをFlaskアプリに初期化
 login_manager = LoginManager()  # LoginManagerインスタンスを作成
 login_manager.init_app(app)  # LoginManagerをFlaskアプリに初期化
 login_manager.login_view = (
     "login"  # ログインが必要なページでリダイレクトするビューを設定
 )
+login_manager.session_protection = "strong"  # セッション盗用対策を強化
+
+
+# 本番環境では HTTPS を強制し、HSTS ヘッダを付与する
+@app.before_request
+def enforce_https_in_production():
+    if not app.debug and not app.testing:
+        # リバースプロキシが X-Forwarded-Proto をセットしている場合に対応
+        proto = request.headers.get("X-Forwarded-Proto", "")
+        if proto and proto != "https":
+            url = request.url.replace("http://", "https://", 1)
+            return redirect(url, code=301)
+        # 直接アクセスの場合
+        if not proto and not request.is_secure:
+            url = request.url.replace("http://", "https://", 1)
+            return redirect(url, code=301)
+
+
+@app.after_request
+def set_security_headers(response):
+    # HSTS を付与（本番のみ）
+    if not app.debug and not app.testing:
+        response.headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains; preload",
+        )
+    # クリックジャッキング・MIMEスニッフィング等への対策
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault(
+        "Referrer-Policy", "strict-origin-when-cross-origin"
+    )
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "frame-ancestors 'none'; base-uri 'self'; "
+        "form-action 'self'; object-src 'none'",
+    )
+    return response
+
+
+# ---------------------------------------------------------
+# CSRF 対策（追加パッケージ不要の簡易実装）
+#  - フォーム: hidden フィールド "csrf_token"
+#  - fetch/XHR: ヘッダー "X-CSRFToken"
+# ---------------------------------------------------------
+def get_csrf_token():
+    token = session.get("_csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["_csrf_token"] = token
+    return token
+
+
+app.jinja_env.globals["csrf_token"] = get_csrf_token
+
+
+@app.before_request
+def csrf_protect():
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        expected = session.get("_csrf_token", "")
+        sent = request.headers.get("X-CSRFToken") or request.form.get(
+            "csrf_token", ""
+        )
+        if not expected or not sent or not hmac.compare_digest(expected, sent):
+            abort(400, description="CSRF token missing or invalid")
+
+
+# ---------------------------------------------------------
+# ログイン試行回数制限（プロセス内メモリ。ワーカーごとのベストエフォート）
+# ---------------------------------------------------------
+LOGIN_MAX_ATTEMPTS = 5  # 窓内の失敗上限
+LOGIN_WINDOW_SEC = 15 * 60  # 15分
+_login_failures = defaultdict(deque)
+
+
+def _client_ip():
+    # PythonAnywhere のプロキシが付与する X-Forwarded-For の先頭を使用
+    fwd = request.headers.get("X-Forwarded-For", "")
+    ip = fwd.split(",")[0].strip() if fwd else request.remote_addr
+    return ip or "unknown"
+
+
+def _login_key(username):
+    return (_client_ip(), (username or "").lower()[:150])
+
+
+def _is_locked(key):
+    q = _login_failures[key]
+    now = time.time()
+    while q and now - q[0] > LOGIN_WINDOW_SEC:
+        q.popleft()
+    if not q:
+        _login_failures.pop(key, None)
+    return len(q) >= LOGIN_MAX_ATTEMPTS
+
+
+# 存在しないユーザーでも同程度の処理時間にするためのダミーハッシュ
+_DUMMY_HASH = generate_password_hash("dummy-password", method="pbkdf2:sha256")
+
+USERNAME_RE = re.compile(r"^[A-Za-z0-9_.\-]{3,50}$")
 
 
 # ---------------------------------------------------------
@@ -100,16 +237,25 @@ def seed_db_command():  # データベースシードコマンド関数
         # 変数リストはカンマ区切り文字列にして保存
         problem.variables_str = ",".join(p_data.get("variables", []))
         # 構造データ(steps/options)はJSON文字列にして保存
-        problem.data_json = json.dumps(p_data.get("data", {}), ensure_ascii=False)
+        problem.data_json = json.dumps(
+            p_data.get("data", {}), ensure_ascii=False
+        )
 
         if "content" in p_data:
             # 1. content をそのまま保存
-            problem.content_json = json.dumps(p_data["content"], ensure_ascii=False)
+            problem.content_json = json.dumps(
+                p_data["content"], ensure_ascii=False
+            )
 
             # 2. code_text カラムへのバックフィル (DBのNot Null制約回避 & 検索用)
             # content 内の type="code" のブロックを探す
             code_block = next(
-                (item for item in p_data["content"] if item.get("type") == "code"), None
+                (
+                    item
+                    for item in p_data["content"]
+                    if item.get("type") == "code"
+                ),
+                None,
             )
             if code_block:
                 problem.code_text = code_block["text"]  # 新JSONのキーは "text"
@@ -120,7 +266,12 @@ def seed_db_command():  # データベースシードコマンド関数
             # 3. description カラムへのバックフィル
             # 最初のテキストブロックを説明文として保存しておく
             text_block = next(
-                (item for item in p_data["content"] if item.get("type") == "text"), None
+                (
+                    item
+                    for item in p_data["content"]
+                    if item.get("type") == "text"
+                ),
+                None,
             )
             problem.description = text_block["text"] if text_block else ""
 
@@ -288,7 +439,7 @@ def practice(problem_id):  # 練習関数
         return redirect(url_for("home"))  # ホームへリダイレクト
 
     # テンプレートに渡す際、problemオブジェクトをそのまま渡す
-    # (models.py で定義した @property def data により、テンプレート側で problem.data.steps のようにアクセス可能)
+    # (models.py で定義した @property def data により、テンプレート側で problem.data.steps のようにアクセス可能)  # noqa: E501
     return render_template(
         "practice.html", problem=problem
     )  # 練習テンプレートをレンダリング
@@ -325,6 +476,7 @@ def account():
         rank_color=rank_color
     )
 
+
 @app.route(
     "/account/delete", methods=["POST"]
 )  # /account/delete URLのルーティング（POSTメソッド）
@@ -348,12 +500,33 @@ def delete_account():  # アカウント削除関数
 )  # /api/log_result URLのルーティング（POSTメソッド）
 @login_required  # ログイン必須
 def log_result():  # 結果ログ関数
-    data = request.json  # JSONデータを取得
+    data = request.get_json(silent=True)  # JSONデータを取得（不正な形式でも例外にしない）
+    if not isinstance(data, dict):
+        return jsonify({"status": "error", "message": "invalid request"}), 400
+
+    problem_id = data.get("problem_id")
+    if not isinstance(problem_id, str):
+        return (
+            jsonify({"status": "error", "message": "invalid problem_id"}),
+            400,
+        )
+    problem = db.session.get(Problem, problem_id)  # 実在する問題のみ受け付ける
+    if problem is None:
+        return jsonify({"status": "error", "message": "unknown problem"}), 400
+
+    is_correct = data.get("is_correct", False)
+    if not isinstance(is_correct, bool):
+        return (
+            jsonify({"status": "error", "message": "invalid is_correct"}),
+            400,
+        )
+
+    # モードはクライアント申告ではなく問題側の値を採用する
     new_log = LearningLog(  # 新しいLearningLogインスタンスを作成
         user_id=current_user.id,  # ユーザーID
-        problem_id=data.get("problem_id"),  # 問題ID
-        mode=data.get("mode", "practice"),  # モード（デフォルトpractice）
-        is_correct=data.get("is_correct", False),  # 正解フラグ（デフォルトFalse）
+        problem_id=problem.id,  # 問題ID
+        mode=problem.mode,  # モード
+        is_correct=is_correct,  # 正解フラグ
     )
     db.session.add(new_log)  # セッションに追加
     db.session.commit()  # コミット
@@ -370,9 +543,13 @@ def log_result():  # 結果ログ関数
 )  # /register URLのルーティング（GET/POSTメソッド）
 def register():  # 登録関数
     if request.method == "POST":  # POSTリクエストの場合
-        username = request.form["username"]  # ユーザー名を取得
-        password = request.form["password"]  # パスワードを取得
-        if User.query.filter_by(
+        username = request.form.get("username", "").strip()  # ユーザー名を取得
+        password = request.form.get("password", "")  # パスワードを取得
+        if not USERNAME_RE.match(username):
+            flash("ユーザー名は3〜50文字の英数字と . _ - のみ使用できます", "error")
+        elif not (8 <= len(password) <= 128):
+            flash("パスワードは8〜128文字で入力してください", "error")
+        elif User.query.filter_by(
             username=username
         ).first():  # ユーザー名が既に存在する場合
             flash("そのユーザー名は既に使用されています", "error")  # エラーフラッシュ
@@ -384,7 +561,13 @@ def register():  # 登録関数
                 ),  # パスワードをハッシュ化
             )
             db.session.add(new_user)  # セッションに追加
-            db.session.commit()  # コミット
+            try:
+                db.session.commit()  # コミット
+            except IntegrityError:  # 同時登録による重複
+                db.session.rollback()
+                flash("そのユーザー名は既に使用されています", "error")
+                return render_template("register.html")
+            session.clear()  # ログイン前にセッションを破棄（セッション固定化対策）
             login_user(new_user)  # ログイン
             return redirect(url_for("home"))  # ホームへリダイレクト
     return render_template("register.html")  # 登録テンプレートをレンダリング
@@ -395,15 +578,24 @@ def register():  # 登録関数
 )  # /login URLのルーティング（GET/POSTメソッド）
 def login():  # ログイン関数
     if request.method == "POST":  # POSTリクエストの場合
-        username = request.form["username"]  # ユーザー名を取得
-        password = request.form["password"]  # パスワードを取得
+        username = request.form.get("username", "")[:150]  # ユーザー名を取得
+        password = request.form.get("password", "")[:128]  # パスワードを取得（長さ上限）
+        key = _login_key(username)
+        if _is_locked(key):
+            flash("ログイン試行回数が多すぎます。しばらくしてからお試しください", "error")
+            return render_template("login.html"), 429
+
         user = User.query.filter_by(username=username).first()  # ユーザーをクエリ
-        if user and check_password_hash(
-            user.password, password
-        ):  # ユーザーが存在し、パスワードが一致する場合
+        # ユーザーの有無で処理時間が変わらないよう、常にハッシュ検証を行う
+        hash_to_check = user.password if user else _DUMMY_HASH
+        password_ok = check_password_hash(hash_to_check, password)
+        if user and password_ok:  # ユーザーが存在し、パスワードが一致する場合
+            _login_failures.pop(key, None)
+            session.clear()  # セッション固定化対策
             login_user(user)  # ログイン
             return redirect(url_for("home"))  # ホームへリダイレクト
         else:  # 一致しない場合
+            _login_failures[key].append(time.time())
             flash("ユーザー名またはパスワードが違います", "error")  # エラーフラッシュ
     return render_template("login.html")  # ログインテンプレートをレンダリング
 
@@ -418,4 +610,10 @@ def logout():  # ログアウト関数
 if __name__ == "__main__":  # スクリプトが直接実行された場合
     with app.app_context():  # Flaskアプリコンテキスト内で
         db.create_all()  # テーブルを作成
-    app.run(debug=True, port=5000)  # デバッグモードでアプリを実行（ポート5000）
+    # デフォルトではデバッグを無効化。開発時に明示的に有効化するには
+    # 環境変数 FLASK_DEBUG=1 を設定してください。
+    debug_mode = os.getenv("FLASK_DEBUG", "0") == "1"
+    port = int(os.getenv("PORT", 5000))
+    # デバッガ露出を避けるため、既定ではローカルホストのみで待ち受ける
+    host = os.getenv("HOST", "127.0.0.1")
+    app.run(debug=debug_mode, host=host, port=port)
